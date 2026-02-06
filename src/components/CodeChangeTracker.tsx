@@ -40,7 +40,7 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!filePath || !description) return;
-    
+
     onAddChange(filePath, description, changeType, relatedTicket || undefined);
     setFilePath("");
     setDescription("");
@@ -56,8 +56,8 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
           <GitBranch className="w-5 h-5" />
           Code Tracker
         </h2>
-        
-        <button 
+
+        <button
           onClick={() => setShowForm(!showForm)}
           className="wow-button py-1 px-3 flex items-center gap-2 text-sm"
         >
@@ -106,11 +106,10 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
                   key={type}
                   type="button"
                   onClick={() => setChangeType(type)}
-                  className={`px-3 py-1 rounded-sm text-xs font-bold uppercase transition-all ${
-                    changeType === type
+                  className={`px-3 py-1 rounded-sm text-xs font-bold uppercase transition-all ${changeType === type
                       ? changeTypeConfig[type].color + ' border border-current'
                       : 'border border-border hover:border-primary/50'
-                  }`}
+                    }`}
                 >
                   {changeTypeConfig[type].label}
                 </button>
@@ -156,13 +155,13 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
           </div>
         ) : (
           changes.map((change) => (
-            <div 
+            <div
               key={change.id}
               className="p-3 rounded-sm bg-background/50 border border-border"
             >
               <div className="flex items-start gap-3">
                 <FileCode className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className={`px-2 py-0.5 text-xs font-bold uppercase rounded ${changeTypeConfig[change.change_type].color}`}>
@@ -172,14 +171,26 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
                       {change.file_path}
                     </span>
                   </div>
-                  
+
                   <p className="text-sm text-foreground line-clamp-2 mb-1">
                     {change.change_description}
                   </p>
-                  
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground/70">
-                    <Clock className="w-3 h-3" />
-                    {formatDistanceToNow(new Date(change.created_at), { addSuffix: true, locale: enUS })}
+
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground/70">
+                    <span className="flex items-center gap-1 text-primary/80">
+                      <User className="w-3 h-3" />
+                      {typeof change.developer_id === 'object' ? (change.developer_id as any).username : 'Developer'}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {(() => {
+                        try {
+                          return formatDistanceToNow(new Date(change.created_at), { addSuffix: true, locale: enUS });
+                        } catch (e) {
+                          return 'just now';
+                        }
+                      })()}
+                    </span>
                   </div>
                 </div>
               </div>

@@ -115,7 +115,7 @@ const Dashboard = () => {
         file_path: filePath,
         change_description: description,
         change_type: type,
-        related_ticket_id: ticketId
+        related_ticket_id: ticketId && ticketId.trim() !== "" ? ticketId : undefined
       }, token);
       toast.success("Code change logged!");
       loadDashboardData();

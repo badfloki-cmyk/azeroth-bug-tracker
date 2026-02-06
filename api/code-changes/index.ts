@@ -45,12 +45,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(404).json({ error: 'Profil nicht gefunden' });
       }
 
+      const cleanTicketId = (related_ticket_id && String(related_ticket_id).trim() !== "") ? related_ticket_id : null;
+
       const codeChange = new CodeChange({
         developer_id: profile._id,
         file_path,
         change_description,
         change_type,
-        related_ticket_id: related_ticket_id || null,
+        related_ticket_id: cleanTicketId,
       });
 
       await codeChange.save();
