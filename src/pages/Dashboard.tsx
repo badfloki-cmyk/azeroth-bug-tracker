@@ -52,7 +52,7 @@ const Dashboard = () => {
       // Fetch profile
       const profileData = await userAPI.getProfile(token);
       setProfile({
-        id: profileData.user_id,
+        id: profileData._id,
         username: profileData.username,
         developer_type: profileData.developer_type,
         avatar_url: profileData.avatar_url
@@ -69,7 +69,7 @@ const Dashboard = () => {
         priority: bug.priority as BugReport['priority'],
         status: bug.status as BugReport['status'],
         createdAt: new Date(bug.createdAt),
-        reporter: bug.reporter_name,
+        reporter: bug.reporter_name || bug.sylvanas_username || 'Unknown',
       })));
 
       // Fetch code changes
@@ -81,7 +81,7 @@ const Dashboard = () => {
         change_description: change.change_description,
         change_type: change.change_type,
         related_ticket_id: change.related_ticket_id?._id || change.related_ticket_id,
-        created_at: change.createdAt
+        created_at: change.createdAt || new Date().toISOString()
       })));
     } catch (error) {
       console.error("Error loading dashboard data:", error);

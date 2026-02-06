@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { connectDB } from '../../lib/db/mongodb.js';
 import CodeChange from '../../lib/models/CodeChange.js';
 import Profile from '../../lib/models/Profile.js';
+import User from '../../lib/models/User.js';
 import BugTicket from '../../lib/models/BugTicket.js';
 import { verifyToken, extractToken } from '../../lib/auth/jwt.js';
 
