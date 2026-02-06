@@ -51,10 +51,12 @@ const Dashboard = () => {
     try {
       // Fetch profile
       const profileData = await userAPI.getProfile(token);
+      const devType = (profileData.developer_type || profileData.user_id?.developer_type || "").toLowerCase();
+
       setProfile({
         id: profileData._id,
         username: profileData.username,
-        developer_type: profileData.developer_type,
+        developer_type: devType as 'astro' | 'bungee' | null,
         avatar_url: profileData.avatar_url
       });
 
@@ -62,7 +64,7 @@ const Dashboard = () => {
       const bugsData = await bugAPI.getAll();
       setBugs(bugsData.map((bug: any) => ({
         id: bug._id,
-        developer: bug.developer as 'astro' | 'bungee',
+        developer: (bug.developer as string || "").toLowerCase() as 'astro' | 'bungee',
         wowClass: bug.wow_class as BugReport['wowClass'],
         title: bug.title,
         description: bug.description,
