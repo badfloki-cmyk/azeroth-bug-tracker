@@ -14,7 +14,134 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bug_tickets: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          description: string
+          developer: string
+          id: string
+          priority: string
+          reporter_name: string
+          reporter_user_id: string | null
+          status: string
+          title: string
+          updated_at: string
+          wow_class: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          description: string
+          developer: string
+          id?: string
+          priority?: string
+          reporter_name: string
+          reporter_user_id?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          wow_class: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          description?: string
+          developer?: string
+          id?: string
+          priority?: string
+          reporter_name?: string
+          reporter_user_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          wow_class?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bug_tickets_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      code_changes: {
+        Row: {
+          change_description: string
+          change_type: string
+          created_at: string
+          developer_id: string
+          file_path: string
+          id: string
+          related_ticket_id: string | null
+        }
+        Insert: {
+          change_description: string
+          change_type?: string
+          created_at?: string
+          developer_id: string
+          file_path: string
+          id?: string
+          related_ticket_id?: string | null
+        }
+        Update: {
+          change_description?: string
+          change_type?: string
+          created_at?: string
+          developer_id?: string
+          file_path?: string
+          id?: string
+          related_ticket_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "code_changes_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "code_changes_related_ticket_id_fkey"
+            columns: ["related_ticket_id"]
+            isOneToOne: false
+            referencedRelation: "bug_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          developer_type: string | null
+          id: string
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          developer_type?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          developer_type?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
