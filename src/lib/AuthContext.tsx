@@ -14,7 +14,7 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (username: string, email: string, password: string, developer_type: string) => Promise<void>;
+  register: (username: string, email: string, password: string, developer_type: string, registration_password: string) => Promise<void>;
   logout: () => void;
   setError: (error: string | null) => void;
 }
@@ -55,11 +55,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (username: string, email: string, password: string, developer_type: string) => {
+  const register = async (username: string, email: string, password: string, developer_type: string, registration_password: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await authAPI.register(username, email, password, developer_type);
+      const response = await authAPI.register(username, email, password, developer_type, registration_password);
       setToken(response.token);
       setUser(response.user);
       localStorage.setItem("auth_token", response.token);

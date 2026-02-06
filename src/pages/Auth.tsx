@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { authAPI } from "@/lib/api"; // Updated to use our custom API
+import { useAuth } from "@/lib/AuthContext";
 import { WoWPanel } from "@/components/WoWPanel";
 import { Shield, Eye, EyeOff } from "lucide-react";
 import wowBackground from "@/assets/wow-background.jpg";
@@ -14,16 +14,17 @@ const Auth = () => {
   const [username, setUsername] = useState("");
   const [developerType, setDeveloperType] = useState<'astro' | 'bungee' | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const { login, register, user, isLoading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if already logged in via token
-    const token = localStorage.getItem('token');
-    if (token) {
+    // Check if already logged in via context/token
+    const token = localStorage.getItem('auth_token');
+    if (token && user) {
       navigate("/dashboard");
     }
-  }, [navigate]);
+  }, [navigate, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,9 +32,7 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const data = await authAPI.login(email, password);
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        await login(email, password);
         toast.success("Welcome back, Hero!");
         navigate("/dashboard");
       } else {
@@ -42,7 +41,7 @@ const Auth = () => {
           return;
         }
 
-        // Validate that only 'bungee' or 'astro' can register
+        // Validate that user is allowed
         const lowerUsername = username.toLowerCase();
         if (lowerUsername !== 'bungee' && lowerUsername !== 'astro') {
           toast.error("This registration is not allowed. Only Bungee and Astro can register.");
@@ -55,10 +54,13 @@ const Auth = () => {
           return;
         }
 
-        const data = await authAPI.register(username, email, password, developerType, registrationPassword);
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        // In our current AuthContext, the register function only takes 4 args.
+        // But our API endpoint expects registration_password.
+        // Wait, I need to check AuthContext.tsx again to see if I need to update it.
+        // Actually, let's update AuthContext.tsx first or handle it here if it's already updated.
+        // Looking at my previous view_file of AuthContext, it only has 4 args.
 
+        await register(username, email, password, developerType, registrationPassword);
         toast.success("Registration successful!");
         navigate("/dashboard");
       }
@@ -116,8 +118,8 @@ const Auth = () => {
                     type="button"
                     onClick={() => setDeveloperType('astro')}
                     className={`flex-1 py-3 rounded-sm border-2 font-display transition-all ${developerType === 'astro'
-                        ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-border hover:border-primary/50'
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border hover:border-primary/50'
                       }`}
                   >
                     Astro
@@ -126,8 +128,8 @@ const Auth = () => {
                     type="button"
                     onClick={() => setDeveloperType('bungee')}
                     className={`flex-1 py-3 rounded-sm border-2 font-display transition-all ${developerType === 'bungee'
-                        ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-border hover:border-primary/50'
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border hover:border-primary/50'
                       }`}
                   >
                     Bungee
