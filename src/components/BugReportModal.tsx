@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { X, Plus, Trash2 } from "lucide-react";
 import { WoWPanel } from "./WoWPanel";
 import { ClassIcon } from "./ClassIcon";
@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
+import { toast } from "sonner";
 
 type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp';
 
@@ -171,8 +172,8 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
                   type="button"
                   onClick={() => setSelectedClass(wowClass)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-sm border-2 transition-all ${selectedClass === wowClass
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border hover:border-primary/50'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-primary/50'
                     }`}
                 >
                   <ClassIcon wowClass={wowClass} size="sm" />
@@ -398,14 +399,14 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
                   type="button"
                   onClick={() => setPriority(p)}
                   className={`px-4 py-2 rounded-sm border-2 font-display text-sm uppercase transition-all ${priority === p
-                      ? p === 'critical'
-                        ? 'border-red-500 bg-red-500/20 text-red-400'
-                        : p === 'high'
-                          ? 'border-orange-500 bg-orange-500/20 text-orange-400'
-                          : p === 'medium'
-                            ? 'border-yellow-500 bg-yellow-500/20 text-yellow-400'
-                            : 'border-green-500 bg-green-500/20 text-green-400'
-                      : 'border-border hover:border-primary/50'
+                    ? p === 'critical'
+                      ? 'border-red-500 bg-red-500/20 text-red-400'
+                      : p === 'high'
+                        ? 'border-orange-500 bg-orange-500/20 text-orange-400'
+                        : p === 'medium'
+                          ? 'border-yellow-500 bg-yellow-500/20 text-yellow-400'
+                          : 'border-green-500 bg-green-500/20 text-green-400'
+                    : 'border-border hover:border-primary/50'
                     }`}
                 >
                   {p}
