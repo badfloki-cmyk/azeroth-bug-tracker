@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { connectDB } from '../../lib/db/mongodb';
-import User from '../../lib/models/User';
-import { generateToken } from '../../lib/auth/jwt';
+import { connectDB } from '../../lib/db/mongodb.js';
+import User from '../../lib/models/User.js';
+import { generateToken } from '../../lib/auth/jwt.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {

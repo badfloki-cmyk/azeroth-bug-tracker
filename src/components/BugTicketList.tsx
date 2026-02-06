@@ -3,7 +3,7 @@ import { ClassIcon } from "./ClassIcon";
 import { WoWPanel } from "./WoWPanel";
 import { Bug, Clock, User, CheckCircle, Play, Circle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { de } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 
 interface BugTicketListProps {
   bugs: BugReport[];
@@ -36,9 +36,9 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, sho
     return (
       <WoWPanel className="text-center py-12">
         <Bug className="w-16 h-16 mx-auto text-muted-foreground mb-4 opacity-50" />
-        <h3 className="font-display text-lg text-muted-foreground">Keine Bug Reports</h3>
+        <h3 className="font-display text-lg text-muted-foreground">No Bug Reports</h3>
         <p className="text-sm text-muted-foreground/60 mt-2">
-          Alle Systeme funktionieren! Melde einen Bug, wenn du einen findest.
+          All systems working! Report a bug if you find one.
         </p>
       </WoWPanel>
     );
@@ -83,7 +83,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, sho
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      {formatDistanceToNow(bug.createdAt, { addSuffix: true, locale: de })}
+                      {formatDistanceToNow(bug.createdAt, { addSuffix: true, locale: enUS })}
                     </span>
                   </div>
                 </div>
@@ -92,7 +92,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, sho
                 <div className="flex flex-col items-end gap-2">
                   <span className={`px-2 py-1 text-xs font-bold uppercase rounded flex items-center gap-1 ${statusColors[bug.status]}`}>
                     <StatusIcon className="w-3 h-3" />
-                    {bug.status === 'open' ? 'Offen' : bug.status === 'in-progress' ? 'In Arbeit' : 'Gelöst'}
+                    {bug.status === 'open' ? 'Open' : bug.status === 'in-progress' ? 'In Progress' : 'Resolved'}
                   </span>
                   
                   {showActions && onStatusChange && (
@@ -101,7 +101,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, sho
                         <button
                           onClick={() => onStatusChange(bug.id, 'open')}
                           className="p-1 rounded text-red-400 hover:bg-red-500/20 transition-colors"
-                          title="Als offen markieren"
+                          title="Mark as open"
                         >
                           <Circle className="w-4 h-4" />
                         </button>
@@ -110,7 +110,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, sho
                         <button
                           onClick={() => onStatusChange(bug.id, 'in-progress')}
                           className="p-1 rounded text-yellow-400 hover:bg-yellow-500/20 transition-colors"
-                          title="In Arbeit setzen"
+                          title="Set to in progress"
                         >
                           <Play className="w-4 h-4" />
                         </button>
@@ -119,7 +119,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, sho
                         <button
                           onClick={() => onStatusChange(bug.id, 'resolved')}
                           className="p-1 rounded text-green-400 hover:bg-green-500/20 transition-colors"
-                          title="Als gelöst markieren"
+                          title="Mark as resolved"
                         >
                           <CheckCircle className="w-4 h-4" />
                         </button>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { WoWPanel } from "./WoWPanel";
 import { Code, GitBranch, Plus, Clock, FileCode } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { de } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import type { BugReport } from "./BugReportModal";
 
 interface CodeChange {
@@ -23,9 +23,9 @@ interface CodeChangeTrackerProps {
 }
 
 const changeTypeConfig = {
-  create: { label: 'Erstellt', color: 'text-green-400 bg-green-500/10' },
-  update: { label: 'Aktualisiert', color: 'text-blue-400 bg-blue-500/10' },
-  delete: { label: 'Gelöscht', color: 'text-red-400 bg-red-500/10' },
+  create: { label: 'Created', color: 'text-green-400 bg-green-500/10' },
+  update: { label: 'Updated', color: 'text-blue-400 bg-blue-500/10' },
+  delete: { label: 'Deleted', color: 'text-red-400 bg-red-500/10' },
   fix: { label: 'Fix', color: 'text-orange-400 bg-orange-500/10' },
   feature: { label: 'Feature', color: 'text-purple-400 bg-purple-500/10' },
 };
@@ -62,7 +62,7 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
           className="wow-button py-1 px-3 flex items-center gap-2 text-sm"
         >
           <Plus className="w-4 h-4" />
-          Neu
+          New
         </button>
       </div>
 
@@ -71,7 +71,7 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
         <form onSubmit={handleSubmit} className="mb-6 p-4 rounded-sm bg-background/50 border border-border space-y-4">
           <div>
             <label className="block font-display text-xs text-primary mb-1 tracking-wider">
-              Dateipfad
+              File Path
             </label>
             <input
               type="text"
@@ -85,12 +85,12 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
 
           <div>
             <label className="block font-display text-xs text-primary mb-1 tracking-wider">
-              Beschreibung
+              Description
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Was wurde geändert?"
+              placeholder="What was changed?"
               className="wow-input text-sm py-2 min-h-[60px] resize-y"
               required
             />
@@ -98,7 +98,7 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
 
           <div>
             <label className="block font-display text-xs text-primary mb-2 tracking-wider">
-              Typ
+              Type
             </label>
             <div className="flex flex-wrap gap-2">
               {(Object.keys(changeTypeConfig) as CodeChange['change_type'][]).map((type) => (
@@ -120,14 +120,14 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
 
           <div>
             <label className="block font-display text-xs text-primary mb-1 tracking-wider">
-              Verknüpftes Ticket (optional)
+              Related Ticket (optional)
             </label>
             <select
               value={relatedTicket}
               onChange={(e) => setRelatedTicket(e.target.value)}
               className="wow-input text-sm py-2"
             >
-              <option value="">Kein Ticket</option>
+              <option value="">No Ticket</option>
               {bugs.map((bug) => (
                 <option key={bug.id} value={bug.id}>
                   {bug.title}
@@ -138,10 +138,10 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
 
           <div className="flex gap-2">
             <button type="button" onClick={() => setShowForm(false)} className="wow-button flex-1 text-sm py-2">
-              Abbrechen
+              Cancel
             </button>
             <button type="submit" className="wow-button-primary flex-1 text-sm py-2">
-              Speichern
+              Save
             </button>
           </div>
         </form>
@@ -152,7 +152,7 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
         {changes.length === 0 ? (
           <div className="text-center py-8">
             <Code className="w-12 h-12 mx-auto text-muted-foreground mb-3 opacity-50" />
-            <p className="text-sm text-muted-foreground">Noch keine Änderungen protokolliert</p>
+            <p className="text-sm text-muted-foreground">No changes logged yet</p>
           </div>
         ) : (
           changes.map((change) => (
@@ -179,7 +179,7 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
                   
                   <div className="flex items-center gap-2 text-xs text-muted-foreground/70">
                     <Clock className="w-3 h-3" />
-                    {formatDistanceToNow(new Date(change.created_at), { addSuffix: true, locale: de })}
+                    {formatDistanceToNow(new Date(change.created_at), { addSuffix: true, locale: enUS })}
                   </div>
                 </div>
               </div>

@@ -47,30 +47,30 @@ const Auth = () => {
         
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
-            toast.error("Ungültige Anmeldedaten. Bitte überprüfe E-Mail und Passwort.");
+            toast.error("Invalid login credentials. Please check your email and password.");
           } else {
             toast.error(error.message);
           }
           return;
         }
         
-        toast.success("Willkommen zurück, Held!");
+        toast.success("Welcome back, Hero!");
       } else {
         if (!username || !developerType) {
-          toast.error("Bitte fülle alle Felder aus.");
+          toast.error("Please fill in all fields.");
           return;
         }
 
         // Validate that only 'bungee' or 'astro' can register
         const lowerUsername = username.toLowerCase();
         if (lowerUsername !== 'bungee' && lowerUsername !== 'astro') {
-          toast.error("Diese Registrierung ist nicht erlaubt. Nur Bungee und Astro können sich registrieren.");
+          toast.error("This registration is not allowed. Only Bungee and Astro can register.");
           return;
         }
 
         // Validate that username matches developer type
         if (lowerUsername !== developerType.toLowerCase()) {
-          toast.error(`Der Benutzername muss '${developerType}' sein.`);
+          toast.error(`The username must be '${developerType}'.`);
           return;
         }
 
@@ -86,7 +86,7 @@ const Auth = () => {
         
         if (error) {
           if (error.message.includes("User already registered")) {
-            toast.error("Diese E-Mail ist bereits registriert. Bitte logge dich ein.");
+            toast.error("This email is already registered. Please log in.");
           } else {
             toast.error(error.message);
           }
@@ -105,15 +105,15 @@ const Auth = () => {
 
           if (profileError) {
             console.error("Profile creation error:", profileError);
-            toast.error("Fehler beim Erstellen des Profils.");
+            toast.error("Error creating profile.");
             return;
           }
         }
 
-        toast.success("Registrierung erfolgreich! Bitte bestätige deine E-Mail.");
+        toast.success("Registration successful! Please confirm your email.");
       }
     } catch (error) {
-      toast.error("Ein unerwarteter Fehler ist aufgetreten.");
+      toast.error("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
@@ -133,7 +133,7 @@ const Auth = () => {
         <div className="flex items-center justify-center gap-3 mb-8">
           <Shield className="w-10 h-10 text-primary" />
           <h1 className="font-display text-2xl wow-gold-text">
-            {isLogin ? "Entwickler Login" : "Registrierung"}
+            {isLogin ? "Developer Login" : "Registration"}
           </h1>
         </div>
 
@@ -142,13 +142,13 @@ const Auth = () => {
             <>
               <div>
                 <label className="block font-display text-sm text-primary mb-2 tracking-wider">
-                  Benutzername
+                  Username
                 </label>
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Dein Charaktername..."
+                  placeholder="Your character name..."
                   className="wow-input"
                   required={!isLogin}
                 />
@@ -156,7 +156,7 @@ const Auth = () => {
 
               <div>
                 <label className="block font-display text-sm text-primary mb-3 tracking-wider">
-                  Entwickler-Typ
+                  Developer Type
                 </label>
                 <div className="flex gap-4">
                   <button
@@ -188,13 +188,13 @@ const Auth = () => {
 
           <div>
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
-              E-Mail
+              Email
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="deine@email.de"
+              placeholder="your@email.com"
               className="wow-input"
               required
             />
@@ -202,7 +202,7 @@ const Auth = () => {
 
           <div>
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
-              Passwort
+              Password
             </label>
             <div className="relative">
               <input
@@ -229,7 +229,7 @@ const Auth = () => {
             disabled={loading}
             className="wow-button-primary w-full py-3"
           >
-            {loading ? "Lädt..." : isLogin ? "Einloggen" : "Registrieren"}
+            {loading ? "Loading..." : isLogin ? "Login" : "Register"}
           </button>
         </form>
 
@@ -238,7 +238,7 @@ const Auth = () => {
             onClick={() => setIsLogin(!isLogin)}
             className="text-muted-foreground hover:text-primary transition-colors"
           >
-            {isLogin ? "Noch kein Account? Registrieren" : "Bereits registriert? Einloggen"}
+            {isLogin ? "Don't have an account? Register" : "Already registered? Login"}
           </button>
         </div>
       </WoWPanel>

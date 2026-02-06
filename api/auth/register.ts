@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { connectDB } from '../../lib/db/mongodb';
-import User from '../../lib/models/User';
-import Profile from '../../lib/models/Profile';
-import { generateToken } from '../../lib/auth/jwt';
+import { connectDB } from '../../lib/db/mongodb.js';
+import User from '../../lib/models/User.js';
+import Profile from '../../lib/models/Profile.js';
+import { generateToken } from '../../lib/auth/jwt.js';
 
 const ALLOWED_USERS = { bungee: 'bungee', astro: 'astro' };
 

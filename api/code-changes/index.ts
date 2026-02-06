@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { connectDB } from '../../lib/db/mongodb';
-import CodeChange from '../../lib/models/CodeChange';
-import Profile from '../../lib/models/Profile';
-import { verifyToken, extractToken } from '../../lib/auth/jwt';
+import { connectDB } from '../../lib/db/mongodb.js';
+import CodeChange from '../../lib/models/CodeChange.js';
+import Profile from '../../lib/models/Profile.js';
+import { verifyToken, extractToken } from '../../lib/auth/jwt.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {

@@ -93,10 +93,10 @@ const Index = () => {
       });
 
     if (error) {
-      toast.error("Fehler beim Erstellen des Bug Reports");
+      toast.error("Error creating bug report");
       console.error(error);
     } else {
-      toast.success("Bug Report erfolgreich erstellt!");
+      toast.success("Bug report created successfully!");
     }
   };
 
@@ -160,7 +160,7 @@ const Index = () => {
           {loading ? (
             <div className="text-center py-12">
               <div className="wow-gold-text font-display text-xl animate-pulse">
-                Lade Bug Reports...
+                Loading Bug Reports...
               </div>
             </div>
           ) : (

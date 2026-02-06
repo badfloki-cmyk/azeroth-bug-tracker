@@ -134,7 +134,7 @@ const Dashboard = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    toast.success("Auf Wiedersehen, Held!");
+      toast.success("Goodbye, Hero!");
     navigate("/");
   };
 
@@ -145,9 +145,9 @@ const Dashboard = () => {
       .eq('id', ticketId);
 
     if (error) {
-      toast.error("Fehler beim Aktualisieren des Status");
+      toast.error("Error updating status");
     } else {
-      toast.success("Status aktualisiert!");
+      toast.success("Status updated!");
       checkAuth();
     }
   };
@@ -166,9 +166,9 @@ const Dashboard = () => {
       });
 
     if (error) {
-      toast.error("Fehler beim Speichern der Änderung");
+      toast.error("Error saving change");
     } else {
-      toast.success("Code-Änderung protokolliert!");
+      toast.success("Code change logged!");
       checkAuth();
     }
   };
@@ -183,7 +183,7 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="wow-gold-text font-display text-xl animate-pulse">
-          Lade Daten...
+          Loading data...
         </div>
       </div>
     );
@@ -259,7 +259,7 @@ const Dashboard = () => {
             <div className="xl:col-span-2">
               <BugTicketList 
                 bugs={myBugs} 
-                title={`Meine Bug Reports (${profile?.developer_type})`}
+                title={`My Bug Reports (${profile?.developer_type})`}
                 onStatusChange={handleStatusChange}
                 showActions
               />
@@ -268,7 +268,7 @@ const Dashboard = () => {
                 <div className="mt-8">
                   <BugTicketList 
                     bugs={otherBugs} 
-                    title="Andere Bug Reports"
+                    title="Other Bug Reports"
                   />
                 </div>
               )}

@@ -100,12 +100,12 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
     }
 
     if (currentBehavior.length < 200) {
-      alert("Aktuelles Verhalten muss mindestens 200 Zeichen lang sein.");
+      alert("Current behavior must be at least 200 characters long.");
       return;
     }
 
     if (expectedBehavior.length < 200) {
-      alert("Erwartetes Verhalten muss mindestens 200 Zeichen lang sein.");
+      alert("Expected behavior must be at least 200 characters long.");
       return;
     }
 
@@ -161,7 +161,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
           {/* Class Selection */}
           <div>
             <label className="block font-display text-sm text-primary mb-3 tracking-wider">
-              Rotation / Klasse
+              Rotation / Class
             </label>
             <div className="flex flex-wrap gap-3">
               {developerClasses[developer].map((wowClass) => (
@@ -189,7 +189,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
             </label>
             <Select value={pvpveMode} onValueChange={(value) => setPvpveMode(value as 'pve' | 'pvp')}>
               <SelectTrigger className="wow-input">
-                <SelectValue placeholder="Wähle PvE oder PvP" />
+                <SelectValue placeholder="Select PvE or PvP" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="pve">PvE</SelectItem>
@@ -207,7 +207,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
               type="number"
               value={level}
               onChange={(e) => setLevel(e.target.value)}
-              placeholder="z.B. 80"
+              placeholder="e.g. 80"
               min="1"
               max="80"
               className="wow-input"
@@ -222,7 +222,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
             </label>
             <Select value={expansion} onValueChange={(value) => setExpansion(value as 'tbc' | 'era' | 'hc')}>
               <SelectTrigger className="wow-input">
-                <SelectValue placeholder="Wähle Expansion" />
+                <SelectValue placeholder="Select Expansion" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="tbc">TBC</SelectItem>
@@ -241,7 +241,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
               type="text"
               value={sylvanasUsername}
               onChange={(e) => setSylvanasUsername(e.target.value)}
-              placeholder="Dein Project Sylvanas Username..."
+              placeholder="Your Project Sylvanas Username..."
               className="wow-input"
               required
             />
@@ -256,7 +256,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
               type="text"
               value={discordUsername}
               onChange={(e) => setDiscordUsername(e.target.value)}
-              placeholder="Dein Discord Username..."
+              placeholder="Your Discord Username..."
               className="wow-input"
               required
             />
@@ -293,34 +293,34 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
           {/* Current Behavior */}
           <div>
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
-              Aktuelles Verhalten (mindestens 200 Zeichen)
+              Current Behavior (minimum 200 characters)
             </label>
             <Textarea
               value={currentBehavior}
               onChange={(e) => setCurrentBehavior(e.target.value)}
-              placeholder="Beschreibe das aktuelle Verhalten detailliert..."
+              placeholder="Describe the current behavior in detail..."
               className="wow-input min-h-[150px] resize-y"
               required
             />
             <p className="text-xs text-muted-foreground mt-1">
-              {currentBehavior.length} / 200 Zeichen (Minimum)
+              {currentBehavior.length} / 200 characters (Minimum)
             </p>
           </div>
 
           {/* Expected Behavior */}
           <div>
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
-              Erwartetes Verhalten (mindestens 200 Zeichen)
+              Expected Behavior (minimum 200 characters)
             </label>
             <Textarea
               value={expectedBehavior}
               onChange={(e) => setExpectedBehavior(e.target.value)}
-              placeholder="Beschreibe das erwartete Verhalten detailliert..."
+              placeholder="Describe the expected behavior in detail..."
               className="wow-input min-h-[150px] resize-y"
               required
             />
             <p className="text-xs text-muted-foreground mt-1">
-              {expectedBehavior.length} / 200 Zeichen (Minimum)
+              {expectedBehavior.length} / 200 characters (Minimum)
             </p>
           </div>
 
@@ -332,7 +332,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
             <Textarea
               value={logs}
               onChange={(e) => setLogs(e.target.value)}
-              placeholder="Füge relevante Logs hier ein..."
+              placeholder="Add relevant logs here..."
               className="wow-input min-h-[100px] resize-y"
             />
           </div>
@@ -340,7 +340,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
           {/* Video URL */}
           <div>
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
-              Video Clip URL (Optional - z.B. Streamable)
+              Video Clip URL (Optional - e.g. Streamable)
             </label>
             <input
               type="url"
@@ -354,7 +354,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
           {/* Screenshot URLs */}
           <div>
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
-              Screenshot URLs (Optional - z.B. Imgur)
+              Screenshot URLs (Optional - e.g. Imgur)
             </label>
             {screenshotUrls.map((url, index) => (
               <div key={index} className="flex gap-2 mb-2">
@@ -382,7 +382,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
               className="flex items-center gap-2 px-4 py-2 rounded-sm border-2 border-border hover:border-primary/50 text-sm"
             >
               <Plus className="w-4 h-4" />
-              Screenshot URL hinzufügen
+              Add Screenshot URL
             </button>
           </div>
 
