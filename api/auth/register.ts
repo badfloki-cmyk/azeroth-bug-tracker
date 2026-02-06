@@ -80,8 +80,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         developer_type: user.developer_type,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Registration error:', error);
-    return res.status(500).json({ error: 'Ein Fehler ist aufgetreten.' });
+    return res.status(500).json({
+      error: 'Ein Fehler ist aufgetreten.',
+      details: error.message
+    });
   }
 }
