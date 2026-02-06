@@ -18,43 +18,76 @@ export type Database = {
         Row: {
           assigned_to: string | null
           created_at: string
+          current_behavior: string | null
           description: string
           developer: string
+          discord_username: string | null
+          expansion: string | null
+          expected_behavior: string | null
           id: string
+          level: number | null
+          logs: string | null
           priority: string
+          pvpve_mode: string | null
           reporter_name: string
           reporter_user_id: string | null
+          rotation: string | null
+          screenshot_urls: string[] | null
           status: string
+          sylvanas_username: string | null
           title: string
           updated_at: string
+          video_url: string | null
           wow_class: string
         }
         Insert: {
           assigned_to?: string | null
           created_at?: string
+          current_behavior?: string | null
           description: string
           developer: string
+          discord_username?: string | null
+          expansion?: string | null
+          expected_behavior?: string | null
           id?: string
+          level?: number | null
+          logs?: string | null
           priority?: string
+          pvpve_mode?: string | null
           reporter_name: string
           reporter_user_id?: string | null
+          rotation?: string | null
+          screenshot_urls?: string[] | null
           status?: string
+          sylvanas_username?: string | null
           title: string
           updated_at?: string
+          video_url?: string | null
           wow_class: string
         }
         Update: {
           assigned_to?: string | null
           created_at?: string
+          current_behavior?: string | null
           description?: string
           developer?: string
+          discord_username?: string | null
+          expansion?: string | null
+          expected_behavior?: string | null
           id?: string
+          level?: number | null
+          logs?: string | null
           priority?: string
+          pvpve_mode?: string | null
           reporter_name?: string
           reporter_user_id?: string | null
+          rotation?: string | null
+          screenshot_urls?: string[] | null
           status?: string
+          sylvanas_username?: string | null
           title?: string
           updated_at?: string
+          video_url?: string | null
           wow_class?: string
         }
         Relationships: [

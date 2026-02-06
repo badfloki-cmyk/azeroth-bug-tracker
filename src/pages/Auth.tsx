@@ -61,6 +61,19 @@ const Auth = () => {
           return;
         }
 
+        // Validate that only 'bungee' or 'astro' can register
+        const lowerUsername = username.toLowerCase();
+        if (lowerUsername !== 'bungee' && lowerUsername !== 'astro') {
+          toast.error("Diese Registrierung ist nicht erlaubt. Nur Bungee und Astro können sich registrieren.");
+          return;
+        }
+
+        // Validate that username matches developer type
+        if (lowerUsername !== developerType.toLowerCase()) {
+          toast.error(`Der Benutzername muss '${developerType}' sein.`);
+          return;
+        }
+
         const redirectUrl = `${window.location.origin}/dashboard`;
         
         const { data, error } = await supabase.auth.signUp({
@@ -86,12 +99,14 @@ const Auth = () => {
             .from('profiles')
             .insert({
               user_id: data.user.id,
-              username,
+              username: lowerUsername,
               developer_type: developerType,
             });
 
           if (profileError) {
             console.error("Profile creation error:", profileError);
+            toast.error("Fehler beim Erstellen des Profils.");
+            return;
           }
         }
 

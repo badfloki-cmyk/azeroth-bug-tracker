@@ -52,6 +52,7 @@
     --class-mage: 195 80% 58%;
     --class-shaman: 210 100% 43%;
     --class-druid: 27 100% 52%;
+    --class-esp: 280 80% 65%;
 
     /* WoW Status Colors */
     --status-optimized: 120 60% 45%;
@@ -179,6 +180,7 @@
   .class-mage { color: hsl(var(--class-mage)); }
   .class-shaman { color: hsl(var(--class-shaman)); }
   .class-druid { color: hsl(var(--class-druid)); }
+  .class-esp { color: hsl(var(--class-esp)); }
 
   /* Status Badge Styles */
   .status-optimized {

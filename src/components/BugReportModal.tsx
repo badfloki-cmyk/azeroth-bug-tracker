@@ -1,9 +1,17 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Plus, Trash2 } from "lucide-react";
 import { WoWPanel } from "./WoWPanel";
 import { ClassIcon } from "./ClassIcon";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Textarea } from "./ui/textarea";
 
-type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid';
+type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp';
 
 interface BugReportModalProps {
   developer: 'astro' | 'bungee';
@@ -15,8 +23,19 @@ export interface BugReport {
   id: string;
   developer: 'astro' | 'bungee';
   wowClass: WoWClass;
+  rotation: string;
+  pvpveMode: 'pve' | 'pvp';
+  level: number;
+  expansion: 'tbc' | 'era' | 'hc';
   title: string;
   description: string;
+  currentBehavior: string;
+  expectedBehavior: string;
+  logs?: string;
+  videoUrl?: string;
+  screenshotUrls: string[];
+  discordUsername: string;
+  sylvanasUsername: string;
   priority: 'low' | 'medium' | 'high' | 'critical';
   status: 'open' | 'in-progress' | 'resolved';
   createdAt: Date;
@@ -25,7 +44,7 @@ export interface BugReport {
 
 const developerClasses: Record<'astro' | 'bungee', WoWClass[]> = {
   astro: ['rogue', 'hunter', 'warrior', 'warlock', 'paladin'],
-  bungee: ['priest', 'mage', 'shaman', 'druid'],
+  bungee: ['priest', 'mage', 'shaman', 'druid', 'esp'],
 };
 
 const classNames: Record<WoWClass, string> = {
@@ -38,29 +57,79 @@ const classNames: Record<WoWClass, string> = {
   mage: "Mage",
   shaman: "Shaman",
   druid: "Druid",
+  esp: "ESP System",
 };
 
 export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalProps) => {
   const [selectedClass, setSelectedClass] = useState<WoWClass | null>(null);
+  const [rotation, setRotation] = useState<string>('');
+  const [pvpveMode, setPvpveMode] = useState<'pve' | 'pvp' | ''>('');
+  const [level, setLevel] = useState<string>('80');
+  const [expansion, setExpansion] = useState<'tbc' | 'era' | 'hc' | ''>('');
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [currentBehavior, setCurrentBehavior] = useState("");
+  const [expectedBehavior, setExpectedBehavior] = useState("");
+  const [logs, setLogs] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
+  const [screenshotUrls, setScreenshotUrls] = useState<string[]>(['']);
+  const [discordUsername, setDiscordUsername] = useState("");
+  const [sylvanasUsername, setSylvanasUsername] = useState("");
   const [priority, setPriority] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
-  const [reporter, setReporter] = useState("");
+
+  const addScreenshotUrl = () => {
+    setScreenshotUrls([...screenshotUrls, '']);
+  };
+
+  const removeScreenshotUrl = (index: number) => {
+    setScreenshotUrls(screenshotUrls.filter((_, i) => i !== index));
+  };
+
+  const updateScreenshotUrl = (index: number, value: string) => {
+    const newUrls = [...screenshotUrls];
+    newUrls[index] = value;
+    setScreenshotUrls(newUrls);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedClass || !title || !description || !reporter) return;
+    
+    if (!selectedClass || !rotation || !pvpveMode || !level || !expansion || !title || 
+        !currentBehavior || !expectedBehavior || !discordUsername || !sylvanasUsername) {
+      return;
+    }
+
+    if (currentBehavior.length < 200) {
+      alert("Aktuelles Verhalten muss mindestens 200 Zeichen lang sein.");
+      return;
+    }
+
+    if (expectedBehavior.length < 200) {
+      alert("Erwartetes Verhalten muss mindestens 200 Zeichen lang sein.");
+      return;
+    }
 
     const bug: BugReport = {
       id: Date.now().toString(),
       developer,
       wowClass: selectedClass,
+      rotation,
+      pvpveMode: pvpveMode as 'pve' | 'pvp',
+      level: parseInt(level),
+      expansion: expansion as 'tbc' | 'era' | 'hc',
       title,
       description,
+      currentBehavior,
+      expectedBehavior,
+      logs: logs || undefined,
+      videoUrl: videoUrl || undefined,
+      screenshotUrls: screenshotUrls.filter(url => url.trim() !== ''),
+      discordUsername,
+      sylvanasUsername,
       priority,
       status: 'open',
       createdAt: new Date(),
-      reporter,
+      reporter: sylvanasUsername,
     };
 
     onSubmit(bug);
@@ -76,7 +145,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
       />
       
       {/* Modal */}
-      <WoWPanel className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-auto">
+      <WoWPanel className="relative z-10 w-full max-w-4xl max-h-[90vh] overflow-auto">
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 text-muted-foreground hover:text-primary transition-colors"
@@ -92,7 +161,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
           {/* Class Selection */}
           <div>
             <label className="block font-display text-sm text-primary mb-3 tracking-wider">
-              Select Class
+              Rotation / Klasse
             </label>
             <div className="flex flex-wrap gap-3">
               {developerClasses[developer].map((wowClass) => (
@@ -113,16 +182,81 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
             </div>
           </div>
 
-          {/* Reporter Name */}
+          {/* PvE / PvP */}
           <div>
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
-              Your Name
+              PvE / PvP
+            </label>
+            <Select value={pvpveMode} onValueChange={(value) => setPvpveMode(value as 'pve' | 'pvp')}>
+              <SelectTrigger className="wow-input">
+                <SelectValue placeholder="Wähle PvE oder PvP" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pve">PvE</SelectItem>
+                <SelectItem value="pvp">PvP</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Current Level */}
+          <div>
+            <label className="block font-display text-sm text-primary mb-2 tracking-wider">
+              Current Level
+            </label>
+            <input
+              type="number"
+              value={level}
+              onChange={(e) => setLevel(e.target.value)}
+              placeholder="z.B. 80"
+              min="1"
+              max="80"
+              className="wow-input"
+              required
+            />
+          </div>
+
+          {/* Used Expansion */}
+          <div>
+            <label className="block font-display text-sm text-primary mb-2 tracking-wider">
+              Used Expansion
+            </label>
+            <Select value={expansion} onValueChange={(value) => setExpansion(value as 'tbc' | 'era' | 'hc')}>
+              <SelectTrigger className="wow-input">
+                <SelectValue placeholder="Wähle Expansion" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="tbc">TBC</SelectItem>
+                <SelectItem value="era">ERA</SelectItem>
+                <SelectItem value="hc">HC</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Project Sylvanas Username */}
+          <div>
+            <label className="block font-display text-sm text-primary mb-2 tracking-wider">
+              Project Sylvanas Username
             </label>
             <input
               type="text"
-              value={reporter}
-              onChange={(e) => setReporter(e.target.value)}
-              placeholder="Enter your name..."
+              value={sylvanasUsername}
+              onChange={(e) => setSylvanasUsername(e.target.value)}
+              placeholder="Dein Project Sylvanas Username..."
+              className="wow-input"
+              required
+            />
+          </div>
+
+          {/* Discord Username */}
+          <div>
+            <label className="block font-display text-sm text-primary mb-2 tracking-wider">
+              Discord Username
+            </label>
+            <input
+              type="text"
+              value={discordUsername}
+              onChange={(e) => setDiscordUsername(e.target.value)}
+              placeholder="Dein Discord Username..."
               className="wow-input"
               required
             />
@@ -148,13 +282,108 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
               Description
             </label>
-            <textarea
+            <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Detailed steps to reproduce, expected vs actual behavior..."
+              placeholder="Detailed steps to reproduce..."
               className="wow-input min-h-[120px] resize-y"
+            />
+          </div>
+
+          {/* Current Behavior */}
+          <div>
+            <label className="block font-display text-sm text-primary mb-2 tracking-wider">
+              Aktuelles Verhalten (mindestens 200 Zeichen)
+            </label>
+            <Textarea
+              value={currentBehavior}
+              onChange={(e) => setCurrentBehavior(e.target.value)}
+              placeholder="Beschreibe das aktuelle Verhalten detailliert..."
+              className="wow-input min-h-[150px] resize-y"
               required
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              {currentBehavior.length} / 200 Zeichen (Minimum)
+            </p>
+          </div>
+
+          {/* Expected Behavior */}
+          <div>
+            <label className="block font-display text-sm text-primary mb-2 tracking-wider">
+              Erwartetes Verhalten (mindestens 200 Zeichen)
+            </label>
+            <Textarea
+              value={expectedBehavior}
+              onChange={(e) => setExpectedBehavior(e.target.value)}
+              placeholder="Beschreibe das erwartete Verhalten detailliert..."
+              className="wow-input min-h-[150px] resize-y"
+              required
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              {expectedBehavior.length} / 200 Zeichen (Minimum)
+            </p>
+          </div>
+
+          {/* Logs */}
+          <div>
+            <label className="block font-display text-sm text-primary mb-2 tracking-wider">
+              Logs (Optional)
+            </label>
+            <Textarea
+              value={logs}
+              onChange={(e) => setLogs(e.target.value)}
+              placeholder="Füge relevante Logs hier ein..."
+              className="wow-input min-h-[100px] resize-y"
+            />
+          </div>
+
+          {/* Video URL */}
+          <div>
+            <label className="block font-display text-sm text-primary mb-2 tracking-wider">
+              Video Clip URL (Optional - z.B. Streamable)
+            </label>
+            <input
+              type="url"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              placeholder="https://streamable.com/..."
+              className="wow-input"
+            />
+          </div>
+
+          {/* Screenshot URLs */}
+          <div>
+            <label className="block font-display text-sm text-primary mb-2 tracking-wider">
+              Screenshot URLs (Optional - z.B. Imgur)
+            </label>
+            {screenshotUrls.map((url, index) => (
+              <div key={index} className="flex gap-2 mb-2">
+                <input
+                  type="url"
+                  value={url}
+                  onChange={(e) => updateScreenshotUrl(index, e.target.value)}
+                  placeholder={`https://imgur.com/... (Screenshot ${index + 1})`}
+                  className="wow-input flex-1"
+                />
+                {screenshotUrls.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeScreenshotUrl(index)}
+                    className="px-3 py-2 rounded-sm border-2 border-border hover:border-destructive text-destructive"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addScreenshotUrl}
+              className="flex items-center gap-2 px-4 py-2 rounded-sm border-2 border-border hover:border-primary/50 text-sm"
+            >
+              <Plus className="w-4 h-4" />
+              Screenshot URL hinzufügen
+            </button>
           </div>
 
           {/* Priority */}

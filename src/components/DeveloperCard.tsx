@@ -3,7 +3,7 @@ import { ClassStatusCard } from "./ClassStatusCard";
 import astroAvatar from "@/assets/astro-avatar.png";
 import bungeeAvatar from "@/assets/bungee-avatar.png";
 
-type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid';
+type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp';
 type Status = 'optimized' | 'alpha' | 'beta';
 
 interface ClassInfo {
@@ -37,6 +37,7 @@ const developerData = {
       { wowClass: 'mage' as WoWClass, status: 'optimized' as Status, description: 'Fully Optimized' },
       { wowClass: 'shaman' as WoWClass, status: 'optimized' as Status, description: 'Fully Optimized' },
       { wowClass: 'druid' as WoWClass, status: 'alpha' as Status, description: 'Alpha State' },
+      { wowClass: 'esp' as WoWClass, status: 'optimized' as Status, description: 'ESP System' },
     ],
   },
 };
