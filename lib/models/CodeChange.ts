@@ -1,4 +1,4 @@
-﻿import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface ICodeChange extends Document {
   developer_id: mongoose.Types.ObjectId;
@@ -12,7 +12,7 @@ export interface ICodeChange extends Document {
 
 const CodeChangeSchema = new Schema(
   {
-    developer_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    developer_id: { type: Schema.Types.ObjectId, ref: "Profile", required: true },
     file_path: { type: String, required: true },
     change_description: { type: String, required: true },
     change_type: { type: String, required: true, enum: ["create", "update", "delete", "fix", "feature"] },
