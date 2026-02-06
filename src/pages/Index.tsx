@@ -66,13 +66,15 @@ const Index = () => {
         pvpve_mode: bug.pvpveMode,
         current_behavior: bug.currentBehavior,
         expected_behavior: bug.expectedBehavior,
+        discord_username: bug.discordUsername,
+        sylvanas_username: bug.sylvanasUsername,
         reporter_name: bug.reporter,
-      } as any, ""); // Passing empty token for now
+      } as any, ""); // Passing empty token for public reporting
 
       toast.success("Bug report created successfully!");
       fetchBugs();
-    } catch (error) {
-      toast.error("Error creating bug report. Registration might be required.");
+    } catch (error: any) {
+      toast.error(error.message || "Error creating bug report.");
       console.error(error);
     }
   };
