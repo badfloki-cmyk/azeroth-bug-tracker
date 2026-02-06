@@ -34,11 +34,11 @@ interface BugReport {
 }
 
 export const authAPI = {
-  register: async (username: string, email: string, password: string, developer_type: string): Promise<AuthResponse> => {
+  register: async (username: string, email: string, password: string, developer_type: string, registration_password: string): Promise<AuthResponse> => {
     const response = await fetch(`${API_URL}/api/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, email, password, developer_type }),
+      body: JSON.stringify({ username, email, password, developer_type, registration_password }),
     });
     if (!response.ok) {
       const error = await response.json();

@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface ICodeChange extends Document {
   developer_id: mongoose.Types.ObjectId;
@@ -21,5 +21,7 @@ const CodeChangeSchema = new Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.CodeChange ||
+const CodeChange: Model<ICodeChange> = mongoose.models.CodeChange ||
   mongoose.model<ICodeChange>("CodeChange", CodeChangeSchema);
+
+export default CodeChange;

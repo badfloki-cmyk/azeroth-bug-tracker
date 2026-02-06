@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { authAPI } from "@/lib/api"; // Updated to use our custom API
 import { WoWPanel } from "@/components/WoWPanel";
 import { Shield, Eye, EyeOff } from "lucide-react";
 import wowBackground from "@/assets/wow-background.jpg";
@@ -10,6 +10,7 @@ const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [registrationPassword, setRegistrationPassword] = useState("");
   const [username, setUsername] = useState("");
   const [developerType, setDeveloperType] = useState<'astro' | 'bungee' | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -17,21 +18,11 @@ const Auth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (session?.user) {
-          navigate("/dashboard");
-        }
-      }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        navigate("/dashboard");
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    // Check if already logged in via token
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate("/dashboard");
+    }
   }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,23 +31,13 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (error) {
-          if (error.message.includes("Invalid login credentials")) {
-            toast.error("Invalid login credentials. Please check your email and password.");
-          } else {
-            toast.error(error.message);
-          }
-          return;
-        }
-        
+        const data = await authAPI.login(email, password);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
         toast.success("Welcome back, Hero!");
+        navigate("/dashboard");
       } else {
-        if (!username || !developerType) {
+        if (!username || !developerType || !registrationPassword) {
           toast.error("Please fill in all fields.");
           return;
         }
@@ -74,46 +55,15 @@ const Auth = () => {
           return;
         }
 
-        const redirectUrl = `${window.location.origin}/dashboard`;
-        
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: redirectUrl,
-          },
-        });
-        
-        if (error) {
-          if (error.message.includes("User already registered")) {
-            toast.error("This email is already registered. Please log in.");
-          } else {
-            toast.error(error.message);
-          }
-          return;
-        }
+        const data = await authAPI.register(username, email, password, developerType, registrationPassword);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
 
-        // Create profile
-        if (data.user) {
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .insert({
-              user_id: data.user.id,
-              username: lowerUsername,
-              developer_type: developerType,
-            });
-
-          if (profileError) {
-            console.error("Profile creation error:", profileError);
-            toast.error("Error creating profile.");
-            return;
-          }
-        }
-
-        toast.success("Registration successful! Please confirm your email.");
+        toast.success("Registration successful!");
+        navigate("/dashboard");
       }
-    } catch (error) {
-      toast.error("An unexpected error occurred.");
+    } catch (error: any) {
+      toast.error(error.message || "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
@@ -122,19 +72,22 @@ const Auth = () => {
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4">
       {/* Background */}
-      <div 
+      <div
         className="fixed inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${wowBackground})` }}
       />
       <div className="fixed inset-0 bg-gradient-to-b from-background/95 via-background/85 to-background/95" />
-      
+
       {/* Auth Form */}
       <WoWPanel className="relative z-10 w-full max-w-md">
-        <div className="flex items-center justify-center gap-3 mb-8">
+        <div className="flex flex-col items-center justify-center gap-3 mb-8 text-center">
           <Shield className="w-10 h-10 text-primary" />
           <h1 className="font-display text-2xl wow-gold-text">
-            {isLogin ? "Developer Login" : "Registration"}
+            Classic / TBC AIO Bug Report
           </h1>
+          <p className="text-muted-foreground text-sm">
+            {isLogin ? "Developer Login" : "Registration"}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -162,22 +115,20 @@ const Auth = () => {
                   <button
                     type="button"
                     onClick={() => setDeveloperType('astro')}
-                    className={`flex-1 py-3 rounded-sm border-2 font-display transition-all ${
-                      developerType === 'astro'
+                    className={`flex-1 py-3 rounded-sm border-2 font-display transition-all ${developerType === 'astro'
                         ? 'border-primary bg-primary/10 text-primary'
                         : 'border-border hover:border-primary/50'
-                    }`}
+                      }`}
                   >
                     Astro
                   </button>
                   <button
                     type="button"
                     onClick={() => setDeveloperType('bungee')}
-                    className={`flex-1 py-3 rounded-sm border-2 font-display transition-all ${
-                      developerType === 'bungee'
+                    className={`flex-1 py-3 rounded-sm border-2 font-display transition-all ${developerType === 'bungee'
                         ? 'border-primary bg-primary/10 text-primary'
                         : 'border-border hover:border-primary/50'
-                    }`}
+                      }`}
                   >
                     Bungee
                   </button>
@@ -223,6 +174,22 @@ const Auth = () => {
               </button>
             </div>
           </div>
+
+          {!isLogin && (
+            <div>
+              <label className="block font-display text-sm text-primary mb-2 tracking-wider">
+                Registration Key
+              </label>
+              <input
+                type="password"
+                value={registrationPassword}
+                onChange={(e) => setRegistrationPassword(e.target.value)}
+                placeholder="Secret key..."
+                className="wow-input"
+                required={!isLogin}
+              />
+            </div>
+          )}
 
           <button
             type="submit"

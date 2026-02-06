@@ -1,4 +1,4 @@
-﻿import mongoose, { Schema, Document } from "mongoose";
+﻿import mongoose, { Schema, Document, Model } from "mongoose";
 import bcryptjs from "bcryptjs";
 
 export interface IUser extends Document {
@@ -58,4 +58,6 @@ UserSchema.methods.comparePassword = async function (
   return bcryptjs.compare(password, this.password);
 };
 
-export default mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+
+export default User;

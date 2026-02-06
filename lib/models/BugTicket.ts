@@ -1,4 +1,4 @@
-﻿import mongoose, { Schema, Document } from "mongoose";
+﻿import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IBugTicket extends Document {
   developer: "astro" | "bungee";
@@ -51,5 +51,7 @@ const BugTicketSchema = new Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.BugTicket ||
+const BugTicket: Model<IBugTicket> = mongoose.models.BugTicket ||
   mongoose.model<IBugTicket>("BugTicket", BugTicketSchema);
+
+export default BugTicket;
