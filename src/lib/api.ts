@@ -41,8 +41,8 @@ export const authAPI = {
       body: JSON.stringify({ username, email, password, developer_type, registration_password }),
     });
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "Registration failed");
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.details || errorData.error || "Registration failed");
     }
     return response.json();
   },
@@ -54,8 +54,8 @@ export const authAPI = {
       body: JSON.stringify({ email, password }),
     });
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "Login failed");
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.details || errorData.error || "Login failed");
     }
     return response.json();
   },
@@ -67,7 +67,10 @@ export const userAPI = {
       method: "GET",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     });
-    if (!response.ok) throw new Error("Failed to fetch profile");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.details || errorData.error || "Failed to fetch profile");
+    }
     return response.json();
   },
 };
@@ -78,7 +81,10 @@ export const bugAPI = {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
-    if (!response.ok) throw new Error("Failed to fetch bugs");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.details || errorData.error || "Failed to fetch bugs");
+    }
     return response.json();
   },
 
@@ -89,8 +95,8 @@ export const bugAPI = {
       body: JSON.stringify(bug),
     });
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "Failed to create bug report");
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.details || errorData.error || "Failed to create bug report");
     }
     return response.json();
   },
@@ -101,7 +107,10 @@ export const bugAPI = {
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ id: ticketId, status }),
     });
-    if (!response.ok) throw new Error("Failed to update bug status");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.details || errorData.error || "Failed to update status");
+    }
     return response.json();
   },
 };
@@ -112,7 +121,10 @@ export const codeChangeAPI = {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
-    if (!response.ok) throw new Error("Failed to fetch code changes");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.details || errorData.error || "Failed to fetch code changes");
+    }
     return response.json();
   },
 
@@ -122,7 +134,10 @@ export const codeChangeAPI = {
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify(change),
     });
-    if (!response.ok) throw new Error("Failed to create code change");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.details || errorData.error || "Failed to create code change");
+    }
     return response.json();
   },
 };

@@ -6,23 +6,23 @@ import { verifyToken, extractToken } from '../../lib/auth/jwt.js';
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     await connectDB();
-    
+
     if (req.method === 'GET') {
       const tickets = await BugTicket.find().sort({ createdAt: -1 });
       return res.status(200).json(tickets);
     }
-    
+
     if (req.method === 'POST') {
       const token = extractToken(req.headers.authorization as string);
       if (!token) {
         return res.status(401).json({ error: 'Authentifizierung erforderlich' });
       }
-      
+
       const payload = verifyToken(token);
       if (!payload) {
         return res.status(401).json({ error: 'Ungültiges Token' });
       }
-      
+
       const {
         developer,
         wow_class,
@@ -42,7 +42,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         priority,
         reporter_name,
       } = req.body;
-      
+
       if (
         !developer ||
         !wow_class ||
@@ -57,19 +57,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
-      
+
       if (current_behavior.length < 200) {
         return res.status(400).json({
           error: 'Current behavior must be at least 200 characters',
         });
       }
-      
+
       if (expected_behavior.length < 200) {
         return res.status(400).json({
           error: 'Expected behavior must be at least 200 characters',
         });
       }
-      
+
       const bugTicket = new BugTicket({
         developer,
         wow_class,
@@ -91,46 +91,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         reporter_name,
         reporter_user_id: payload.id,
       });
-      
+
       await bugTicket.save();
       return res.status(201).json({
         message: 'Bug Report erfolgreich erstellt!',
         ticket: bugTicket,
       });
     }
-    
+
     if (req.method === 'PATCH') {
       const token = extractToken(req.headers.authorization as string);
       if (!token) {
         return res.status(401).json({ error: 'Authentifizierung erforderlich' });
       }
-      
+
       const payload = verifyToken(token);
       if (!payload) {
         return res.status(401).json({ error: 'Ungültiges Token' });
       }
-      
+
       const { id, status } = req.body;
       if (!id || !status) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
-      
+
       const ticket = await BugTicket.findByIdAndUpdate(
         id,
         { status },
         { new: true }
       );
-      
+
       if (!ticket) {
         return res.status(404).json({ error: 'Ticket nicht gefunden' });
       }
-      
+
       return res.status(200).json({ message: 'Status aktualisiert', ticket });
     }
-    
+
     return res.status(405).json({ error: 'Method not allowed' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Bug tickets error:', error);
-    return res.status(500).json({ error: 'Ein Fehler ist aufgetreten.' });
+    return res.status(500).json({
+      error: 'Ein Fehler ist aufgetreten.',
+      details: error.message
+    });
   }
 }
