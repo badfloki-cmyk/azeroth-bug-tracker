@@ -183,6 +183,21 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
             </div>
           </div>
 
+          {/* Rotation Name */}
+          <div>
+            <label className="block font-display text-sm text-primary mb-2 tracking-wider">
+              Specific Rotation
+            </label>
+            <input
+              type="text"
+              value={rotation}
+              onChange={(e) => setRotation(e.target.value)}
+              placeholder="e.g. Fire Mage, Frost Mage, Destruction Warlock..."
+              className="wow-input"
+              required
+            />
+          </div>
+
           {/* PvE / PvP */}
           <div>
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
