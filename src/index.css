@@ -1,96 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Text:wght@400;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
+/* World of Warcraft inspired design system */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* WoW UI Dark Stone Theme */
+    --background: 25 15% 8%;
+    --foreground: 43 100% 75%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 25 20% 12%;
+    --card-foreground: 43 100% 75%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 25 20% 10%;
+    --popover-foreground: 43 100% 75%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* WoW Gold Primary */
+    --primary: 43 100% 50%;
+    --primary-foreground: 25 15% 8%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* WoW Stone Secondary */
+    --secondary: 30 20% 20%;
+    --secondary-foreground: 43 80% 70%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 25 15% 18%;
+    --muted-foreground: 30 15% 55%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* WoW Copper Accent */
+    --accent: 30 50% 35%;
+    --accent-foreground: 43 100% 85%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* WoW Border Colors */
+    --border: 30 30% 25%;
+    --input: 30 25% 20%;
+    --ring: 43 100% 50%;
 
-    --radius: 0.5rem;
+    --radius: 0.25rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* WoW Class Colors - Official Hex Codes */
+    --class-rogue: 60 100% 70%;
+    --class-hunter: 87 50% 64%;
+    --class-warrior: 28 40% 60%;
+    --class-warlock: 240 72% 73%;
+    --class-paladin: 330 80% 75%;
+    --class-priest: 0 0% 100%;
+    --class-mage: 195 80% 58%;
+    --class-shaman: 210 100% 43%;
+    --class-druid: 27 100% 52%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* WoW Status Colors */
+    --status-optimized: 120 60% 45%;
+    --status-alpha: 45 100% 50%;
+    --status-beta: 200 80% 55%;
 
-    --sidebar-primary: 240 5.9% 10%;
+    /* Gradients */
+    --gradient-gold: linear-gradient(180deg, hsl(43 100% 60%) 0%, hsl(35 80% 40%) 100%);
+    --gradient-stone: linear-gradient(180deg, hsl(25 20% 18%) 0%, hsl(25 15% 10%) 100%);
+    --gradient-border: linear-gradient(180deg, hsl(35 50% 40%) 0%, hsl(25 30% 20%) 100%);
+    
+    /* Shadows */
+    --shadow-gold: 0 0 20px hsl(43 100% 50% / 0.3);
+    --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.5), inset 0 1px 0 hsl(35 40% 30% / 0.3);
 
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar */
+    --sidebar-background: 25 20% 10%;
+    --sidebar-foreground: 43 80% 70%;
+    --sidebar-primary: 43 100% 50%;
+    --sidebar-primary-foreground: 25 15% 8%;
+    --sidebar-accent: 30 25% 18%;
+    --sidebar-accent-foreground: 43 80% 75%;
+    --sidebar-border: 30 30% 25%;
+    --sidebar-ring: 43 100% 50%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 25 15% 6%;
+    --foreground: 43 100% 75%;
+    --card: 25 20% 10%;
+    --card-foreground: 43 100% 75%;
   }
 }
 
@@ -101,5 +93,159 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Crimson Text', serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+}
+
+@layer components {
+  /* WoW Panel Style */
+  .wow-panel {
+    @apply relative bg-card rounded-sm;
+    background: linear-gradient(180deg, hsl(25 20% 14%) 0%, hsl(25 15% 10%) 100%);
+    border: 3px solid;
+    border-image: linear-gradient(180deg, hsl(35 50% 35%) 0%, hsl(25 30% 18%) 100%) 1;
+    box-shadow: 
+      0 8px 32px hsl(0 0% 0% / 0.6),
+      inset 0 1px 0 hsl(35 40% 30% / 0.2),
+      inset 0 -1px 0 hsl(0 0% 0% / 0.3);
+  }
+
+  .wow-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.03;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  /* WoW Gold Text Glow */
+  .wow-gold-text {
+    @apply text-primary;
+    text-shadow: 
+      0 0 10px hsl(43 100% 50% / 0.5),
+      0 2px 4px hsl(0 0% 0% / 0.5);
+  }
+
+  /* WoW Button Styles */
+  .wow-button {
+    @apply relative px-6 py-2 font-bold uppercase tracking-wider;
+    font-family: 'Cinzel', serif;
+    background: linear-gradient(180deg, hsl(30 30% 25%) 0%, hsl(25 25% 15%) 100%);
+    border: 2px solid hsl(35 50% 35%);
+    color: hsl(43 80% 70%);
+    text-shadow: 0 1px 2px hsl(0 0% 0% / 0.5);
+    transition: all 0.2s ease;
+  }
+
+  .wow-button:hover {
+    background: linear-gradient(180deg, hsl(30 35% 30%) 0%, hsl(25 30% 18%) 100%);
+    border-color: hsl(43 100% 50%);
+    box-shadow: 0 0 15px hsl(43 100% 50% / 0.3);
+    color: hsl(43 100% 75%);
+  }
+
+  .wow-button:active {
+    transform: translateY(1px);
+  }
+
+  .wow-button-primary {
+    @apply wow-button;
+    background: linear-gradient(180deg, hsl(43 80% 45%) 0%, hsl(35 70% 30%) 100%);
+    color: hsl(25 15% 8%);
+    text-shadow: 0 1px 0 hsl(43 100% 70% / 0.3);
+  }
+
+  .wow-button-primary:hover {
+    background: linear-gradient(180deg, hsl(43 90% 50%) 0%, hsl(35 80% 35%) 100%);
+    color: hsl(25 15% 5%);
+  }
+
+  /* Class Color Utilities */
+  .class-rogue { color: hsl(var(--class-rogue)); }
+  .class-hunter { color: hsl(var(--class-hunter)); }
+  .class-warrior { color: hsl(var(--class-warrior)); }
+  .class-warlock { color: hsl(var(--class-warlock)); }
+  .class-paladin { color: hsl(var(--class-paladin)); }
+  .class-priest { color: hsl(var(--class-priest)); }
+  .class-mage { color: hsl(var(--class-mage)); }
+  .class-shaman { color: hsl(var(--class-shaman)); }
+  .class-druid { color: hsl(var(--class-druid)); }
+
+  /* Status Badge Styles */
+  .status-optimized {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-xs font-bold uppercase;
+    background: hsl(120 60% 45% / 0.2);
+    color: hsl(120 60% 55%);
+    border: 1px solid hsl(120 60% 45% / 0.4);
+  }
+
+  .status-alpha {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-xs font-bold uppercase;
+    background: hsl(45 100% 50% / 0.2);
+    color: hsl(45 100% 60%);
+    border: 1px solid hsl(45 100% 50% / 0.4);
+  }
+
+  .status-beta {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-xs font-bold uppercase;
+    background: hsl(200 80% 55% / 0.2);
+    color: hsl(200 80% 65%);
+    border: 1px solid hsl(200 80% 55% / 0.4);
+  }
+
+  /* WoW Input Styles */
+  .wow-input {
+    @apply w-full px-4 py-2 rounded-sm;
+    background: hsl(25 20% 8%);
+    border: 2px solid hsl(30 25% 25%);
+    color: hsl(43 80% 75%);
+    font-family: 'Crimson Text', serif;
+    transition: all 0.2s ease;
+  }
+
+  .wow-input:focus {
+    outline: none;
+    border-color: hsl(43 100% 50%);
+    box-shadow: 0 0 10px hsl(43 100% 50% / 0.2);
+  }
+
+  .wow-input::placeholder {
+    color: hsl(30 15% 40%);
+  }
+
+  /* Avatar Ring */
+  .avatar-ring {
+    @apply rounded-full;
+    border: 3px solid;
+    border-image: linear-gradient(180deg, hsl(43 100% 60%) 0%, hsl(35 60% 30%) 100%) 1;
+    box-shadow: 0 0 15px hsl(43 100% 50% / 0.3);
+  }
+
+  /* Scrollbar Styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(25 15% 10%);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(30 30% 25%);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(30 35% 30%);
   }
 }
