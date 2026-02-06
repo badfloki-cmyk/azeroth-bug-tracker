@@ -13,14 +13,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'POST') {
-      const token = extractToken(req.headers.authorization as string);
-      if (!token) {
-        return res.status(401).json({ error: 'Authentifizierung erforderlich' });
-      }
+      const authHeader = req.headers.authorization;
+      let reporter_user_id = null;
 
-      const payload = verifyToken(token);
-      if (!payload) {
-        return res.status(401).json({ error: 'Ungültiges Token' });
+      if (authHeader) {
+        const token = extractToken(authHeader as string);
+        if (token) {
+          const payload = verifyToken(token);
+          if (payload) {
+            reporter_user_id = payload.id;
+          }
+        }
       }
 
       const {
