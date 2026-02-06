@@ -1,0 +1,128 @@
+﻿const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
+
+interface AuthResponse {
+  token: string;
+  user: {
+    id: string;
+    username: string;
+    email: string;
+    developer_type: string;
+  };
+}
+
+interface BugReport {
+  _id?: string;
+  developer: string;
+  wow_class: string;
+  rotation: string;
+  pvpve_mode: string;
+  level: number;
+  expansion: string;
+  title: string;
+  description: string;
+  current_behavior: string;
+  expected_behavior: string;
+  logs?: string;
+  video_url?: string;
+  screenshot_urls?: string[];
+  discord_username: string;
+  sylvanas_username: string;
+  priority: string;
+  status: string;
+  reporter_name: string;
+  createdAt: string;
+}
+
+export const authAPI = {
+  register: async (username: string, email: string, password: string, developer_type: string): Promise<AuthResponse> => {
+    const response = await fetch(`${API_URL}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, email, password, developer_type }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Registration failed");
+    }
+    return response.json();
+  },
+
+  login: async (email: string, password: string): Promise<AuthResponse> => {
+    const response = await fetch(`${API_URL}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Login failed");
+    }
+    return response.json();
+  },
+};
+
+export const userAPI = {
+  getProfile: async (token: string) => {
+    const response = await fetch(`${API_URL}/api/users/profile`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error("Failed to fetch profile");
+    return response.json();
+  },
+};
+
+export const bugAPI = {
+  getAll: async (): Promise<BugReport[]> => {
+    const response = await fetch(`${API_URL}/api/bugs/tickets`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) throw new Error("Failed to fetch bugs");
+    return response.json();
+  },
+
+  create: async (bug: BugReport, token: string) => {
+    const response = await fetch(`${API_URL}/api/bugs/tickets`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(bug),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to create bug report");
+    }
+    return response.json();
+  },
+
+  updateStatus: async (ticketId: string, status: string, token: string) => {
+    const response = await fetch(`${API_URL}/api/bugs/tickets`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ id: ticketId, status }),
+    });
+    if (!response.ok) throw new Error("Failed to update bug status");
+    return response.json();
+  },
+};
+
+export const codeChangeAPI = {
+  getAll: async () => {
+    const response = await fetch(`${API_URL}/api/code-changes`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) throw new Error("Failed to fetch code changes");
+    return response.json();
+  },
+
+  create: async (change: { file_path: string; change_description: string; change_type: string; related_ticket_id?: string }, token: string) => {
+    const response = await fetch(`${API_URL}/api/code-changes`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(change),
+    });
+    if (!response.ok) throw new Error("Failed to create code change");
+    return response.json();
+  },
+};
