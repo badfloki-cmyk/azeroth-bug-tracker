@@ -58,15 +58,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
 
-      if (current_behavior.length < 200) {
+      if (current_behavior.length < 50) {
         return res.status(400).json({
-          error: 'Current behavior must be at least 200 characters',
+          error: 'Current behavior must be at least 50 characters',
         });
       }
 
-      if (expected_behavior.length < 200) {
+      if (expected_behavior.length < 50) {
         return res.status(400).json({
-          error: 'Expected behavior must be at least 200 characters',
+          error: 'Expected behavior must be at least 50 characters',
         });
       }
 
@@ -89,7 +89,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         priority: priority || 'medium',
         status: 'open',
         reporter_name,
-        reporter_user_id: payload.id,
+        reporter_user_id,
       });
 
       await bugTicket.save();

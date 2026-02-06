@@ -93,19 +93,20 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!selectedClass || !rotation || !pvpveMode || !level || !expansion || !title || 
-        !currentBehavior || !expectedBehavior || !discordUsername || !sylvanasUsername) {
+
+    if (!selectedClass || !rotation || !pvpveMode || !level || !expansion || !title ||
+      !currentBehavior || !expectedBehavior || !discordUsername || !sylvanasUsername) {
+      toast.error("Please fill in all required fields.");
       return;
     }
 
-    if (currentBehavior.length < 200) {
-      alert("Current behavior must be at least 200 characters long.");
+    if (currentBehavior.length < 50) {
+      toast.error("Current behavior must be at least 50 characters long.");
       return;
     }
 
-    if (expectedBehavior.length < 200) {
-      alert("Expected behavior must be at least 200 characters long.");
+    if (expectedBehavior.length < 50) {
+      toast.error("Expected behavior must be at least 50 characters long.");
       return;
     }
 
@@ -139,14 +140,14 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
       <WoWPanel className="relative z-10 w-full max-w-4xl max-h-[90vh] overflow-auto">
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 text-muted-foreground hover:text-primary transition-colors"
         >
@@ -169,11 +170,10 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
                   key={wowClass}
                   type="button"
                   onClick={() => setSelectedClass(wowClass)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-sm border-2 transition-all ${
-                    selectedClass === wowClass
+                  className={`flex items-center gap-2 px-4 py-2 rounded-sm border-2 transition-all ${selectedClass === wowClass
                       ? 'border-primary bg-primary/10'
                       : 'border-border hover:border-primary/50'
-                  }`}
+                    }`}
                 >
                   <ClassIcon wowClass={wowClass} size="sm" />
                   <span className={`class-${wowClass}`}>{classNames[wowClass]}</span>
@@ -293,7 +293,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
           {/* Current Behavior */}
           <div>
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
-              Current Behavior (minimum 200 characters)
+              Current Behavior (minimum 50 characters)
             </label>
             <Textarea
               value={currentBehavior}
@@ -303,14 +303,14 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
               required
             />
             <p className="text-xs text-muted-foreground mt-1">
-              {currentBehavior.length} / 200 characters (Minimum)
+              {currentBehavior.length} / 50 characters (Minimum)
             </p>
           </div>
 
           {/* Expected Behavior */}
           <div>
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
-              Expected Behavior (minimum 200 characters)
+              Expected Behavior (minimum 50 characters)
             </label>
             <Textarea
               value={expectedBehavior}
@@ -320,7 +320,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
               required
             />
             <p className="text-xs text-muted-foreground mt-1">
-              {expectedBehavior.length} / 200 characters (Minimum)
+              {expectedBehavior.length} / 50 characters (Minimum)
             </p>
           </div>
 
@@ -397,17 +397,16 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
                   key={p}
                   type="button"
                   onClick={() => setPriority(p)}
-                  className={`px-4 py-2 rounded-sm border-2 font-display text-sm uppercase transition-all ${
-                    priority === p
+                  className={`px-4 py-2 rounded-sm border-2 font-display text-sm uppercase transition-all ${priority === p
                       ? p === 'critical'
                         ? 'border-red-500 bg-red-500/20 text-red-400'
                         : p === 'high'
-                        ? 'border-orange-500 bg-orange-500/20 text-orange-400'
-                        : p === 'medium'
-                        ? 'border-yellow-500 bg-yellow-500/20 text-yellow-400'
-                        : 'border-green-500 bg-green-500/20 text-green-400'
+                          ? 'border-orange-500 bg-orange-500/20 text-orange-400'
+                          : p === 'medium'
+                            ? 'border-yellow-500 bg-yellow-500/20 text-yellow-400'
+                            : 'border-green-500 bg-green-500/20 text-green-400'
                       : 'border-border hover:border-primary/50'
-                  }`}
+                    }`}
                 >
                   {p}
                 </button>
