@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/AuthContext";
+import { userAPI, bugAPI, codeChangeAPI } from "@/lib/api";
 import { WoWPanel } from "@/components/WoWPanel";
 import { BugTicketList } from "@/components/BugTicketList";
 import { CodeChangeTracker } from "@/components/CodeChangeTracker";
@@ -29,6 +30,7 @@ interface CodeChange {
 }
 
 const Dashboard = () => {
+  const { user, token, logout, isLoading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [bugs, setBugs] = useState<BugReport[]>([]);
   const [codeChanges, setCodeChanges] = useState<CodeChange[]>([]);
@@ -36,140 +38,89 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (!session?.user) {
-          navigate("/auth");
-        }
-      }
-    );
-
-    checkAuth();
-    
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session?.user) {
+    if (!authLoading && !user) {
       navigate("/auth");
-      return;
+    } else if (user && token) {
+      loadDashboardData();
     }
+  }, [user, token, authLoading, navigate]);
 
-    // Fetch profile
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .maybeSingle();
+  const loadDashboardData = async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      // Fetch profile
+      const profileData = await userAPI.getProfile(token);
+      setProfile({
+        id: profileData.user_id,
+        username: profileData.username,
+        developer_type: profileData.developer_type,
+        avatar_url: profileData.avatar_url
+      });
 
-    if (profileData) {
-      setProfile(profileData as Profile);
-    }
-
-    // Fetch bugs
-    const { data: bugsData } = await supabase
-      .from('bug_tickets')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (bugsData) {
-      setBugs(bugsData.map(bug => ({
-        id: bug.id,
+      // Fetch bugs
+      const bugsData = await bugAPI.getAll();
+      setBugs(bugsData.map((bug: any) => ({
+        id: bug._id,
         developer: bug.developer as 'astro' | 'bungee',
         wowClass: bug.wow_class as BugReport['wowClass'],
         title: bug.title,
         description: bug.description,
         priority: bug.priority as BugReport['priority'],
         status: bug.status as BugReport['status'],
-        createdAt: new Date(bug.created_at),
+        createdAt: new Date(bug.createdAt),
         reporter: bug.reporter_name,
       })));
+
+      // Fetch code changes
+      const changesData = await codeChangeAPI.getAll();
+      setCodeChanges(changesData.map((change: any) => ({
+        id: change._id,
+        developer_id: change.developer_id?._id || change.developer_id,
+        file_path: change.file_path,
+        change_description: change.change_description,
+        change_type: change.change_type,
+        related_ticket_id: change.related_ticket_id?._id || change.related_ticket_id,
+        created_at: change.createdAt
+      })));
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+      toast.error("Failed to load dashboard data");
+    } finally {
+      setLoading(false);
     }
-
-    // Fetch code changes
-    const { data: changesData } = await supabase
-      .from('code_changes')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(50);
-
-    if (changesData) {
-      setCodeChanges(changesData as CodeChange[]);
-    }
-
-    setLoading(false);
   };
 
-  // Subscribe to realtime updates
-  useEffect(() => {
-    const bugsChannel = supabase
-      .channel('bugs-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'bug_tickets' },
-        () => {
-          checkAuth();
-        }
-      )
-      .subscribe();
-
-    const changesChannel = supabase
-      .channel('code-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'code_changes' },
-        () => {
-          checkAuth();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(bugsChannel);
-      supabase.removeChannel(changesChannel);
-    };
-  }, []);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-      toast.success("Goodbye, Hero!");
+  const handleLogout = () => {
+    logout();
+    toast.success("Goodbye, Hero!");
     navigate("/");
   };
 
   const handleStatusChange = async (ticketId: string, newStatus: 'open' | 'in-progress' | 'resolved') => {
-    const { error } = await supabase
-      .from('bug_tickets')
-      .update({ status: newStatus })
-      .eq('id', ticketId);
-
-    if (error) {
-      toast.error("Error updating status");
-    } else {
+    if (!token) return;
+    try {
+      await bugAPI.updateStatus(ticketId, newStatus, token);
       toast.success("Status updated!");
-      checkAuth();
+      loadDashboardData();
+    } catch (error) {
+      toast.error("Error updating status");
     }
   };
 
   const handleAddCodeChange = async (filePath: string, description: string, type: CodeChange['change_type'], ticketId?: string) => {
-    if (!profile) return;
-
-    const { error } = await supabase
-      .from('code_changes')
-      .insert({
-        developer_id: profile.id,
+    if (!token || !profile) return;
+    try {
+      await codeChangeAPI.create({
         file_path: filePath,
         change_description: description,
         change_type: type,
-        related_ticket_id: ticketId || null,
-      });
-
-    if (error) {
-      toast.error("Error saving change");
-    } else {
+        related_ticket_id: ticketId
+      }, token);
       toast.success("Code change logged!");
-      checkAuth();
+      loadDashboardData();
+    } catch (error) {
+      toast.error("Error saving change");
     }
   };
 
@@ -195,12 +146,12 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen relative">
       {/* Background */}
-      <div 
+      <div
         className="fixed inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${wowBackground})` }}
       />
       <div className="fixed inset-0 bg-gradient-to-b from-background/95 via-background/85 to-background/95" />
-      
+
       {/* Content */}
       <div className="relative z-10">
         {/* Header */}
@@ -223,8 +174,8 @@ const Dashboard = () => {
                 {profile && (
                   <div className="flex items-center gap-3">
                     {getAvatar() ? (
-                      <img 
-                        src={getAvatar()!} 
+                      <img
+                        src={getAvatar()!}
                         alt={profile.username}
                         className="w-10 h-10 rounded-full border-2 border-primary object-cover"
                       />
@@ -239,8 +190,8 @@ const Dashboard = () => {
                     </div>
                   </div>
                 )}
-                
-                <button 
+
+                <button
                   onClick={handleLogout}
                   className="wow-button flex items-center gap-2"
                 >
@@ -257,17 +208,17 @@ const Dashboard = () => {
           <div className="grid xl:grid-cols-3 gap-8">
             {/* My Bugs */}
             <div className="xl:col-span-2">
-              <BugTicketList 
-                bugs={myBugs} 
+              <BugTicketList
+                bugs={myBugs}
                 title={`My Bug Reports (${profile?.developer_type})`}
                 onStatusChange={handleStatusChange}
                 showActions
               />
-              
+
               {otherBugs.length > 0 && (
                 <div className="mt-8">
-                  <BugTicketList 
-                    bugs={otherBugs} 
+                  <BugTicketList
+                    bugs={otherBugs}
                     title="Other Bug Reports"
                   />
                 </div>
@@ -276,7 +227,7 @@ const Dashboard = () => {
 
             {/* Code Change Tracker */}
             <div>
-              <CodeChangeTracker 
+              <CodeChangeTracker
                 changes={codeChanges}
                 onAddChange={handleAddCodeChange}
                 bugs={bugs}
