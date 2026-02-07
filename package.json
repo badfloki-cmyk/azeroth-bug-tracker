@@ -15,7 +15,7 @@
     "predeploy": "vite build --base=/azeroth-bug-tracker/",
     "deploy": "gh-pages -d dist"
   },
-  "homepage": "https://bungeexastro.github.io/azeroth-bug-tracker/",
+  "homepage": "https://badfloki-cmyk.github.io/azeroth-bug-tracker/",
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "^1.2.11",
