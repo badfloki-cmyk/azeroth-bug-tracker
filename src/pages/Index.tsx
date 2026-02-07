@@ -149,10 +149,12 @@ const Index = () => {
               <BugTicketList
                 bugs={astroBugs}
                 title="Astro's Bug Reports"
+                isExpandable={false}
               />
               <BugTicketList
                 bugs={bungeeBugs}
                 title="Bungee's Bug Reports"
+                isExpandable={false}
               />
             </div>
           )}

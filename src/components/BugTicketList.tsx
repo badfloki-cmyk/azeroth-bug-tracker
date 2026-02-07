@@ -17,6 +17,7 @@ interface BugTicketListProps {
   onDelete?: (ticketId: string) => void;
   onEdit?: (bug: BugReport) => void;
   showActions?: boolean;
+  isExpandable?: boolean;
 }
 
 const priorityColors = {
@@ -38,10 +39,11 @@ const statusIcons = {
   'resolved': CheckCircle,
 };
 
-export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onDelete, onEdit, showActions }: BugTicketListProps) => {
+export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onDelete, onEdit, showActions, isExpandable = true }: BugTicketListProps) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const toggleExpand = (id: string) => {
+    if (!isExpandable) return;
     setExpandedId(expandedId === id ? null : id);
   };
 
@@ -77,7 +79,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
             >
               {/* Summary View */}
               <div
-                className="p-4 flex items-start gap-4 cursor-pointer hover:bg-white/5"
+                className={`p-4 flex items-start gap-4 transition-colors ${isExpandable ? 'cursor-pointer hover:bg-white/5' : ''}`}
                 onClick={() => toggleExpand(bug.id)}
               >
                 <ClassIcon wowClass={bug.wowClass} size="md" />
@@ -115,7 +117,9 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                     <StatusIcon className="w-3 h-3" />
                     {bug.status === 'open' ? 'Open' : bug.status === 'in-progress' ? 'In Progress' : 'Resolved'}
                   </span>
-                  {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                  {isExpandable && (
+                    isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  )}
                 </div>
               </div>
 
