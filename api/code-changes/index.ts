@@ -31,7 +31,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(401).json({ error: 'Ungültiges Token' });
       }
 
-      const { file_path, change_description, change_type, related_ticket_id } =
+      const { file_path, change_description, change_type, related_ticket_id, github_url } =
         req.body;
 
       if (!file_path || !change_description || !change_type) {
@@ -53,6 +53,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         change_description,
         change_type,
         related_ticket_id: cleanTicketId,
+        github_url: github_url || null,
       });
 
       await codeChange.save();

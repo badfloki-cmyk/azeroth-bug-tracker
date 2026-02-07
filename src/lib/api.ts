@@ -154,7 +154,7 @@ export const codeChangeAPI = {
     return response.json();
   },
 
-  create: async (change: { file_path: string; change_description: string; change_type: string; related_ticket_id?: string }, token: string) => {
+  create: async (change: { file_path: string; change_description: string; change_type: string; related_ticket_id?: string; github_url?: string }, token: string) => {
     const response = await fetch(`${API_URL}/api/code-changes`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },

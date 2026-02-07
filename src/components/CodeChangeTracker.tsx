@@ -4,7 +4,7 @@ import {
   Code, GitBranch, Plus, Clock, FileCode, User,
   Trash2, ExternalLink
 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import type { BugReport } from "./BugReportModal";
 
@@ -15,12 +15,13 @@ interface CodeChange {
   change_description: string;
   change_type: 'create' | 'update' | 'delete' | 'fix' | 'feature';
   related_ticket_id: string | null;
+  github_url?: string;
   created_at: string;
 }
 
 interface CodeChangeTrackerProps {
   changes: CodeChange[];
-  onAddChange: (filePath: string, description: string, type: CodeChange['change_type'], ticketId?: string) => void;
+  onAddChange: (filePath: string, description: string, type: CodeChange['change_type'], ticketId?: string, githubUrl?: string) => void;
   onDelete?: (changeId: string) => void;
   bugs: BugReport[];
   currentDeveloperId?: string;
@@ -40,16 +41,18 @@ export const CodeChangeTracker = ({ changes, onAddChange, onDelete, bugs, curren
   const [description, setDescription] = useState("");
   const [changeType, setChangeType] = useState<CodeChange['change_type']>('update');
   const [relatedTicket, setRelatedTicket] = useState("");
+  const [githubUrl, setGithubUrl] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!filePath || !description) return;
 
-    onAddChange(filePath, description, changeType, relatedTicket || undefined);
+    onAddChange(filePath, description, changeType, relatedTicket || undefined, githubUrl || undefined);
     setFilePath("");
     setDescription("");
     setChangeType('update');
     setRelatedTicket("");
+    setGithubUrl("");
     setShowForm(false);
   };
 
@@ -139,6 +142,19 @@ export const CodeChangeTracker = ({ changes, onAddChange, onDelete, bugs, curren
             </select>
           </div>
 
+          <div>
+            <label className="block font-display text-xs text-primary mb-1 tracking-wider">
+              GitHub URL (optional)
+            </label>
+            <input
+              type="url"
+              value={githubUrl}
+              onChange={(e) => setGithubUrl(e.target.value)}
+              placeholder="https://github.com/..."
+              className="wow-input text-sm py-2"
+            />
+          </div>
+
           <div className="flex gap-2">
             <button type="button" onClick={() => setShowForm(false)} className="wow-button flex-1 text-sm py-2">
               Cancel
@@ -175,6 +191,17 @@ export const CodeChangeTracker = ({ changes, onAddChange, onDelete, bugs, curren
                       <span className="text-[10px] text-muted-foreground truncate italic">
                         {change.file_path}
                       </span>
+                      {change.github_url && (
+                        <a
+                          href={change.github_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:text-primary/80 transition-colors ml-1"
+                          title="View on GitHub"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
                     </div>
 
                     {onDelete && (
@@ -201,9 +228,9 @@ export const CodeChangeTracker = ({ changes, onAddChange, onDelete, bugs, curren
                       <Clock className="w-3 h-3" />
                       {(() => {
                         try {
-                          return formatDistanceToNow(new Date(change.created_at), { addSuffix: true, locale: enUS });
+                          return format(new Date(change.created_at), "dd.MM.yyyy HH:mm");
                         } catch (e) {
-                          return 'just now';
+                          return change.created_at;
                         }
                       })()}
                     </span>

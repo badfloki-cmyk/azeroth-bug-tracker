@@ -27,6 +27,7 @@ interface CodeChange {
   change_description: string;
   change_type: 'create' | 'update' | 'delete' | 'fix' | 'feature';
   related_ticket_id: string | null;
+  github_url?: string;
   created_at: string;
 }
 
@@ -97,6 +98,7 @@ const Dashboard = () => {
         change_description: change.change_description,
         change_type: change.change_type,
         related_ticket_id: change.related_ticket_id?._id || change.related_ticket_id,
+        github_url: change.github_url,
         created_at: change.createdAt || new Date().toISOString()
       })));
     } catch (error) {
@@ -177,14 +179,15 @@ const Dashboard = () => {
     }
   };
 
-  const handleAddCodeChange = async (filePath: string, description: string, type: CodeChange['change_type'], ticketId?: string) => {
+  const handleAddCodeChange = async (filePath: string, description: string, type: CodeChange['change_type'], ticketId?: string, githubUrl?: string) => {
     if (!token || !profile) return;
     try {
       await codeChangeAPI.create({
         file_path: filePath,
         change_description: description,
         change_type: type,
-        related_ticket_id: ticketId && ticketId.trim() !== "" ? ticketId : undefined
+        related_ticket_id: ticketId && ticketId.trim() !== "" ? ticketId : undefined,
+        github_url: githubUrl
       }, token);
       toast.success("Code change logged!");
       loadDashboardData();

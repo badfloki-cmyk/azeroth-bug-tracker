@@ -4,7 +4,7 @@ import { bugAPI } from "@/lib/api";
 import { DeveloperCard } from "@/components/DeveloperCard";
 import { BugReportModal, BugReport } from "@/components/BugReportModal";
 import { BugTicketList } from "@/components/BugTicketList";
-import { Shield, Swords, LogIn } from "lucide-react";
+import { Shield, Swords, LogIn, ExternalLink } from "lucide-react";
 import wowBackground from "@/assets/wow-background.jpg";
 import { toast } from "sonner";
 
@@ -158,6 +158,18 @@ const Index = () => {
               />
             </div>
           )}
+          {/* Donation Section */}
+          <div className="mt-16 text-center">
+            <a
+              href="https://revolut.me/mauromp4"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all group"
+            >
+              <span className="font-display tracking-wide text-sm md:text-base">If you want to support Bungee x Astro, tips are appreciated</span>
+              <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </a>
+          </div>
         </main>
 
         {/* Footer */}

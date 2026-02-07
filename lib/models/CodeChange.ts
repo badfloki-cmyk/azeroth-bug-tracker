@@ -6,6 +6,7 @@ export interface ICodeChange extends Document {
   change_description: string;
   change_type: "create" | "update" | "delete" | "fix" | "feature";
   related_ticket_id?: mongoose.Types.ObjectId;
+  github_url?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,6 +18,7 @@ const CodeChangeSchema = new Schema(
     change_description: { type: String, required: true },
     change_type: { type: String, required: true, enum: ["create", "update", "delete", "fix", "feature"] },
     related_ticket_id: { type: Schema.Types.ObjectId, ref: "BugTicket", default: null },
+    github_url: { type: String, default: null },
   },
   { timestamps: true }
 );
