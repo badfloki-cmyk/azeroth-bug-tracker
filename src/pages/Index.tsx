@@ -69,6 +69,8 @@ const Index = () => {
         discord_username: bug.discordUsername,
         sylvanas_username: bug.sylvanasUsername,
         reporter_name: bug.reporter,
+        video_url: bug.videoUrl,
+        screenshot_urls: bug.screenshotUrls,
       } as any, ""); // Passing empty token for public reporting
 
       toast.success("Bug report created successfully!");
