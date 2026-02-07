@@ -162,16 +162,28 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                     </div>
                   </div>
 
-                  {(bug.logs || bug.videoUrl || (bug.screenshotUrls && bug.screenshotUrls.length > 0)) && (
+                  {/* Logs Section (if text) */}
+                  {bug.logs && !bug.logs.startsWith('http') && (
+                    <div className="space-y-3">
+                      <h5 className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-2 tracking-widest">
+                        <Terminal className="w-3.5 h-3.5" /> System Logs
+                      </h5>
+                      <pre className="text-xs text-muted-foreground bg-black/40 p-4 rounded-sm border border-border/50 min-h-[100px] whitespace-pre-wrap font-mono overflow-x-auto">
+                        {bug.logs}
+                      </pre>
+                    </div>
+                  )}
+
+                  {(bug.videoUrl || (bug.screenshotUrls && bug.screenshotUrls.length > 0) || (bug.logs && bug.logs.startsWith('http'))) && (
                     <div className="space-y-3">
                       <h5 className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-2">
-                        <Terminal className="w-3 h-3" /> Media & Logs
+                        <ImageIcon className="w-3 h-3" /> Media & External Links
                       </h5>
                       <div className="flex flex-wrap gap-2">
-                        {bug.logs && (
+                        {bug.logs && bug.logs.startsWith('http') && (
                           <a href={bug.logs} target="_blank" rel="noopener noreferrer"
                             className="flex items-center gap-2 px-3 py-1.5 rounded-sm bg-background/50 border border-border hover:border-primary text-xs transition-colors">
-                            <Terminal className="w-3 h-3 text-primary" /> View Logs
+                            <Terminal className="w-3 h-3 text-primary" /> View External Logs
                           </a>
                         )}
                         {bug.videoUrl && (
