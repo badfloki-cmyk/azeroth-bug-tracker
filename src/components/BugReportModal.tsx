@@ -101,7 +101,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
     e.preventDefault();
 
     if (!selectedClass || !rotation || !pvpveMode || !level || !expansion || !title ||
-      !currentBehavior || !expectedBehavior || !discordUsername || !sylvanasUsername) {
+      !currentBehavior || !expectedBehavior || !discordUsername || !sylvanasUsername || !logs) {
       toast.error("Please fill in all required fields.");
       return;
     }
@@ -348,7 +348,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
           {/* Logs */}
           <div>
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
-              Logs (Optional)
+              Logs
             </label>
             <Textarea
               value={logs}

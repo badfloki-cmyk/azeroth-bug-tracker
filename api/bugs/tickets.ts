@@ -56,7 +56,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         !expected_behavior ||
         !discord_username ||
         !sylvanas_username ||
-        !reporter_name
+        !reporter_name ||
+        !expansion ||
+        !logs
       ) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
