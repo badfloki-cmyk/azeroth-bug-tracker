@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { WoWPanel } from "./WoWPanel";
-import { Code, GitBranch, Plus, Clock, FileCode } from "lucide-react";
+import { Code, GitBranch, Plus, Clock, FileCode, User } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { enUS } from "date-fns/locale";
 import type { BugReport } from "./BugReportModal";
@@ -107,8 +107,8 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
                   type="button"
                   onClick={() => setChangeType(type)}
                   className={`px-3 py-1 rounded-sm text-xs font-bold uppercase transition-all ${changeType === type
-                      ? changeTypeConfig[type].color + ' border border-current'
-                      : 'border border-border hover:border-primary/50'
+                    ? changeTypeConfig[type].color + ' border border-current'
+                    : 'border border-border hover:border-primary/50'
                     }`}
                 >
                   {changeTypeConfig[type].label}
