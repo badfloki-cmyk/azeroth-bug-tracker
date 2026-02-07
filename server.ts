@@ -11,6 +11,7 @@ import registerHandler from './api/auth/register.js';
 import ticketsHandler from './api/bugs/tickets.js';
 import codeChangesHandler from './api/code-changes/index.js';
 import profileHandler from './api/users/profile.js';
+import githubWebhookHandler from './api/webhooks/github.js';
 
 dotenv.config();
 
@@ -21,7 +22,11 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({
+    verify: (req: any, res, buf) => {
+        req.rawBody = buf;
+    }
+}));
 
 // Connect to Database
 connectDB().catch(err => {
@@ -44,6 +49,7 @@ app.all('/api/auth/register', vercelToExpress(registerHandler));
 app.all('/api/bugs/tickets', vercelToExpress(ticketsHandler));
 app.all('/api/code-changes', vercelToExpress(codeChangesHandler));
 app.all('/api/users/profile', vercelToExpress(profileHandler));
+app.post('/api/webhooks/github', vercelToExpress(githubWebhookHandler));
 
 // Serve static assets from the dist folder
 app.use(express.static(path.join(__dirname, 'dist')));
