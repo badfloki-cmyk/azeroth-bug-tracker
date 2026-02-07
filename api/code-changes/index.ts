@@ -64,6 +64,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
+    if (req.method === 'DELETE') {
+      const token = extractToken(req.headers.authorization as string);
+      if (!token) {
+        return res.status(401).json({ error: 'Authentifizierung erforderlich' });
+      }
+
+      const payload = verifyToken(token);
+      if (!payload) {
+        return res.status(401).json({ error: 'Ungültiges Token' });
+      }
+
+      const { id } = req.body;
+      if (!id) {
+        return res.status(400).json({ error: 'Missing entry ID' });
+      }
+
+      const change = await CodeChange.findByIdAndDelete(id);
+
+      if (!change) {
+        return res.status(404).json({ error: 'Eintrag nicht gefunden' });
+      }
+
+      return res.status(200).json({ message: 'Eintrag gelöscht' });
+    }
+
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (error: any) {
     console.error('Code changes error:', error);

@@ -131,6 +131,60 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json({ message: 'Status aktualisiert', ticket });
     }
 
+    if (req.method === 'DELETE') {
+      const token = extractToken(req.headers.authorization as string);
+      if (!token) {
+        return res.status(401).json({ error: 'Authentifizierung erforderlich' });
+      }
+
+      const payload = verifyToken(token);
+      if (!payload) {
+        return res.status(401).json({ error: 'Ungültiges Token' });
+      }
+
+      const { id } = req.body;
+      if (!id) {
+        return res.status(400).json({ error: 'Missing ticket ID' });
+      }
+
+      const ticket = await BugTicket.findByIdAndDelete(id);
+
+      if (!ticket) {
+        return res.status(404).json({ error: 'Ticket nicht gefunden' });
+      }
+
+      return res.status(200).json({ message: 'Ticket gelöscht' });
+    }
+
+    if (req.method === 'PUT') {
+      const token = extractToken(req.headers.authorization as string);
+      if (!token) {
+        return res.status(401).json({ error: 'Authentifizierung erforderlich' });
+      }
+
+      const payload = verifyToken(token);
+      if (!payload) {
+        return res.status(401).json({ error: 'Ungültiges Token' });
+      }
+
+      const { id, ...updateData } = req.body;
+      if (!id) {
+        return res.status(400).json({ error: 'Missing ticket ID' });
+      }
+
+      const ticket = await BugTicket.findByIdAndUpdate(
+        id,
+        { $set: updateData },
+        { new: true }
+      );
+
+      if (!ticket) {
+        return res.status(404).json({ error: 'Ticket nicht gefunden' });
+      }
+
+      return res.status(200).json({ message: 'Ticket aktualisiert', ticket });
+    }
+
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (error: any) {
     console.error('Bug tickets error:', error);

@@ -1,14 +1,21 @@
 import { BugReport } from "./BugReportModal";
 import { ClassIcon } from "./ClassIcon";
 import { WoWPanel } from "./WoWPanel";
-import { Bug, Clock, User, CheckCircle, Play, Circle } from "lucide-react";
+import {
+  Bug, Clock, User, CheckCircle, Play, Circle,
+  ChevronDown, ChevronUp, Trash2, Edit2,
+  Terminal, Video, Image as ImageIcon, Info, Target, Layers
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { enUS } from "date-fns/locale";
+import { useState } from "react";
 
 interface BugTicketListProps {
   bugs: BugReport[];
   title?: string;
   onStatusChange?: (ticketId: string, newStatus: 'open' | 'in-progress' | 'resolved') => void;
+  onDelete?: (ticketId: string) => void;
+  onEdit?: (bug: BugReport) => void;
   showActions?: boolean;
 }
 
@@ -31,7 +38,13 @@ const statusIcons = {
   'resolved': CheckCircle,
 };
 
-export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, showActions }: BugTicketListProps) => {
+export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onDelete, onEdit, showActions }: BugTicketListProps) => {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const toggleExpand = (id: string) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+
   if (bugs.length === 0) {
     return (
       <WoWPanel className="text-center py-12">
@@ -55,15 +68,20 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, sho
       <div className="space-y-3">
         {bugs.map((bug) => {
           const StatusIcon = statusIcons[bug.status];
-          
+          const isExpanded = expandedId === bug.id;
+
           return (
-            <div 
+            <div
               key={bug.id}
-              className="p-4 rounded-sm bg-background/50 border border-border hover:border-primary/30 transition-all"
+              className="rounded-sm bg-background/50 border border-border hover:border-primary/30 transition-all overflow-hidden"
             >
-              <div className="flex items-start gap-4">
+              {/* Summary View */}
+              <div
+                className="p-4 flex items-start gap-4 cursor-pointer hover:bg-white/5"
+                onClick={() => toggleExpand(bug.id)}
+              >
                 <ClassIcon wowClass={bug.wowClass} size="md" />
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-1 flex-wrap">
                     <h4 className="font-display text-foreground truncate">{bug.title}</h4>
@@ -71,11 +89,11 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, sho
                       {bug.priority}
                     </span>
                   </div>
-                  
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+
+                  <p className={`text-sm text-muted-foreground mb-2 ${isExpanded ? '' : 'line-clamp-2'}`}>
                     {bug.description}
                   </p>
-                  
+
                   <div className="flex items-center gap-4 text-xs text-muted-foreground/70 flex-wrap">
                     <span className="flex items-center gap-1">
                       <User className="w-3 h-3" />
@@ -85,49 +103,142 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, sho
                       <Clock className="w-3 h-3" />
                       {formatDistanceToNow(bug.createdAt, { addSuffix: true, locale: enUS })}
                     </span>
+                    <span className="flex items-center gap-1">
+                      <Layers className="w-3 h-3" />
+                      {bug.expansion?.toUpperCase()}
+                    </span>
                   </div>
                 </div>
 
-                {/* Status & Actions */}
                 <div className="flex flex-col items-end gap-2">
                   <span className={`px-2 py-1 text-xs font-bold uppercase rounded flex items-center gap-1 ${statusColors[bug.status]}`}>
                     <StatusIcon className="w-3 h-3" />
                     {bug.status === 'open' ? 'Open' : bug.status === 'in-progress' ? 'In Progress' : 'Resolved'}
                   </span>
-                  
-                  {showActions && onStatusChange && (
-                    <div className="flex gap-1">
-                      {bug.status !== 'open' && (
-                        <button
-                          onClick={() => onStatusChange(bug.id, 'open')}
-                          className="p-1 rounded text-red-400 hover:bg-red-500/20 transition-colors"
-                          title="Mark as open"
-                        >
-                          <Circle className="w-4 h-4" />
-                        </button>
-                      )}
-                      {bug.status !== 'in-progress' && (
-                        <button
-                          onClick={() => onStatusChange(bug.id, 'in-progress')}
-                          className="p-1 rounded text-yellow-400 hover:bg-yellow-500/20 transition-colors"
-                          title="Set to in progress"
-                        >
-                          <Play className="w-4 h-4" />
-                        </button>
-                      )}
-                      {bug.status !== 'resolved' && (
-                        <button
-                          onClick={() => onStatusChange(bug.id, 'resolved')}
-                          className="p-1 rounded text-green-400 hover:bg-green-500/20 transition-colors"
-                          title="Mark as resolved"
-                        >
-                          <CheckCircle className="w-4 h-4" />
-                        </button>
+                  {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                </div>
+              </div>
+
+              {/* Detailed View */}
+              {isExpanded && (
+                <div className="px-4 pb-4 pt-2 border-t border-border bg-black/20 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <h5 className="text-xs font-bold uppercase text-primary flex items-center gap-2">
+                        <Info className="w-3 h-3" /> Current Behavior
+                      </h5>
+                      <p className="text-sm text-muted-foreground bg-background/30 p-2 rounded-sm border border-border/50">
+                        {bug.currentBehavior}
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <h5 className="text-xs font-bold uppercase text-green-400 flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3" /> Expected Behavior
+                      </h5>
+                      <p className="text-sm text-muted-foreground bg-background/30 p-2 rounded-sm border border-border/50">
+                        {bug.expectedBehavior}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-x-6 gap-y-3 p-3 rounded-sm bg-primary/5 border border-primary/10">
+                    <div className="text-xs">
+                      <span className="text-muted-foreground block mb-1">Rotation</span>
+                      <span className="text-foreground font-medium flex items-center gap-2">
+                        <Target className="w-3 h-3 text-primary" /> {bug.rotation}
+                      </span>
+                    </div>
+                    <div className="text-xs">
+                      <span className="text-muted-foreground block mb-1">Level / Mode</span>
+                      <span className="text-foreground font-medium uppercase">
+                        Lvl {bug.level} / {bug.pvpveMode}
+                      </span>
+                    </div>
+                    <div className="text-xs">
+                      <span className="text-muted-foreground block mb-1">Discord</span>
+                      <span className="text-foreground font-medium">@{bug.discordUsername}</span>
+                    </div>
+                  </div>
+
+                  {(bug.logs || bug.videoUrl || (bug.screenshotUrls && bug.screenshotUrls.length > 0)) && (
+                    <div className="space-y-3">
+                      <h5 className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-2">
+                        <Terminal className="w-3 h-3" /> Media & Logs
+                      </h5>
+                      <div className="flex flex-wrap gap-2">
+                        {bug.logs && (
+                          <a href={bug.logs} target="_blank" rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-sm bg-background/50 border border-border hover:border-primary text-xs transition-colors">
+                            <Terminal className="w-3 h-3 text-primary" /> View Logs
+                          </a>
+                        )}
+                        {bug.videoUrl && (
+                          <a href={bug.videoUrl} target="_blank" rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-sm bg-background/50 border border-border hover:border-primary text-xs transition-colors">
+                            <Video className="w-3 h-3 text-red-500" /> Watch Video
+                          </a>
+                        )}
+                        {bug.screenshotUrls?.map((url, i) => (
+                          <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-sm bg-background/50 border border-border hover:border-primary text-xs transition-colors">
+                            <ImageIcon className="w-3 h-3 text-blue-500" /> Screenshot {i + 1}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {showActions && (
+                    <div className="flex justify-between items-center pt-4 border-t border-border/50">
+                      <div className="flex gap-2">
+                        {onEdit && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onEdit(bug); }}
+                            className="flex items-center gap-2 px-4 py-2 rounded-sm bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 text-xs font-bold uppercase transition-all"
+                          >
+                            <Edit2 className="w-3 h-3" /> Edit Ticket
+                          </button>
+                        )}
+                        {onDelete && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onDelete(bug.id); }}
+                            className="flex items-center gap-2 px-4 py-2 rounded-sm bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs font-bold uppercase transition-all"
+                          >
+                            <Trash2 className="w-3 h-3" /> Delete
+                          </button>
+                        )}
+                      </div>
+
+                      {onStatusChange && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] uppercase font-bold text-muted-foreground mr-1">Update Status:</span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onStatusChange(bug.id, 'open'); }}
+                            className={`p-2 rounded-sm border transition-all ${bug.status === 'open' ? 'border-red-500 bg-red-500/20 text-red-400' : 'border-border text-muted-foreground hover:border-red-500/50'}`}
+                            title="Open"
+                          >
+                            <Circle className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onStatusChange(bug.id, 'in-progress'); }}
+                            className={`p-2 rounded-sm border transition-all ${bug.status === 'in-progress' ? 'border-yellow-500 bg-yellow-500/20 text-yellow-400' : 'border-border text-muted-foreground hover:border-yellow-500/50'}`}
+                            title="In Progress"
+                          >
+                            <Play className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onStatusChange(bug.id, 'resolved'); }}
+                            className={`p-2 rounded-sm border transition-all ${bug.status === 'resolved' ? 'border-green-500 bg-green-500/20 text-green-400' : 'border-border text-muted-foreground hover:border-green-500/50'}`}
+                            title="Resolved"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                          </button>
+                        </div>
                       )}
                     </div>
                   )}
                 </div>
-              </div>
+              )}
             </div>
           );
         })}

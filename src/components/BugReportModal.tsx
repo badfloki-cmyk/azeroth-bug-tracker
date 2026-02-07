@@ -18,6 +18,7 @@ interface BugReportModalProps {
   developer: 'astro' | 'bungee';
   onClose: () => void;
   onSubmit: (bug: BugReport) => void;
+  initialBug?: BugReport | null;
 }
 
 export interface BugReport {
@@ -61,22 +62,26 @@ const classNames: Record<WoWClass, string> = {
   esp: "ESP System",
 };
 
-export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalProps) => {
-  const [selectedClass, setSelectedClass] = useState<WoWClass | null>(null);
-  const [rotation, setRotation] = useState<string>('');
-  const [pvpveMode, setPvpveMode] = useState<'pve' | 'pvp' | ''>('');
-  const [level, setLevel] = useState<string>('80');
-  const [expansion, setExpansion] = useState<'tbc' | 'era' | 'hc' | ''>('');
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [currentBehavior, setCurrentBehavior] = useState("");
-  const [expectedBehavior, setExpectedBehavior] = useState("");
-  const [logs, setLogs] = useState("");
-  const [videoUrl, setVideoUrl] = useState("");
-  const [screenshotUrls, setScreenshotUrls] = useState<string[]>(['']);
-  const [discordUsername, setDiscordUsername] = useState("");
-  const [sylvanasUsername, setSylvanasUsername] = useState("");
-  const [priority, setPriority] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
+export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: BugReportModalProps) => {
+  const [selectedClass, setSelectedClass] = useState<WoWClass | null>(initialBug?.wowClass || null);
+  const [rotation, setRotation] = useState<string>(initialBug?.rotation || '');
+  const [pvpveMode, setPvpveMode] = useState<'pve' | 'pvp' | ''>(initialBug?.pvpveMode || '');
+  const [level, setLevel] = useState<string>(initialBug?.level?.toString() || '80');
+  const [expansion, setExpansion] = useState<'tbc' | 'era' | 'hc' | ''>(initialBug?.expansion || '');
+  const [title, setTitle] = useState(initialBug?.title || "");
+  const [description, setDescription] = useState(initialBug?.description || "");
+  const [currentBehavior, setCurrentBehavior] = useState(initialBug?.currentBehavior || "");
+  const [expectedBehavior, setExpectedBehavior] = useState(initialBug?.expectedBehavior || "");
+  const [logs, setLogs] = useState(initialBug?.logs || "");
+  const [videoUrl, setVideoUrl] = useState(initialBug?.videoUrl || "");
+  const [screenshotUrls, setScreenshotUrls] = useState<string[]>(
+    initialBug?.screenshotUrls && initialBug.screenshotUrls.length > 0
+      ? initialBug.screenshotUrls
+      : ['']
+  );
+  const [discordUsername, setDiscordUsername] = useState(initialBug?.discordUsername || "");
+  const [sylvanasUsername, setSylvanasUsername] = useState(initialBug?.sylvanasUsername || "");
+  const [priority, setPriority] = useState<'low' | 'medium' | 'high' | 'critical'>(initialBug?.priority || 'medium');
 
   const addScreenshotUrl = () => {
     setScreenshotUrls([...screenshotUrls, '']);
@@ -112,7 +117,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
     }
 
     const bug: BugReport = {
-      id: Date.now().toString(),
+      id: initialBug?.id || Math.random().toString(36).substr(2, 9),
       developer,
       wowClass: selectedClass,
       rotation,
@@ -123,15 +128,15 @@ export const BugReportModal = ({ developer, onClose, onSubmit }: BugReportModalP
       description,
       currentBehavior,
       expectedBehavior,
-      logs: logs || undefined,
-      videoUrl: videoUrl || undefined,
-      screenshotUrls: screenshotUrls.filter(url => url.trim() !== ''),
+      logs,
+      videoUrl,
+      screenshotUrls: screenshotUrls.filter(url => url.trim() !== ""),
       discordUsername,
       sylvanasUsername,
       priority,
-      status: 'open',
-      createdAt: new Date(),
-      reporter: sylvanasUsername,
+      status: initialBug?.status || 'open',
+      createdAt: initialBug?.createdAt || new Date(),
+      reporter: initialBug?.reporter || sylvanasUsername,
     };
 
     onSubmit(bug);

@@ -10,6 +10,7 @@ import wowBackground from "@/assets/wow-background.jpg";
 import astroAvatar from "@/assets/astro-avatar.png";
 import bungeeAvatar from "@/assets/bungee-avatar.png";
 import { toast } from "sonner";
+import { BugReportModal } from "@/components/BugReportModal";
 import type { BugReport } from "@/components/BugReportModal";
 
 interface Profile {
@@ -35,6 +36,8 @@ const Dashboard = () => {
   const [bugs, setBugs] = useState<BugReport[]>([]);
   const [codeChanges, setCodeChanges] = useState<CodeChange[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingBug, setEditingBug] = useState<BugReport | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -66,8 +69,19 @@ const Dashboard = () => {
         id: bug._id,
         developer: (bug.developer as string || "").toLowerCase() as 'astro' | 'bungee',
         wowClass: bug.wow_class as BugReport['wowClass'],
+        rotation: bug.rotation,
+        pvpveMode: bug.pvpve_mode as BugReport['pvpveMode'],
+        level: bug.level,
+        expansion: bug.expansion as BugReport['expansion'],
         title: bug.title,
         description: bug.description,
+        currentBehavior: bug.current_behavior,
+        expectedBehavior: bug.expected_behavior,
+        logs: bug.logs,
+        videoUrl: bug.video_url,
+        screenshotUrls: bug.screenshot_urls || [],
+        discordUsername: bug.discord_username,
+        sylvanasUsername: bug.sylvanas_username,
         priority: bug.priority as BugReport['priority'],
         status: bug.status as BugReport['status'],
         createdAt: new Date(bug.createdAt),
@@ -103,10 +117,63 @@ const Dashboard = () => {
     if (!token) return;
     try {
       await bugAPI.updateStatus(ticketId, newStatus, token);
-      toast.success("Status updated!");
+      setBugs(bugs.map(b => b.id === ticketId ? { ...b, status: newStatus } : b));
+      toast.success(`Status updated to ${newStatus}`);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update status");
+    }
+  };
+
+  const handleDeleteBug = async (ticketId: string) => {
+    if (!token) return;
+    if (!window.confirm("Are you sure you want to delete this bug report permanently?")) return;
+
+    try {
+      await bugAPI.delete(ticketId, token);
+      setBugs(bugs.filter(b => b.id !== ticketId));
+      toast.success("Bug report deleted successfully");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete bug report");
+    }
+  };
+
+  const handleEditBug = (bug: BugReport) => {
+    setEditingBug(bug);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (updatedBug: BugReport) => {
+    if (!token) return;
+    try {
+      // Map frontend fields to backend fields
+      const backendBug = {
+        id: updatedBug.id,
+        developer: updatedBug.developer,
+        wow_class: updatedBug.wowClass,
+        rotation: updatedBug.rotation,
+        pvpve_mode: updatedBug.pvpveMode,
+        level: updatedBug.level,
+        expansion: updatedBug.expansion,
+        title: updatedBug.title,
+        description: updatedBug.description,
+        current_behavior: updatedBug.currentBehavior,
+        expected_behavior: updatedBug.expectedBehavior,
+        logs: updatedBug.logs,
+        video_url: updatedBug.videoUrl,
+        screenshot_urls: updatedBug.screenshotUrls,
+        discord_username: updatedBug.discordUsername,
+        sylvanas_username: updatedBug.sylvanasUsername,
+        priority: updatedBug.priority,
+        status: updatedBug.status
+      };
+
+      await bugAPI.update(backendBug as any, token);
+      toast.success("Bug report updated!");
+      setIsEditModalOpen(false);
+      setEditingBug(null);
       loadDashboardData();
-    } catch (error) {
-      toast.error("Error updating status");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update bug report");
     }
   };
 
@@ -121,23 +188,31 @@ const Dashboard = () => {
       }, token);
       toast.success("Code change logged!");
       loadDashboardData();
-    } catch (error) {
-      toast.error("Error saving change");
+    } catch (error: any) {
+      toast.error(error.message || "Error saving change");
     }
   };
 
-  const getAvatar = () => {
-    if (profile?.developer_type === 'astro') return astroAvatar;
-    if (profile?.developer_type === 'bungee') return bungeeAvatar;
-    return null;
+  const handleDeleteChange = async (changeId: string) => {
+    if (!token) return;
+    if (!window.confirm("Are you sure you want to delete this code change entry?")) return;
+
+    try {
+      await codeChangeAPI.delete(changeId, token);
+      setCodeChanges(codeChanges.filter(c => c.id !== changeId));
+      toast.success("Code change entry deleted");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete code change");
+    }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="wow-gold-text font-display text-xl animate-pulse">
-          Loading data...
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <WoWPanel className="max-w-xs w-full text-center">
+          <Shield className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
+          <h2 className="font-display text-xl wow-gold-text">Loading Dashboard...</h2>
+        </WoWPanel>
       </div>
     );
   }
@@ -146,99 +221,97 @@ const Dashboard = () => {
   const otherBugs = bugs.filter(b => b.developer !== profile?.developer_type);
 
   return (
-    <div className="min-h-screen relative">
-      {/* Background */}
+    <div className="min-h-screen relative bg-background/95">
       <div
-        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none"
         style={{ backgroundImage: `url(${wowBackground})` }}
       />
-      <div className="fixed inset-0 bg-gradient-to-b from-background/95 via-background/85 to-background/95" />
+
+      {/* Header */}
+      <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur-md">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Swords className="w-6 h-6 text-primary" />
+            <h1 className="font-display text-lg wow-gold-text hidden sm:block">Developer Dashboard</h1>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 pr-4 border-r border-border">
+              <div className="text-right hidden xs:block">
+                <p className="text-sm font-display leading-tight">{profile?.username}</p>
+                <p className="text-[10px] text-primary uppercase font-bold tracking-tighter">
+                  {profile?.developer_type} Developer
+                </p>
+              </div>
+              <img
+                src={profile?.developer_type === 'astro' ? astroAvatar : bungeeAvatar}
+                alt="Avatar"
+                className="w-10 h-10 rounded-sm border border-primary/50 bg-black/50"
+              />
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="p-2 text-muted-foreground hover:text-red-400 transition-colors"
+              title="Logout"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </header>
 
       {/* Content */}
-      <div className="relative z-10">
-        {/* Header */}
-        <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-20">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Shield className="w-8 h-8 text-primary" />
-                <div>
-                  <h1 className="font-display text-xl wow-gold-text tracking-wider">
-                    Developer Dashboard
-                  </h1>
-                  <p className="text-muted-foreground text-xs">
-                    Code Tracker & Bug Management
-                  </p>
-                </div>
-              </div>
+      <main className="container mx-auto px-4 py-8 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Column - Bug Tickets */}
+          <div className="lg:col-span-2 space-y-8">
+            <BugTicketList
+              bugs={myBugs}
+              title={`My Bug Tickets (${profile?.developer_type})`}
+              showActions={true}
+              onStatusChange={handleStatusChange}
+              onDelete={handleDeleteBug}
+              onEdit={handleEditBug}
+            />
 
-              <div className="flex items-center gap-4">
-                {profile && (
-                  <div className="flex items-center gap-3">
-                    {getAvatar() ? (
-                      <img
-                        src={getAvatar()!}
-                        alt={profile.username}
-                        className="w-10 h-10 rounded-full border-2 border-primary object-cover"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full border-2 border-primary bg-muted flex items-center justify-center">
-                        <User className="w-5 h-5 text-muted-foreground" />
-                      </div>
-                    )}
-                    <div className="hidden md:block">
-                      <p className="font-display text-sm text-foreground">{profile.username}</p>
-                      <p className="text-xs text-primary capitalize">{profile.developer_type}</p>
-                    </div>
-                  </div>
-                )}
-
-                <button
-                  onClick={handleLogout}
-                  className="wow-button flex items-center gap-2"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden md:inline">Logout</span>
-                </button>
-              </div>
-            </div>
+            <BugTicketList
+              bugs={otherBugs}
+              title="Other Bug Tickets"
+              showActions={true}
+              onStatusChange={handleStatusChange}
+              onDelete={handleDeleteBug}
+              onEdit={handleEditBug}
+            />
           </div>
-        </header>
 
-        {/* Main Content */}
-        <main className="container mx-auto px-4 py-8">
-          <div className="grid xl:grid-cols-3 gap-8">
-            {/* My Bugs */}
-            <div className="xl:col-span-2">
-              <BugTicketList
-                bugs={myBugs}
-                title={`My Bug Reports (${profile?.developer_type})`}
-                onStatusChange={handleStatusChange}
-                showActions
-              />
-
-              {otherBugs.length > 0 && (
-                <div className="mt-8">
-                  <BugTicketList
-                    bugs={otherBugs}
-                    title="Other Bug Reports"
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Code Change Tracker */}
-            <div>
+          {/* Sidebar - Code Activity */}
+          <div className="space-y-8">
+            <div className="lg:sticky lg:top-24">
               <CodeChangeTracker
                 changes={codeChanges}
-                onAddChange={handleAddCodeChange}
                 bugs={bugs}
+                onAddChange={handleAddCodeChange}
+                onDelete={handleDeleteChange}
                 currentDeveloperId={profile?.id}
               />
             </div>
           </div>
-        </main>
-      </div>
+        </div>
+      </main>
+
+      {/* Edit Modal */}
+      {isEditModalOpen && editingBug && (
+        <BugReportModal
+          developer={editingBug.developer}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setEditingBug(null);
+          }}
+          onSubmit={handleEditSubmit}
+          initialBug={editingBug}
+        />
+      )}
     </div>
   );
 };

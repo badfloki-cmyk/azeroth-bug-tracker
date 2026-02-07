@@ -113,6 +113,32 @@ export const bugAPI = {
     }
     return response.json();
   },
+
+  delete: async (ticketId: string, token: string) => {
+    const response = await fetch(`${API_URL}/api/bugs/tickets`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ id: ticketId }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.details || errorData.error || "Failed to delete bug report");
+    }
+    return response.json();
+  },
+
+  update: async (bug: BugReport, token: string) => {
+    const response = await fetch(`${API_URL}/api/bugs/tickets`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(bug),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.details || errorData.error || "Failed to update bug report");
+    }
+    return response.json();
+  },
 };
 
 export const codeChangeAPI = {
@@ -137,6 +163,19 @@ export const codeChangeAPI = {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.details || errorData.error || "Failed to create code change");
+    }
+    return response.json();
+  },
+
+  delete: async (changeId: string, token: string) => {
+    const response = await fetch(`${API_URL}/api/code-changes`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ id: changeId }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.details || errorData.error || "Failed to delete code change");
     }
     return response.json();
   },

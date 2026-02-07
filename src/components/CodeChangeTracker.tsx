@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { WoWPanel } from "./WoWPanel";
-import { Code, GitBranch, Plus, Clock, FileCode, User } from "lucide-react";
+import {
+  Code, GitBranch, Plus, Clock, FileCode, User,
+  Trash2, ExternalLink
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { enUS } from "date-fns/locale";
 import type { BugReport } from "./BugReportModal";
@@ -18,6 +21,7 @@ interface CodeChange {
 interface CodeChangeTrackerProps {
   changes: CodeChange[];
   onAddChange: (filePath: string, description: string, type: CodeChange['change_type'], ticketId?: string) => void;
+  onDelete?: (changeId: string) => void;
   bugs: BugReport[];
   currentDeveloperId?: string;
 }
@@ -30,7 +34,7 @@ const changeTypeConfig = {
   feature: { label: 'Feature', color: 'text-purple-400 bg-purple-500/10' },
 };
 
-export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloperId }: CodeChangeTrackerProps) => {
+export const CodeChangeTracker = ({ changes, onAddChange, onDelete, bugs, currentDeveloperId }: CodeChangeTrackerProps) => {
   const [showForm, setShowForm] = useState(false);
   const [filePath, setFilePath] = useState("");
   const [description, setDescription] = useState("");
@@ -68,7 +72,7 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
 
       {/* Add Change Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="mb-6 p-4 rounded-sm bg-background/50 border border-border space-y-4">
+        <form onSubmit={handleSubmit} className="mb-6 p-4 rounded-sm bg-background/50 border border-border space-y-4 shadow-xl">
           <div>
             <label className="block font-display text-xs text-primary mb-1 tracking-wider">
               File Path
@@ -129,7 +133,7 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
               <option value="">No Ticket</option>
               {bugs.map((bug) => (
                 <option key={bug.id} value={bug.id}>
-                  {bug.title}
+                  [{bug.wowClass.toUpperCase()}] {bug.title}
                 </option>
               ))}
             </select>
@@ -140,14 +144,14 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
               Cancel
             </button>
             <button type="submit" className="wow-button-primary flex-1 text-sm py-2">
-              Save
+              Save Change
             </button>
           </div>
         </form>
       )}
 
       {/* Changes List */}
-      <div className="space-y-3 max-h-[500px] overflow-y-auto">
+      <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1 custom-scrollbar">
         {changes.length === 0 ? (
           <div className="text-center py-8">
             <Code className="w-12 h-12 mx-auto text-muted-foreground mb-3 opacity-50" />
@@ -157,26 +161,38 @@ export const CodeChangeTracker = ({ changes, onAddChange, bugs, currentDeveloper
           changes.map((change) => (
             <div
               key={change.id}
-              className="p-3 rounded-sm bg-background/50 border border-border"
+              className="p-3 rounded-sm bg-background/50 border border-border group hover:border-primary/30 transition-all"
             >
               <div className="flex items-start gap-3">
                 <FileCode className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`px-2 py-0.5 text-xs font-bold uppercase rounded ${changeTypeConfig[change.change_type].color}`}>
-                      {changeTypeConfig[change.change_type].label}
-                    </span>
-                    <span className="text-xs text-muted-foreground truncate">
-                      {change.file_path}
-                    </span>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded ${changeTypeConfig[change.change_type].color}`}>
+                        {changeTypeConfig[change.change_type].label}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground truncate italic">
+                        {change.file_path}
+                      </span>
+                    </div>
+
+                    {onDelete && (
+                      <button
+                        onClick={() => onDelete(change.id)}
+                        className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-red-400 transition-all"
+                        title="Delete log"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
 
-                  <p className="text-sm text-foreground line-clamp-2 mb-1">
+                  <p className="text-sm text-foreground mb-1 leading-snug">
                     {change.change_description}
                   </p>
 
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground/70">
+                  <div className="flex items-center gap-3 text-[10px] text-muted-foreground/70">
                     <span className="flex items-center gap-1 text-primary/80">
                       <User className="w-3 h-3" />
                       {typeof change.developer_id === 'object' ? (change.developer_id as any).username : 'Developer'}
