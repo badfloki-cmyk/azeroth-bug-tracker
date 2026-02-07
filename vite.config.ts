@@ -12,7 +12,6 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [react()],
-  base: "/azeroth-bug-tracker/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

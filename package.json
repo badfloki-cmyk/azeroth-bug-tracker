@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "predeploy": "npm run build",
+    "predeploy": "vite build --base=/azeroth-bug-tracker/",
     "deploy": "gh-pages -d dist"
   },
   "homepage": "https://bungeexastro.github.io/azeroth-bug-tracker/",
