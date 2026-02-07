@@ -121,42 +121,44 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
 
               {/* Detailed View */}
               {isExpanded && (
-                <div className="px-4 pb-4 pt-2 border-t border-border bg-black/20 space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <h5 className="text-xs font-bold uppercase text-primary flex items-center gap-2">
-                        <Info className="w-3 h-3" /> Current Behavior
+                <div className="px-5 pb-6 pt-3 border-t border-border bg-black/40 space-y-6">
+                  <div className="grid grid-cols-1 gap-6">
+                    <div className="space-y-3">
+                      <h5 className="text-xs font-bold uppercase text-primary flex items-center gap-2 tracking-widest">
+                        <Info className="w-3.5 h-3.5" /> Current Behavior
                       </h5>
-                      <p className="text-sm text-muted-foreground bg-background/30 p-2 rounded-sm border border-border/50">
+                      <p className="text-sm text-balance text-muted-foreground bg-background/40 p-4 rounded-sm border border-border/50 min-h-[120px] whitespace-pre-wrap leading-relaxed">
                         {bug.currentBehavior}
                       </p>
                     </div>
-                    <div className="space-y-2">
-                      <h5 className="text-xs font-bold uppercase text-green-400 flex items-center gap-2">
-                        <CheckCircle className="w-3 h-3" /> Expected Behavior
+                    <div className="space-y-3">
+                      <h5 className="text-xs font-bold uppercase text-green-400 flex items-center gap-2 tracking-widest">
+                        <CheckCircle className="w-3.5 h-3.5" /> Expected Behavior
                       </h5>
-                      <p className="text-sm text-muted-foreground bg-background/30 p-2 rounded-sm border border-border/50">
+                      <p className="text-sm text-balance text-muted-foreground bg-background/40 p-4 rounded-sm border border-border/50 min-h-[120px] whitespace-pre-wrap leading-relaxed">
                         {bug.expectedBehavior}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-x-6 gap-y-3 p-3 rounded-sm bg-primary/5 border border-primary/10">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-sm bg-primary/5 border border-primary/10">
                     <div className="text-xs">
-                      <span className="text-muted-foreground block mb-1">Rotation</span>
-                      <span className="text-foreground font-medium flex items-center gap-2">
-                        <Target className="w-3 h-3 text-primary" /> {bug.rotation}
+                      <span className="text-muted-foreground/60 font-bold uppercase block mb-2 text-[10px]">Rotation / Specs</span>
+                      <span className="text-foreground font-medium flex items-center gap-2 text-sm bg-black/20 p-2 rounded-sm border border-border/30">
+                        <Target className="w-3.5 h-3.5 text-primary" /> {bug.rotation}
                       </span>
                     </div>
                     <div className="text-xs">
-                      <span className="text-muted-foreground block mb-1">Level / Mode</span>
-                      <span className="text-foreground font-medium uppercase">
-                        Lvl {bug.level} / {bug.pvpveMode}
+                      <span className="text-muted-foreground/60 font-bold uppercase block mb-2 text-[10px]">Character Level / Mode</span>
+                      <span className="text-foreground font-medium uppercase text-sm bg-black/20 p-2 rounded-sm border border-border/30 block">
+                        Level {bug.level} / {bug.pvpveMode}
                       </span>
                     </div>
                     <div className="text-xs">
-                      <span className="text-muted-foreground block mb-1">Discord</span>
-                      <span className="text-foreground font-medium">@{bug.discordUsername}</span>
+                      <span className="text-muted-foreground/60 font-bold uppercase block mb-2 text-[10px]">Discord Contact</span>
+                      <span className="text-foreground font-medium text-sm bg-black/20 p-2 rounded-sm border border-border/30 block">
+                        @{bug.discordUsername}
+                      </span>
                     </div>
                   </div>
 
