@@ -62,6 +62,18 @@ const classNames: Record<WoWClass, string> = {
   esp: "ESP System",
 };
 
+const classSpecs: Partial<Record<WoWClass, string[]>> = {
+  warrior: ['Arms', 'Fury', 'Protection'],
+  rogue: ['Assassination', 'Combat', 'Subtlety'],
+  hunter: ['Beast Mastery', 'Marksmanship', 'Survival'],
+  warlock: ['Affliction', 'Demonology', 'Destruction'],
+  paladin: ['Holy', 'Protection', 'Retribution'],
+  priest: ['Discipline', 'Holy', 'Shadow'],
+  mage: ['Arcane', 'Fire', 'Frost'],
+  shaman: ['Elemental', 'Enhancement', 'Restoration'],
+  druid: ['Balance', 'Feral', 'Restoration'],
+};
+
 export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: BugReportModalProps) => {
   const [selectedClass, setSelectedClass] = useState<WoWClass | null>(initialBug?.wowClass || null);
   const [rotation, setRotation] = useState<string>(initialBug?.rotation || '');
@@ -100,7 +112,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedClass || !rotation || !pvpveMode || !level || !expansion || !title ||
+    if (!selectedClass || (selectedClass !== 'esp' && !rotation) || !pvpveMode || !level || !expansion || !title ||
       !currentBehavior || !expectedBehavior || !discordUsername || !sylvanasUsername || !logs) {
       toast.error("Please fill in all required fields.");
       return;
@@ -152,15 +164,15 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
       />
 
       {/* Modal */}
-      <WoWPanel className="relative z-10 w-full max-w-4xl max-h-[90vh] overflow-auto">
+      <WoWPanel className="relative z-10 w-full max-w-lg sm:max-w-2xl md:max-w-4xl max-h-[90vh] overflow-auto p-4 sm:p-6">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-muted-foreground hover:text-primary transition-colors"
+          className="absolute top-2 right-2 sm:top-4 sm:right-4 text-muted-foreground hover:text-primary transition-colors"
         >
           <X className="w-6 h-6" />
         </button>
 
-        <h2 className="font-display text-2xl wow-gold-text mb-6">
+        <h2 className="font-display text-xl sm:text-2xl wow-gold-text mb-4 sm:mb-6">
           Report Bug - {developer === 'astro' ? 'Astro' : 'Bungee'}
         </h2>
 
@@ -175,8 +187,8 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
                 <button
                   key={wowClass}
                   type="button"
-                  onClick={() => setSelectedClass(wowClass)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-sm border-2 transition-all ${selectedClass === wowClass
+                  onClick={() => { setSelectedClass(wowClass); setRotation(''); }}
+                  className={`flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 rounded-sm border-2 transition-all text-xs sm:text-sm ${selectedClass === wowClass
                     ? 'border-primary bg-primary/10'
                     : 'border-border hover:border-primary/50'
                     }`}
@@ -188,20 +200,24 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
             </div>
           </div>
 
-          {/* Rotation Name */}
-          <div>
-            <label className="block font-display text-sm text-primary mb-2 tracking-wider">
-              Specific Rotation
-            </label>
-            <input
-              type="text"
-              value={rotation}
-              onChange={(e) => setRotation(e.target.value)}
-              placeholder="e.g. Fire Mage, Frost Mage, Destruction Warlock..."
-              className="wow-input"
-              required
-            />
-          </div>
+          {/* Spec Selection */}
+          {selectedClass && selectedClass !== 'esp' && classSpecs[selectedClass] && (
+            <div>
+              <label className="block font-display text-sm text-primary mb-2 tracking-wider">
+                Specialization
+              </label>
+              <Select value={rotation} onValueChange={(value) => setRotation(value)}>
+                <SelectTrigger className="wow-input">
+                  <SelectValue placeholder="Select Specialization" />
+                </SelectTrigger>
+                <SelectContent>
+                  {classSpecs[selectedClass]!.map((spec) => (
+                    <SelectItem key={spec} value={spec}>{spec}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* PvE / PvP */}
           <div>
@@ -307,7 +323,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Detailed steps to reproduce..."
-              className="wow-input min-h-[120px] resize-y"
+              className="wow-input min-h-[80px] sm:min-h-[120px] resize-y"
             />
           </div>
 
@@ -320,7 +336,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
               value={currentBehavior}
               onChange={(e) => setCurrentBehavior(e.target.value)}
               placeholder="Describe the current behavior in detail..."
-              className="wow-input min-h-[150px] resize-y"
+              className="wow-input min-h-[100px] sm:min-h-[150px] resize-y"
               required
             />
             <p className="text-xs text-muted-foreground mt-1">
@@ -337,7 +353,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
               value={expectedBehavior}
               onChange={(e) => setExpectedBehavior(e.target.value)}
               placeholder="Describe the expected behavior in detail..."
-              className="wow-input min-h-[150px] resize-y"
+              className="wow-input min-h-[100px] sm:min-h-[150px] resize-y"
               required
             />
             <p className="text-xs text-muted-foreground mt-1">
@@ -354,7 +370,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
               value={logs}
               onChange={(e) => setLogs(e.target.value)}
               placeholder="Add relevant logs here..."
-              className="wow-input min-h-[100px] resize-y"
+              className="wow-input min-h-[60px] sm:min-h-[100px] resize-y"
             />
           </div>
 
@@ -412,13 +428,13 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
             <label className="block font-display text-sm text-primary mb-3 tracking-wider">
               Priority
             </label>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               {(['low', 'medium', 'high', 'critical'] as const).map((p) => (
                 <button
                   key={p}
                   type="button"
                   onClick={() => setPriority(p)}
-                  className={`px-4 py-2 rounded-sm border-2 font-display text-sm uppercase transition-all ${priority === p
+                  className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-sm border-2 font-display text-xs sm:text-sm uppercase transition-all ${priority === p
                     ? p === 'critical'
                       ? 'border-red-500 bg-red-500/20 text-red-400'
                       : p === 'high'
@@ -436,7 +452,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
           </div>
 
           {/* Submit */}
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 pt-4">
             <button type="button" onClick={onClose} className="wow-button flex-1">
               Cancel
             </button>

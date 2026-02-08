@@ -48,25 +48,25 @@ export const DeveloperCard = ({ developer, onReportBug }: DeveloperCardProps) =>
   return (
     <WoWPanel className="flex flex-col h-full">
       {/* Developer Header */}
-      <div className="flex items-center gap-4 mb-6 pb-4 border-b border-border">
+      <div className="flex items-center gap-3 sm:gap-4 mb-6 pb-4 border-b border-border">
         <div className="relative">
-          <img 
-            src={data.avatar} 
+          <img
+            src={data.avatar}
             alt={data.name}
-            className="w-20 h-20 rounded-full object-cover border-4 border-accent shadow-lg animate-glow-pulse"
+            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-accent shadow-lg animate-glow-pulse"
           />
           <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-status-optimized border-2 border-card" />
         </div>
         
         <div>
-          <h2 className="font-display text-2xl wow-gold-text">{data.name}</h2>
+          <h2 className="font-display text-xl sm:text-2xl wow-gold-text">{data.name}</h2>
           <p className="text-muted-foreground text-sm">Class Developer</p>
         </div>
       </div>
       
       {/* Class Coverage */}
       <div className="flex-1">
-        <h3 className="font-display text-sm text-primary mb-4 tracking-widest">
+        <h3 className="font-display text-xs sm:text-sm text-primary mb-4 tracking-widest">
           🛠 CLASS COVERAGE & STATUS
         </h3>
         
@@ -85,7 +85,7 @@ export const DeveloperCard = ({ developer, onReportBug }: DeveloperCardProps) =>
       {/* Report Bug Button */}
       <button 
         onClick={onReportBug}
-        className="wow-button-primary w-full mt-6 py-3"
+        className="wow-button-primary w-full mt-6 py-2 sm:py-3"
       >
         Report Bug for {data.name}
       </button>

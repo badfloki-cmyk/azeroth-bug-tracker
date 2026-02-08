@@ -10,13 +10,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     await connectDB();
-    const { email, password } = req.body;
+    const { identifier, email: emailFallback, password } = req.body;
+    const loginId = identifier || emailFallback;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: 'E-Mail und Passwort erforderlich' });
+    if (!loginId || !password) {
+      return res.status(400).json({ error: 'E-Mail/Username und Passwort erforderlich' });
     }
 
-    const user = await User.findOne({ email });
+    const query = loginId.includes('@')
+      ? { email: loginId.toLowerCase() }
+      : { username: loginId.toLowerCase() };
+    const user = await User.findOne(query);
     if (!user) {
       return res.status(401).json({ error: 'Ungültige Anmeldedaten' });
     }

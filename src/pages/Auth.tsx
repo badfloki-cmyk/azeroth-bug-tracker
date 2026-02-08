@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { WoWPanel } from "@/components/WoWPanel";
-import { Shield, Eye, EyeOff } from "lucide-react";
+import { Shield, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import wowBackground from "@/assets/wow-background.jpg";
 import { toast } from "sonner";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [registrationPassword, setRegistrationPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -32,7 +32,7 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        await login(email, password);
+        await login(identifier, password);
         toast.success("Welcome back, Hero!");
         navigate("/dashboard");
       } else {
@@ -60,7 +60,7 @@ const Auth = () => {
         // Actually, let's update AuthContext.tsx first or handle it here if it's already updated.
         // Looking at my previous view_file of AuthContext, it only has 4 args.
 
-        await register(username, email, password, developerType, registrationPassword);
+        await register(username, identifier, password, developerType, registrationPassword);
         toast.success("Registration successful!");
         navigate("/dashboard");
       }
@@ -79,6 +79,15 @@ const Auth = () => {
         style={{ backgroundImage: `url(${wowBackground})` }}
       />
       <div className="fixed inset-0 bg-gradient-to-b from-background/95 via-background/85 to-background/95" />
+
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="absolute top-6 left-6 z-20 flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+      >
+        <ArrowLeft className="w-5 h-5" />
+        <span className="font-display text-sm tracking-wider">Back</span>
+      </button>
 
       {/* Auth Form */}
       <WoWPanel className="relative z-10 w-full max-w-md">
@@ -141,13 +150,13 @@ const Auth = () => {
 
           <div>
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
-              Email
+              {isLogin ? "Email or Username" : "Email"}
             </label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
+              type={isLogin ? "text" : "email"}
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              placeholder={isLogin ? "your@email.com or username..." : "your@email.com"}
               className="wow-input"
               required
             />

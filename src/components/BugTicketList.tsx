@@ -4,11 +4,49 @@ import { WoWPanel } from "./WoWPanel";
 import {
   Bug, Clock, User, CheckCircle, Play, Circle,
   ChevronDown, ChevronUp, Trash2, Edit2,
-  Terminal, Video, Image as ImageIcon, Info, Target, Layers
+  Terminal, Video, Image as ImageIcon, Info, Target, Layers, Sparkles
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { useState } from "react";
+import { toast } from "sonner";
+
+const generatePrompt = (bug: BugReport) => {
+  const expansionMap: Record<string, string> = { tbc: 'TBC', era: 'Classic Era', hc: 'Hardcore' };
+  const expansion = expansionMap[bug.expansion] || bug.expansion?.toUpperCase();
+  const mode = bug.pvpveMode?.toUpperCase();
+
+  return `Du bist Lua-Entwickler für World of Warcraft ${expansion} Rotations. Deine Aufgabe ist es so nah wie möglich an die perfekte WoW ${bug.wowClass} ${mode} Rotation zu kommen. Du darfst nur Project Sylvanas API verwenden und nicht die standardmäßige WoW Classic LUA API.
+
+Die API findest du im documentations oder im .api folder.
+
+## Bug Report: ${bug.title}
+- Klasse: ${bug.wowClass}
+- Rotation/Spec: ${bug.rotation}
+- Level: ${bug.level}
+- Expansion: ${expansion}
+- Modus: ${mode}
+- Priorität: ${bug.priority}
+
+## Beschreibung
+${bug.description}
+
+## Aktuelles Verhalten
+${bug.currentBehavior}
+
+## Erwartetes Verhalten
+${bug.expectedBehavior}
+
+## Logs
+${bug.logs || 'Keine Logs vorhanden'}
+${bug.videoUrl ? `\n## Video\n${bug.videoUrl}` : ''}
+${bug.screenshotUrls?.length ? `\n## Screenshots\n${bug.screenshotUrls.join('\n')}` : ''}
+
+Recherchiere im Internet nach Guides und lies dir diese ausreichend durch. Du sollst verstehen lernen wie man den ${bug.wowClass} in ${expansion} spielt und das dann mit dem erwarteten Verhalten vergleichen (ob dieses auch gerechtfertig ist) und mit der aktuellen Rotation vergleichen. Das Verhalten der Rotation soll möglichst dem im Guide entsprehen. Das erwartete Verhalten wird vom benutzer reported und kann fehlinterpretiert sein und soll nur als Anhaltspunkt dienen.
+
+Stelle so viele Rückfragen wie möglich.
+Lasse dir bei der Fehlersuche ruhig Zeit dabei. Qualität ist besser als Schnelligkeit. Deepthink.`;
+};
 
 interface BugTicketListProps {
   bugs: BugReport[];
@@ -50,8 +88,8 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
   if (bugs.length === 0) {
     return (
       <WoWPanel className="text-center py-12">
-        <Bug className="w-16 h-16 mx-auto text-muted-foreground mb-4 opacity-50" />
-        <h3 className="font-display text-lg text-muted-foreground">No Bug Reports</h3>
+        <Bug className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-muted-foreground mb-4 opacity-50" />
+        <h3 className="font-display text-base sm:text-lg text-muted-foreground">No Bug Reports</h3>
         <p className="text-sm text-muted-foreground/60 mt-2">
           All systems working! Report a bug if you find one.
         </p>
@@ -79,14 +117,14 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
             >
               {/* Summary View */}
               <div
-                className={`p-4 flex items-start gap-4 transition-colors ${isExpandable ? 'cursor-pointer hover:bg-white/5' : ''}`}
+                className={`p-3 sm:p-4 flex items-start gap-2 sm:gap-4 transition-colors ${isExpandable ? 'cursor-pointer hover:bg-white/5' : ''}`}
                 onClick={() => toggleExpand(bug.id)}
               >
                 <ClassIcon wowClass={bug.wowClass} size="md" />
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-1 flex-wrap">
-                    <h4 className="font-display text-foreground truncate">{bug.title}</h4>
+                    <h4 className="font-display text-sm sm:text-base text-foreground truncate">{bug.title}</h4>
                     <span className={`px-2 py-0.5 text-xs font-bold uppercase rounded border ${priorityColors[bug.priority]}`}>
                       {bug.priority}
                     </span>
@@ -112,7 +150,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                   </div>
                 </div>
 
-                <div className="flex flex-col items-end gap-2">
+                <div className="flex flex-col items-end gap-2 flex-shrink-0">
                   <span className={`px-2 py-1 text-xs font-bold uppercase rounded flex items-center gap-1 ${statusColors[bug.status]}`}>
                     <StatusIcon className="w-3 h-3" />
                     {bug.status === 'open' ? 'Open' : bug.status === 'in-progress' ? 'In Progress' : 'Resolved'}
@@ -125,13 +163,13 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
 
               {/* Detailed View */}
               {isExpanded && (
-                <div className="px-5 pb-6 pt-3 border-t border-border bg-black/40 space-y-6">
+                <div className="px-3 pb-4 pt-2 sm:px-5 sm:pb-6 sm:pt-3 border-t border-border bg-black/40 space-y-4 sm:space-y-6">
                   <div className="grid grid-cols-1 gap-6">
                     <div className="space-y-3">
                       <h5 className="text-xs font-bold uppercase text-primary flex items-center gap-2 tracking-widest">
                         <Info className="w-3.5 h-3.5" /> Current Behavior
                       </h5>
-                      <p className="text-sm text-balance text-muted-foreground bg-background/40 p-4 rounded-sm border border-border/50 min-h-[120px] whitespace-pre-wrap leading-relaxed">
+                      <p className="text-sm text-balance text-muted-foreground bg-background/40 p-3 sm:p-4 rounded-sm border border-border/50 min-h-[80px] sm:min-h-[120px] whitespace-pre-wrap leading-relaxed">
                         {bug.currentBehavior}
                       </p>
                     </div>
@@ -139,7 +177,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                       <h5 className="text-xs font-bold uppercase text-green-400 flex items-center gap-2 tracking-widest">
                         <CheckCircle className="w-3.5 h-3.5" /> Expected Behavior
                       </h5>
-                      <p className="text-sm text-balance text-muted-foreground bg-background/40 p-4 rounded-sm border border-border/50 min-h-[120px] whitespace-pre-wrap leading-relaxed">
+                      <p className="text-sm text-balance text-muted-foreground bg-background/40 p-3 sm:p-4 rounded-sm border border-border/50 min-h-[80px] sm:min-h-[120px] whitespace-pre-wrap leading-relaxed">
                         {bug.expectedBehavior}
                       </p>
                     </div>
@@ -172,7 +210,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                       <h5 className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-2 tracking-widest">
                         <Terminal className="w-3.5 h-3.5" /> System Logs
                       </h5>
-                      <pre className="text-xs text-muted-foreground bg-black/40 p-4 rounded-sm border border-border/50 min-h-[100px] whitespace-pre-wrap font-mono overflow-x-auto">
+                      <pre className="text-xs text-muted-foreground bg-black/40 p-3 sm:p-4 rounded-sm border border-border/50 min-h-[60px] sm:min-h-[100px] whitespace-pre-wrap font-mono overflow-x-auto">
                         {bug.logs}
                       </pre>
                     </div>
@@ -209,6 +247,16 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                   {showActions && (
                     <div className="flex justify-between items-center pt-4 border-t border-border/50">
                       <div className="flex gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(generatePrompt(bug));
+                            toast.success("Prompt in Zwischenablage kopiert!");
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 rounded-sm bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 text-xs font-bold uppercase transition-all"
+                        >
+                          <Sparkles className="w-3 h-3" /> Generate Prompt
+                        </button>
                         {onEdit && (
                           <button
                             onClick={(e) => { e.stopPropagation(); onEdit(bug); }}

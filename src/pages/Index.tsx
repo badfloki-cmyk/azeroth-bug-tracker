@@ -99,8 +99,8 @@ const Index = () => {
         <header className="border-b border-border bg-card/80 backdrop-blur-sm">
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Shield className="w-10 h-10 text-primary" />
+              <div className="flex items-center gap-2 sm:gap-4">
+                <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
                 <div className="text-center md:text-left">
                   <h1 className="font-display text-2xl md:text-4xl wow-gold-text tracking-wider">
                     Bungee × Astro
@@ -164,9 +164,9 @@ const Index = () => {
               href="https://revolut.me/mauromp4"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all group"
+              className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-full bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all group text-center"
             >
-              <span className="font-display tracking-wide text-sm md:text-base">If you want to support Bungee x Astro, tips are appreciated</span>
+              <span className="font-display tracking-wide text-xs sm:text-sm md:text-base">If you want to support Bungee x Astro, tips are appreciated</span>
               <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </a>
           </div>
@@ -175,7 +175,7 @@ const Index = () => {
         {/* Footer */}
         <footer className="border-t border-border bg-card/60 backdrop-blur-sm mt-12">
           <div className="container mx-auto px-4 py-6 text-center">
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-xs sm:text-sm">
               © 2026 Bungee × Astro • World of Warcraft Class Optimization Project
             </p>
           </div>

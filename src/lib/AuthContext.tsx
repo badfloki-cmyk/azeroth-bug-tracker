@@ -13,7 +13,7 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string, developer_type: string, registration_password: string) => Promise<void>;
   logout: () => void;
   setError: (error: string | null) => void;
@@ -37,11 +37,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (identifier: string, password: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await authAPI.login(email, password);
+      const response = await authAPI.login(identifier, password);
       setToken(response.token);
       setUser(response.user);
       localStorage.setItem("auth_token", response.token);
