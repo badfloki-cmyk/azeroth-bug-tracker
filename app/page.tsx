@@ -40,6 +40,7 @@ export default function IndexPage() {
                 sylvanasUsername: bug.sylvanas_username || '',
                 priority: bug.priority as BugReport['priority'],
                 status: bug.status as BugReport['status'],
+                isArchived: bug.is_archived || bug.isArchived || false,
                 createdAt: new Date(bug.createdAt),
                 reporter: bug.reporter_name || bug.sylvanas_username || '',
             })));
@@ -78,8 +79,12 @@ export default function IndexPage() {
     const handleBugDelete = async (ticketId: string) => {
         try {
             const token = localStorage.getItem('auth_token') || "";
+            if (!token) {
+                toast.error("You must be logged in to delete reports.");
+                return;
+            }
             await bugAPI.delete(ticketId, token);
-            toast.success("Bug report deleted successfully!");
+            toast.success("Bug report archived successfully!");
             fetchBugs();
         } catch (error: any) {
             toast.error(error.message || "Error deleting bug report.");
@@ -87,8 +92,9 @@ export default function IndexPage() {
         }
     };
 
-    const astroBugs = bugs.filter(b => b.developer === 'astro');
-    const bungeeBugs = bugs.filter(b => b.developer === 'bungee');
+    const visibleBugs = bugs.filter(b => !b.isArchived);
+    const astroBugs = visibleBugs.filter(b => b.developer === 'astro');
+    const bungeeBugs = visibleBugs.filter(b => b.developer === 'bungee');
 
     return (
         <div className="min-h-screen relative">
