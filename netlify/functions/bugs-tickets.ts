@@ -126,22 +126,27 @@ export const handler: Handler = async (event) => {
 
             await bugTicket.save();
 
-            // Send Discord notification (non-blocking)
-            sendBugNotification({
-                developer: developer.toLowerCase(),
-                wow_class,
-                rotation,
-                title,
-                current_behavior,
-                expected_behavior,
-                priority: priority || 'medium',
-                discord_username,
-                sylvanas_username,
-                reporter_name,
-                expansion,
-                pvpve_mode,
-                level,
-            }).catch(err => console.error('Discord notification error:', err));
+            // Send Discord notification (await to ensure it completes)
+            try {
+                await sendBugNotification({
+                    developer: developer.toLowerCase(),
+                    wow_class,
+                    rotation,
+                    title,
+                    current_behavior,
+                    expected_behavior,
+                    priority: priority || 'medium',
+                    discord_username,
+                    sylvanas_username,
+                    reporter_name,
+                    expansion,
+                    pvpve_mode,
+                    level,
+                });
+            } catch (discordError) {
+                console.error('Discord notification error:', discordError);
+                // Don't fail the bug creation if Discord fails
+            }
 
             return {
                 statusCode: 201,
