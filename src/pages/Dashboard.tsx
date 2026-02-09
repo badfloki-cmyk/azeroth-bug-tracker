@@ -5,7 +5,8 @@ import { userAPI, bugAPI, codeChangeAPI } from "@/lib/api";
 import { WoWPanel } from "@/components/WoWPanel";
 import { BugTicketList } from "@/components/BugTicketList";
 import { CodeChangeTracker } from "@/components/CodeChangeTracker";
-import { LogOut, Shield, Swords, Plus, User } from "lucide-react";
+import { BugStats } from "@/components/BugStats";
+import { LogOut, Shield, Swords, Plus, User, Home } from "lucide-react";
 import wowBackground from "@/assets/wow-background.jpg";
 import astroAvatar from "@/assets/astro-avatar.png";
 import bungeeAvatar from "@/assets/bungee-avatar.png";
@@ -254,6 +255,14 @@ const Dashboard = () => {
             </div>
 
             <button
+              onClick={() => navigate("/")}
+              className="p-2 text-muted-foreground hover:text-primary transition-colors"
+              title="Back to Main Page"
+            >
+              <Home className="w-5 h-5" />
+            </button>
+
+            <button
               onClick={handleLogout}
               className="p-2 text-muted-foreground hover:text-red-400 transition-colors"
               title="Logout"
@@ -266,6 +275,11 @@ const Dashboard = () => {
 
       {/* Content */}
       <main className="container mx-auto px-4 py-8 relative z-10">
+        {/* Statistics Section */}
+        <div className="mb-8">
+          <BugStats bugs={bugs} />
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Column - Bug Tickets */}
           <div className="lg:col-span-2 space-y-8">

@@ -2,6 +2,7 @@ import { Handler } from '@netlify/functions';
 import { connectDB } from '../../lib/db/mongodb';
 import BugTicket from '../../lib/models/BugTicket';
 import { verifyToken, extractToken } from '../../lib/auth/jwt';
+import { sendBugNotification } from '../../lib/discord';
 
 export const handler: Handler = async (event) => {
     const headers = {
@@ -124,6 +125,24 @@ export const handler: Handler = async (event) => {
             });
 
             await bugTicket.save();
+
+            // Send Discord notification (non-blocking)
+            sendBugNotification({
+                developer: developer.toLowerCase(),
+                wow_class,
+                rotation,
+                title,
+                current_behavior,
+                expected_behavior,
+                priority: priority || 'medium',
+                discord_username,
+                sylvanas_username,
+                reporter_name,
+                expansion,
+                pvpve_mode,
+                level,
+            }).catch(err => console.error('Discord notification error:', err));
+
             return {
                 statusCode: 201,
                 headers,

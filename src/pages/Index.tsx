@@ -125,6 +125,19 @@ const Index = () => {
 
         {/* Main Content */}
         <main className="container mx-auto px-4 py-8">
+          {/* Donation Section - Prominent at Top */}
+          <div className="mb-8 text-center">
+            <a
+              href="https://revolut.me/mauromp4"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-full bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all group text-center"
+            >
+              <span className="font-display tracking-wide text-xs sm:text-sm md:text-base">If you want to support Bungee x Astro, tips are appreciated</span>
+              <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </a>
+          </div>
+
           {/* Developer Cards */}
           <div className="grid lg:grid-cols-2 gap-8 mb-12">
             <DeveloperCard
@@ -158,18 +171,7 @@ const Index = () => {
               />
             </div>
           )}
-          {/* Donation Section */}
-          <div className="mt-16 text-center">
-            <a
-              href="https://revolut.me/mauromp4"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-full bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all group text-center"
-            >
-              <span className="font-display tracking-wide text-xs sm:text-sm md:text-base">If you want to support Bungee x Astro, tips are appreciated</span>
-              <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </a>
-          </div>
+
         </main>
 
         {/* Footer */}
