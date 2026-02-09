@@ -4,12 +4,13 @@ import { WoWPanel } from "./WoWPanel";
 import { ResolveReasonModal } from "./ResolveReasonModal";
 import {
   Bug, Clock, User, CheckCircle, Play, Circle,
-  ChevronDown, ChevronUp, Trash2, Edit2,
+  ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Trash2, Edit2,
   Terminal, Video, Image as ImageIcon, Info, Target, Layers, Sparkles
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { enUS } from "date-fns/locale";
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
+import { usePagination } from "@/hooks/usePagination";
 import { toast } from "sonner";
 
 const generatePrompt = (bug: BugReport) => {
@@ -65,6 +66,7 @@ interface BugTicketListProps {
   showActions?: boolean;
   isExpandable?: boolean;
   isArchiveView?: boolean;
+  pageSize?: number;
 }
 
 const priorityColors = {
@@ -86,9 +88,45 @@ const statusIcons = {
   'resolved': CheckCircle,
 };
 
-export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onDelete, onEdit, showActions, isExpandable = true, isArchiveView = false }: BugTicketListProps) => {
+function generatePageNumbers(current: number, total: number): (number | '...')[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const pages: (number | '...')[] = [1];
+  if (current > 3) pages.push('...');
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (current < total - 2) pages.push('...');
+  pages.push(total);
+  return pages;
+}
+
+export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onDelete, onEdit, showActions, isExpandable = true, isArchiveView = false, pageSize = 5 }: BugTicketListProps) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [resolvingBugId, setResolvingBugId] = useState<string | null>(null);
+
+  const sortByOldestFirst = useCallback(
+    (a: BugReport, b: BugReport) =>
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    []
+  );
+
+  const {
+    currentItems,
+    currentPage,
+    totalPages,
+    totalItems,
+    goToPage,
+    goToNextPage,
+    goToPrevPage,
+    hasNextPage,
+    hasPrevPage,
+  } = usePagination({
+    items: bugs,
+    itemsPerPage: pageSize,
+    sortFn: sortByOldestFirst,
+  });
 
   const toggleExpand = (id: string) => {
     if (!isExpandable) return;
@@ -112,11 +150,11 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
       <h2 className="font-display text-xl wow-gold-text mb-6 flex items-center gap-3">
         <Bug className="w-5 h-5" />
         {title}
-        <span className="text-sm text-muted-foreground">({bugs.length})</span>
+        <span className="text-sm text-muted-foreground">({totalItems})</span>
       </h2>
 
       <div className="space-y-3">
-        {bugs.map((bug) => {
+        {currentItems.map((bug) => {
           const StatusIcon = statusIcons[bug.status];
           const isExpanded = expandedId === bug.id;
 
@@ -356,6 +394,64 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
           );
         })}
       </div>
+
+      {totalPages > 1 && (
+        <div className="mt-4 pt-4 border-t border-border/50">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={goToPrevPage}
+              disabled={!hasPrevPage}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm border-2 text-xs font-bold uppercase tracking-wider transition-all font-display
+                ${hasPrevPage
+                  ? 'border-border hover:border-primary/50 text-muted-foreground hover:text-primary cursor-pointer'
+                  : 'border-border/30 text-muted-foreground/30 cursor-not-allowed'
+                }`}
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              Prev
+            </button>
+
+            <div className="flex items-center gap-1">
+              {generatePageNumbers(currentPage, totalPages).map((page, idx) =>
+                page === '...' ? (
+                  <span key={`ellipsis-${idx}`} className="px-2 text-muted-foreground/50 text-xs">
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    key={page}
+                    onClick={() => goToPage(page as number)}
+                    className={`w-8 h-8 rounded-sm text-xs font-bold font-display transition-all
+                      ${currentPage === page
+                        ? 'bg-primary/20 border-2 border-primary text-primary'
+                        : 'border border-border/50 text-muted-foreground hover:border-primary/50 hover:text-primary'
+                      }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+            </div>
+
+            <button
+              onClick={goToNextPage}
+              disabled={!hasNextPage}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm border-2 text-xs font-bold uppercase tracking-wider transition-all font-display
+                ${hasNextPage
+                  ? 'border-border hover:border-primary/50 text-muted-foreground hover:text-primary cursor-pointer'
+                  : 'border-border/30 text-muted-foreground/30 cursor-not-allowed'
+                }`}
+            >
+              Next
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <p className="text-center text-xs text-muted-foreground/60 mt-2 font-display tracking-wider">
+            Page {currentPage} of {totalPages}
+          </p>
+        </div>
+      )}
 
       {resolvingBugId && (
         <ResolveReasonModal
