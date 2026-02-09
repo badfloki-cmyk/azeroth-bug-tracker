@@ -21,6 +21,7 @@ export interface IBugTicket extends Document {
   reporter_name: string;
   reporter_user_id?: mongoose.Types.ObjectId;
   assigned_to?: mongoose.Types.ObjectId;
+  isArchived: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -47,6 +48,7 @@ const BugTicketSchema = new Schema(
     reporter_name: { type: String, required: true },
     reporter_user_id: { type: Schema.Types.ObjectId, ref: "User", default: null },
     assigned_to: { type: Schema.Types.ObjectId, ref: "User", default: null },
+    isArchived: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

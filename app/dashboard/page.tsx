@@ -85,6 +85,7 @@ export default function DashboardPage() {
                 sylvanasUsername: bug.sylvanas_username,
                 priority: bug.priority as BugReport['priority'],
                 status: bug.status as BugReport['status'],
+                isArchived: bug.is_archived || bug.isArchived || false,
                 createdAt: new Date(bug.createdAt),
                 reporter: bug.reporter_name || bug.sylvanas_username || 'Unknown',
             })));
@@ -128,12 +129,12 @@ export default function DashboardPage() {
 
     const handleDeleteBug = async (ticketId: string) => {
         if (!token) return;
-        if (!window.confirm("Are you sure you want to delete this bug report permanently?")) return;
+        if (!window.confirm("Are you sure you want to delete this bug report? It will be archived and counted as resolved.")) return;
 
         try {
             await bugAPI.delete(ticketId, token);
-            setBugs(bugs.filter(b => b.id !== ticketId));
-            toast.success("Bug report deleted successfully");
+            setBugs(bugs.map(b => b.id === ticketId ? { ...b, isArchived: true, status: 'resolved' } : b));
+            toast.success("Bug report archived and resolved.");
         } catch (error: any) {
             toast.error(error.message || "Failed to delete bug report");
         }
@@ -220,8 +221,10 @@ export default function DashboardPage() {
         );
     }
 
-    const myBugs = bugs.filter(b => b.developer === profile?.developer_type);
-    const otherBugs = bugs.filter(b => b.developer !== profile?.developer_type);
+    // Filter visible bugs (not archived)
+    const visibleBugs = bugs.filter(b => !b.isArchived);
+    const myBugs = visibleBugs.filter(b => b.developer === profile?.developer_type);
+    const otherBugs = visibleBugs.filter(b => b.developer !== profile?.developer_type);
 
     return (
         <div className="min-h-screen relative bg-background/95">

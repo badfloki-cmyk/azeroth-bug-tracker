@@ -178,12 +178,16 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ error: 'Missing ticket ID' }, { status: 400 });
         }
 
-        const ticket = await BugTicket.findByIdAndDelete(id);
+        const ticket = await BugTicket.findByIdAndUpdate(id, {
+            isArchived: true,
+            status: 'resolved'
+        }, { new: true });
+
         if (!ticket) {
             return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
         }
 
-        return NextResponse.json({ message: 'Ticket deleted' });
+        return NextResponse.json({ message: 'Ticket archived and resolved' });
     } catch (error: any) {
         return NextResponse.json({ error: 'Failed to delete ticket', details: error.message }, { status: 500 });
     }

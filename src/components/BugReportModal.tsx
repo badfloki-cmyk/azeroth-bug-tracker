@@ -42,6 +42,7 @@ export interface BugReport {
   status: 'open' | 'in-progress' | 'resolved';
   createdAt: Date;
   reporter: string;
+  isArchived?: boolean;
 }
 
 const developerClasses: Record<'astro' | 'bungee', WoWClass[]> = {
