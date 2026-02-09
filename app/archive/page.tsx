@@ -1,57 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { bugAPI } from "@/lib/api";
 import { BugTicketList } from "@/components/BugTicketList";
-import type { BugReport } from "@/components/BugReportModal";
 import { Archive, Home, LogIn } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/AuthContext";
+import { useBugs } from "@/hooks/useBugs";
 
 export default function ArchivePage() {
     const { token } = useAuth();
-    const [bugs, setBugs] = useState<BugReport[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        fetchBugs();
-    }, []);
-
-    const fetchBugs = async () => {
-        try {
-            const data = await bugAPI.getAll();
-            setBugs(data.map((bug: any) => ({
-                id: bug._id,
-                developer: bug.developer as 'astro' | 'bungee',
-                wowClass: bug.wow_class as BugReport['wowClass'],
-                rotation: bug.rotation || '',
-                pvpveMode: bug.pvpve_mode as 'pve' | 'pvp' || 'pve',
-                level: bug.level || 80,
-                expansion: bug.expansion as 'tbc' | 'era' | 'hc' || 'tbc',
-                title: bug.title,
-                description: bug.description,
-                currentBehavior: bug.current_behavior || '',
-                expectedBehavior: bug.expected_behavior || '',
-                logs: bug.logs || undefined,
-                videoUrl: bug.video_url || undefined,
-                screenshotUrls: bug.screenshot_urls || [],
-                discordUsername: bug.discord_username || '',
-                sylvanasUsername: bug.sylvanas_username || '',
-                priority: bug.priority as BugReport['priority'],
-                status: bug.status as BugReport['status'],
-                isArchived: bug.is_archived || bug.isArchived || false,
-                resolveReason: bug.resolveReason || null,
-                createdAt: new Date(bug.createdAt),
-                reporter: bug.reporter_name || bug.sylvanas_username || '',
-            })));
-        } catch (error) {
-            console.error("Error fetching bugs:", error);
-            toast.error("Failed to load archived reports");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { bugs, isLoading: loading, updateStatus } = useBugs();
 
     const handleStatusChange = async (ticketId: string, newStatus: 'open' | 'in-progress' | 'resolved', resolveReason?: string) => {
         if (!token) {
@@ -59,8 +17,7 @@ export default function ArchivePage() {
             return;
         }
         try {
-            await bugAPI.updateStatus(ticketId, newStatus, token, resolveReason);
-            fetchBugs();
+            await updateStatus.mutateAsync({ ticketId, status: newStatus, token, resolveReason });
             toast.success(`Ticket moved to ${newStatus}`);
         } catch (error: any) {
             toast.error(error.message || "Failed to update status");

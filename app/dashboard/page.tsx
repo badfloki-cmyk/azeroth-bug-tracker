@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
-import { userAPI, bugAPI, codeChangeAPI } from "@/lib/api";
+import { userAPI, codeChangeAPI } from "@/lib/api";
+import { useBugs } from "@/hooks/useBugs";
 import { WoWPanel } from "@/components/WoWPanel";
 import { BugTicketList } from "@/components/BugTicketList";
 import { CodeChangeTracker } from "@/components/CodeChangeTracker";
@@ -33,8 +34,8 @@ interface CodeChange {
 
 export default function DashboardPage() {
     const { user, token, logout, isLoading: authLoading } = useAuth();
+    const { bugs, isLoading: bugsLoading, updateStatus, deleteBug, updateBug } = useBugs();
     const [profile, setProfile] = useState<Profile | null>(null);
-    const [bugs, setBugs] = useState<BugReport[]>([]);
     const [codeChanges, setCodeChanges] = useState<CodeChange[]>([]);
     const [loading, setLoading] = useState(true);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -45,15 +46,14 @@ export default function DashboardPage() {
         if (!authLoading && !user) {
             router.push("/auth");
         } else if (user && token) {
-            loadDashboardData();
+            loadProfileAndChanges();
         }
     }, [user, token, authLoading, router]);
 
-    const loadDashboardData = async () => {
+    const loadProfileAndChanges = async () => {
         if (!token) return;
         setLoading(true);
         try {
-            // Fetch profile
             const profileData = await userAPI.getProfile(token);
             const devType = (profileData.developer_type || profileData.user_id?.developer_type || "").toLowerCase();
 
@@ -64,34 +64,6 @@ export default function DashboardPage() {
                 avatar_url: profileData.avatar_url
             });
 
-            // Fetch bugs
-            const bugsData = await bugAPI.getAll();
-            setBugs(bugsData.map((bug: any) => ({
-                id: bug._id,
-                developer: (bug.developer as string || "").toLowerCase() as 'astro' | 'bungee',
-                wowClass: bug.wow_class as BugReport['wowClass'],
-                rotation: bug.rotation,
-                pvpveMode: bug.pvpve_mode as BugReport['pvpveMode'],
-                level: bug.level,
-                expansion: bug.expansion as BugReport['expansion'],
-                title: bug.title,
-                description: bug.description,
-                currentBehavior: bug.current_behavior,
-                expectedBehavior: bug.expected_behavior,
-                logs: bug.logs,
-                videoUrl: bug.video_url,
-                screenshotUrls: bug.screenshot_urls || [],
-                discordUsername: bug.discord_username,
-                sylvanasUsername: bug.sylvanas_username,
-                priority: bug.priority as BugReport['priority'],
-                status: bug.status as BugReport['status'],
-                isArchived: bug.is_archived || bug.isArchived || false,
-                createdAt: new Date(bug.createdAt),
-                reporter: bug.reporter_name || bug.sylvanas_username || 'Unknown',
-                resolveReason: bug.resolveReason || null,
-            })));
-
-            // Fetch code changes
             const changesData = await codeChangeAPI.getAll();
             setCodeChanges(changesData.map((change: any) => ({
                 id: change._id,
@@ -120,13 +92,7 @@ export default function DashboardPage() {
     const handleStatusChange = async (ticketId: string, newStatus: 'open' | 'in-progress' | 'resolved', resolveReason?: string) => {
         if (!token) return;
         try {
-            await bugAPI.updateStatus(ticketId, newStatus, token, resolveReason);
-            setBugs(bugs.map(b => b.id === ticketId ? {
-                ...b,
-                status: newStatus,
-                isArchived: newStatus === 'resolved',
-                resolveReason: newStatus === 'resolved' ? (resolveReason || null) : null,
-            } : b));
+            await updateStatus.mutateAsync({ ticketId, status: newStatus, token, resolveReason });
             toast.success(`Status updated to ${newStatus}`);
         } catch (error: any) {
             toast.error(error.message || "Failed to update status");
@@ -138,8 +104,7 @@ export default function DashboardPage() {
         if (!window.confirm("Are you sure you want to delete this bug report? It will be archived and counted as resolved.")) return;
 
         try {
-            await bugAPI.delete(ticketId, token);
-            setBugs(bugs.map(b => b.id === ticketId ? { ...b, isArchived: true, status: 'resolved' } : b));
+            await deleteBug.mutateAsync({ ticketId, token });
             toast.success("Bug report archived and resolved.");
         } catch (error: any) {
             toast.error(error.message || "Failed to delete bug report");
@@ -154,7 +119,6 @@ export default function DashboardPage() {
     const handleEditSubmit = async (updatedBug: BugReport) => {
         if (!token) return;
         try {
-            // Map frontend fields to backend fields
             const backendBug = {
                 id: updatedBug.id,
                 developer: updatedBug.developer,
@@ -176,11 +140,10 @@ export default function DashboardPage() {
                 status: updatedBug.status
             };
 
-            await bugAPI.update(backendBug as any, token);
+            await updateBug.mutateAsync({ bug: backendBug as any, token });
             toast.success("Bug report updated!");
             setIsEditModalOpen(false);
             setEditingBug(null);
-            loadDashboardData();
         } catch (error: any) {
             toast.error(error.message || "Failed to update bug report");
         }
@@ -197,7 +160,7 @@ export default function DashboardPage() {
                 github_url: githubUrl
             }, token);
             toast.success("Code change logged!");
-            loadDashboardData();
+            loadProfileAndChanges();
         } catch (error: any) {
             toast.error(error.message || "Error saving change");
         }
@@ -216,7 +179,7 @@ export default function DashboardPage() {
         }
     };
 
-    if (loading) {
+    if (loading || bugsLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
                 <WoWPanel className="max-w-xs w-full text-center">

@@ -1,76 +1,37 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { bugAPI } from "@/lib/api";
 import { DeveloperCard } from "@/components/DeveloperCard";
 import { BugReportModal, BugReport } from "@/components/BugReportModal";
 import { BugTicketList } from "@/components/BugTicketList";
 import { Shield, Swords, LogIn, ExternalLink, Archive } from "lucide-react";
 import { toast } from "sonner";
+import { useBugs } from "@/hooks/useBugs";
 
 export default function IndexPage() {
     const [showBugModal, setShowBugModal] = useState<'astro' | 'bungee' | null>(null);
-    const [bugs, setBugs] = useState<BugReport[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        fetchBugs();
-    }, []);
-
-    const fetchBugs = async () => {
-        try {
-            const data = await bugAPI.getAll();
-            setBugs(data.map((bug: any) => ({
-                id: bug._id,
-                developer: bug.developer as 'astro' | 'bungee',
-                wowClass: bug.wow_class as BugReport['wowClass'],
-                rotation: bug.rotation || '',
-                pvpveMode: bug.pvpve_mode as 'pve' | 'pvp' || 'pve',
-                level: bug.level || 80,
-                expansion: bug.expansion as 'tbc' | 'era' | 'hc' || 'tbc',
-                title: bug.title,
-                description: bug.description,
-                currentBehavior: bug.current_behavior || '',
-                expectedBehavior: bug.expected_behavior || '',
-                logs: bug.logs || undefined,
-                videoUrl: bug.video_url || undefined,
-                screenshotUrls: bug.screenshot_urls || [],
-                discordUsername: bug.discord_username || '',
-                sylvanasUsername: bug.sylvanas_username || '',
-                priority: bug.priority as BugReport['priority'],
-                status: bug.status as BugReport['status'],
-                isArchived: bug.is_archived || bug.isArchived || false,
-                resolveReason: bug.resolveReason || null,
-                createdAt: new Date(bug.createdAt),
-                reporter: bug.reporter_name || bug.sylvanas_username || '',
-            })));
-        } catch (error) {
-            console.error("Error fetching bugs:", error);
-            toast.error("Failed to load bug reports");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { bugs, isLoading: loading, createBug, deleteBug } = useBugs();
 
     const handleBugSubmit = async (bug: BugReport) => {
         try {
-            await bugAPI.create({
-                ...bug,
-                developer: bug.developer,
-                wow_class: bug.wowClass,
-                pvpve_mode: bug.pvpveMode,
-                current_behavior: bug.currentBehavior,
-                expected_behavior: bug.expectedBehavior,
-                discord_username: bug.discordUsername,
-                sylvanas_username: bug.sylvanasUsername,
-                reporter_name: bug.reporter,
-                video_url: bug.videoUrl,
-                screenshot_urls: bug.screenshotUrls,
-            } as any, "");
-
+            await createBug.mutateAsync({
+                bug: {
+                    ...bug,
+                    developer: bug.developer,
+                    wow_class: bug.wowClass,
+                    pvpve_mode: bug.pvpveMode,
+                    current_behavior: bug.currentBehavior,
+                    expected_behavior: bug.expectedBehavior,
+                    discord_username: bug.discordUsername,
+                    sylvanas_username: bug.sylvanasUsername,
+                    reporter_name: bug.reporter,
+                    video_url: bug.videoUrl,
+                    screenshot_urls: bug.screenshotUrls,
+                } as any,
+                token: "",
+            });
             toast.success("Bug report created successfully!");
-            fetchBugs();
         } catch (error: any) {
             toast.error(error.message || "Error creating bug report.");
             console.error(error);
@@ -84,9 +45,8 @@ export default function IndexPage() {
                 toast.error("You must be logged in to delete reports.");
                 return;
             }
-            await bugAPI.delete(ticketId, token);
+            await deleteBug.mutateAsync({ ticketId, token });
             toast.success("Bug report archived successfully!");
-            fetchBugs();
         } catch (error: any) {
             toast.error(error.message || "Error deleting bug report.");
             console.error(error);
