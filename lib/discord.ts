@@ -45,13 +45,20 @@ const PRIORITY_EMOJIS: Record<string, string> = {
  * Send a Discord notification for a new bug report
  */
 export async function sendBugNotification(bug: BugData): Promise<void> {
+    console.log(`[Discord Webhook] Preparing notification for ${bug.developer}...`);
+
     // Get the appropriate webhook URL based on developer
     const webhookUrl = bug.developer === 'astro'
         ? process.env.DISCORD_WEBHOOK_ASTRO
         : process.env.DISCORD_WEBHOOK_BUNGEE;
 
+    console.log(`[Discord Webhook] URL for ${bug.developer} found: ${!!webhookUrl}`);
+    if (webhookUrl) {
+        console.log(`[Discord Webhook] Webhook URL prefix: ${webhookUrl.substring(0, 30)}...`);
+    }
+
     if (!webhookUrl) {
-        console.log(`Discord webhook not configured for ${bug.developer}`);
+        console.error(`[Discord Webhook] ERROR: Discord webhook not configured for ${bug.developer}`);
         return;
     }
 
@@ -100,7 +107,7 @@ export async function sendBugNotification(bug: BugData): Promise<void> {
     };
 
     try {
-        const response = await fetch(webhookUrl, {
+        const response = await fetch(webhookUrl.trim(), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -113,9 +120,11 @@ export async function sendBugNotification(bug: BugData): Promise<void> {
         });
 
         if (!response.ok) {
-            console.error(`Discord webhook failed: ${response.status} ${response.statusText}`);
+            const errorText = await response.text();
+            console.error(`[Discord Webhook] FAILED: ${response.status} ${response.statusText}`);
+            console.error(`[Discord Webhook] Error response: ${errorText}`);
         } else {
-            console.log(`Discord notification sent for bug: ${bug.title}`);
+            console.log(`[Discord Webhook] SUCCESS: Notification sent for bug "${bug.title}"`);
         }
     } catch (error) {
         console.error('Error sending Discord notification:', error);
