@@ -158,6 +158,21 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                   {isExpandable && (
                     isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   )}
+                  {!isExpandable && onDelete && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Optional: Add confirmation here, or rely on parent
+                        if (window.confirm("Are you sure you want to delete this bug report?")) {
+                          onDelete(bug.id);
+                        }
+                      }}
+                      className="p-1 hover:bg-red-500/10 rounded-full transition-colors group/delete"
+                      title="Delete Ticket"
+                    >
+                      <Trash2 className="w-4 h-4 text-muted-foreground group-hover/delete:text-red-400" />
+                    </button>
+                  )}
                 </div>
               </div>
 

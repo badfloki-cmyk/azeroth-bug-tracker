@@ -1,7 +1,5 @@
 import { WoWPanel } from "./WoWPanel";
 import { ClassStatusCard } from "./ClassStatusCard";
-import astroAvatar from "@/assets/astro-avatar.png";
-import bungeeAvatar from "@/assets/bungee-avatar.png";
 
 type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp';
 type Status = 'optimized' | 'alpha' | 'beta';
@@ -20,7 +18,7 @@ interface DeveloperCardProps {
 const developerData = {
   astro: {
     name: "Astro",
-    avatar: astroAvatar,
+    avatar: "/astro-avatar.png",
     classes: [
       { wowClass: 'rogue' as WoWClass, status: 'optimized' as Status, description: 'Fully Optimized PvE (PvP Beta)' },
       { wowClass: 'hunter' as WoWClass, status: 'optimized' as Status, description: 'Fully Optimized' },
@@ -31,7 +29,7 @@ const developerData = {
   },
   bungee: {
     name: "Bungee",
-    avatar: bungeeAvatar,
+    avatar: "/bungee-avatar.png",
     classes: [
       { wowClass: 'priest' as WoWClass, status: 'optimized' as Status, description: 'Fully Optimized' },
       { wowClass: 'mage' as WoWClass, status: 'optimized' as Status, description: 'Fully Optimized' },
@@ -44,7 +42,7 @@ const developerData = {
 
 export const DeveloperCard = ({ developer, onReportBug }: DeveloperCardProps) => {
   const data = developerData[developer];
-  
+
   return (
     <WoWPanel className="flex flex-col h-full">
       {/* Developer Header */}
@@ -57,19 +55,19 @@ export const DeveloperCard = ({ developer, onReportBug }: DeveloperCardProps) =>
           />
           <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-status-optimized border-2 border-card" />
         </div>
-        
+
         <div>
           <h2 className="font-display text-xl sm:text-2xl wow-gold-text">{data.name}</h2>
           <p className="text-muted-foreground text-sm">Class Developer</p>
         </div>
       </div>
-      
+
       {/* Class Coverage */}
       <div className="flex-1">
         <h3 className="font-display text-xs sm:text-sm text-primary mb-4 tracking-widest">
           🛠 CLASS COVERAGE & STATUS
         </h3>
-        
+
         <div className="space-y-2">
           {data.classes.map((classInfo) => (
             <ClassStatusCard
@@ -81,9 +79,9 @@ export const DeveloperCard = ({ developer, onReportBug }: DeveloperCardProps) =>
           ))}
         </div>
       </div>
-      
+
       {/* Report Bug Button */}
-      <button 
+      <button
         onClick={onReportBug}
         className="wow-button-primary w-full mt-6 py-2 sm:py-3"
       >
