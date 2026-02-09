@@ -1,6 +1,7 @@
 import { Handler } from '@netlify/functions';
 import { connectDB } from '../../lib/db/mongodb';
 import Profile from '../../lib/models/Profile';
+import User from '../../lib/models/User';
 import { verifyToken, extractToken } from '../../lib/auth/jwt';
 
 export const handler: Handler = async (event) => {
