@@ -4,7 +4,7 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: mode === "production" ? "/azeroth-bug-tracker/" : "/", // 👈 wichtig für GitHub Pages
+  base: "/", // Netlify verwendet immer "/" als base path
   server: {
     host: "::",
     port: 8080,
