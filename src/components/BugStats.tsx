@@ -45,9 +45,12 @@ const CLASS_COLORS: Record<string, string> = {
 };
 
 export const BugStats = ({ bugs }: BugStatsProps) => {
+    // Safety check - if bugs is undefined/null, use empty array
+    const safeBugs = bugs || [];
+
     // Calculate status distribution
     const statusData = useMemo(() => {
-        const counts = bugs.reduce(
+        const counts = safeBugs.reduce(
             (acc, bug) => {
                 acc[bug.status] = (acc[bug.status] || 0) + 1;
                 return acc;
@@ -60,11 +63,11 @@ export const BugStats = ({ bugs }: BugStatsProps) => {
             { name: "In Progress", value: counts["in-progress"] || 0, color: STATUS_COLORS["in-progress"] },
             { name: "Resolved", value: counts.resolved || 0, color: STATUS_COLORS.resolved },
         ];
-    }, [bugs]);
+    }, [safeBugs]);
 
     // Calculate developer distribution
     const developerData = useMemo(() => {
-        const counts = bugs.reduce(
+        const counts = safeBugs.reduce(
             (acc, bug) => {
                 const dev = bug.developer?.toLowerCase() || "unknown";
                 acc[dev] = (acc[dev] || 0) + 1;
@@ -77,11 +80,11 @@ export const BugStats = ({ bugs }: BugStatsProps) => {
             { name: "Astro", bugs: counts.astro || 0, fill: DEVELOPER_COLORS.astro },
             { name: "Bungee", bugs: counts.bungee || 0, fill: DEVELOPER_COLORS.bungee },
         ];
-    }, [bugs]);
+    }, [safeBugs]);
 
     // Calculate class distribution
     const classData = useMemo(() => {
-        const counts = bugs.reduce(
+        const counts = safeBugs.reduce(
             (acc, bug) => {
                 const wowClass = bug.wowClass?.toLowerCase() || "unknown";
                 acc[wowClass] = (acc[wowClass] || 0) + 1;
@@ -97,9 +100,9 @@ export const BugStats = ({ bugs }: BugStatsProps) => {
                 fill: CLASS_COLORS[name] || "#6b7280",
             }))
             .sort((a, b) => b.bugs - a.bugs);
-    }, [bugs]);
+    }, [safeBugs]);
 
-    const totalBugs = bugs.length;
+    const totalBugs = safeBugs.length;
     const openBugs = statusData.find((s) => s.name === "Open")?.value || 0;
     const resolvedBugs = statusData.find((s) => s.name === "Resolved")?.value || 0;
     const resolutionRate = totalBugs > 0 ? Math.round((resolvedBugs / totalBugs) * 100) : 0;
