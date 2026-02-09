@@ -60,6 +60,36 @@ export async function POST(request: Request) {
         await codeChange.save();
         await codeChange.populate('developer_id', 'username developer_type');
 
+        // Send Discord Notification
+        try {
+            const webhookUrl = profile.developer_type === 'astro'
+                ? process.env.DISCORD_WEBHOOK_ASTRO
+                : process.env.DISCORD_WEBHOOK_BUNGEE;
+
+            if (webhookUrl) {
+                await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: `📂 Code Change: ${file_path}`,
+                            color: 10181046, // Purple-ish
+                            description: change_description,
+                            fields: [
+                                { name: 'Type', value: change_type.toUpperCase(), inline: true },
+                                { name: 'Developer', value: profile.username, inline: true },
+                                { name: 'GitHub URL', value: github_url ? `[Link](${github_url})` : 'N/A', inline: true }
+                            ],
+                            timestamp: new Date().toISOString(),
+                            footer: { text: 'Azeroth Bug Tracker - Code Tracker' }
+                        }]
+                    })
+                });
+            }
+        } catch (discordError) {
+            console.error("Failed to send Discord notification for code change:", discordError);
+        }
+
         return NextResponse.json({ message: 'Code-Änderung protokolliert!', change: codeChange }, { status: 201 });
     } catch (error: any) {
         console.error('Code changes error:', error);
