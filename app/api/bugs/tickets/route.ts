@@ -94,6 +94,43 @@ export async function POST(request: Request) {
         });
 
         await bugTicket.save();
+
+        // Send Discord Notification
+        try {
+            const webhookUrl = developer === 'astro'
+                ? process.env.DISCORD_WEBHOOK_ASTRO
+                : process.env.DISCORD_WEBHOOK_BUNGEE;
+
+            if (webhookUrl) {
+                await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: `🆕 New Bug Report: ${title}`,
+                            color: priority === 'critical' ? 15548997 : (priority === 'high' ? 15105570 : 3447003),
+                            fields: [
+                                { name: 'Developer', value: developer.toUpperCase(), inline: true },
+                                { name: 'Class', value: wow_class.toUpperCase(), inline: true },
+                                { name: 'Priority', value: priority.toUpperCase(), inline: true },
+                                { name: 'Expansion', value: expansion.toUpperCase(), inline: true },
+                                { name: 'Reporter', value: reporter_name, inline: true },
+                                { name: 'Sylvanas User', value: sylvanas_username, inline: true },
+                                { name: 'Current Behavior', value: current_behavior.substring(0, 1024) },
+                                { name: 'Expected Behavior', value: expected_behavior.substring(0, 1024) },
+                                { name: 'Video/Logs', value: `[Logs](${logs})\n[Video](${video_url || 'N/A'})` }
+                            ],
+                            timestamp: new Date().toISOString(),
+                            footer: { text: 'Azeroth Bug Tracker' }
+                        }]
+                    })
+                });
+            }
+        } catch (discordError) {
+            console.error("Failed to send Discord notification:", discordError);
+            // Don't fail the whole request if Discord notification fails
+        }
+
         return NextResponse.json({ message: 'Bug Report successfully created!', ticket: bugTicket }, { status: 201 });
     } catch (error: any) {
         return NextResponse.json({ error: 'Failed to create bug report', details: error.message }, { status: 500 });
