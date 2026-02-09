@@ -147,12 +147,22 @@ export async function PATCH(request: Request) {
             return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
         }
 
-        const { id, status } = body;
+        const { id, status, resolveReason } = body;
         if (!id || !status) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        const ticket = await BugTicket.findByIdAndUpdate(id, { status }, { new: true });
+        const updateData: Record<string, any> = { status };
+
+        if (status === 'resolved') {
+            updateData.isArchived = true;
+            updateData.resolveReason = resolveReason || null;
+        } else {
+            updateData.isArchived = false;
+            updateData.resolveReason = null;
+        }
+
+        const ticket = await BugTicket.findByIdAndUpdate(id, updateData, { new: true });
         if (!ticket) {
             return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
         }

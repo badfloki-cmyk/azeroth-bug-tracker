@@ -101,11 +101,11 @@ export const bugAPI = {
     return response.json();
   },
 
-  updateStatus: async (ticketId: string, status: string, token: string) => {
+  updateStatus: async (ticketId: string, status: string, token: string, resolveReason?: string) => {
     const response = await fetch(`${API_URL}/api/bugs/tickets`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ id: ticketId, status }),
+      body: JSON.stringify({ id: ticketId, status, ...(resolveReason ? { resolveReason } : {}) }),
     });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

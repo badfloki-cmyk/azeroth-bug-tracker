@@ -1,6 +1,7 @@
 import { BugReport } from "./BugReportModal";
 import { ClassIcon } from "./ClassIcon";
 import { WoWPanel } from "./WoWPanel";
+import { ResolveReasonModal } from "./ResolveReasonModal";
 import {
   Bug, Clock, User, CheckCircle, Play, Circle,
   ChevronDown, ChevronUp, Trash2, Edit2,
@@ -48,14 +49,22 @@ Stelle so viele Rückfragen wie möglich.
 Lasse dir bei der Fehlersuche ruhig Zeit dabei. Qualität ist besser als Schnelligkeit. Deepthink.`;
 };
 
+const RESOLVE_REASON_LABELS: Record<string, string> = {
+  'no_response': "User didn't respond to questions",
+  'not_reproducible': "Couldn't replicate",
+  'user_side': "User side problem",
+  'fixed': "Fixed / Implemented",
+};
+
 interface BugTicketListProps {
   bugs: BugReport[];
   title?: string;
-  onStatusChange?: (ticketId: string, newStatus: 'open' | 'in-progress' | 'resolved') => void;
+  onStatusChange?: (ticketId: string, newStatus: 'open' | 'in-progress' | 'resolved', resolveReason?: string) => void;
   onDelete?: (ticketId: string) => void;
   onEdit?: (bug: BugReport) => void;
   showActions?: boolean;
   isExpandable?: boolean;
+  isArchiveView?: boolean;
 }
 
 const priorityColors = {
@@ -77,8 +86,9 @@ const statusIcons = {
   'resolved': CheckCircle,
 };
 
-export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onDelete, onEdit, showActions, isExpandable = true }: BugTicketListProps) => {
+export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onDelete, onEdit, showActions, isExpandable = true, isArchiveView = false }: BugTicketListProps) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [resolvingBugId, setResolvingBugId] = useState<string | null>(null);
 
   const toggleExpand = (id: string) => {
     if (!isExpandable) return;
@@ -219,6 +229,16 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                     </div>
                   </div>
 
+                  {bug.resolveReason && (
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-sm bg-green-500/5 border border-green-500/20">
+                      <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
+                      <span className="text-xs font-bold uppercase text-green-400 tracking-wider">Resolve Reason:</span>
+                      <span className="text-sm text-muted-foreground">
+                        {RESOLVE_REASON_LABELS[bug.resolveReason] || bug.resolveReason}
+                      </span>
+                    </div>
+                  )}
+
                   {/* Logs Section (if text) */}
                   {bug.logs && !bug.logs.startsWith('http') && (
                     <div className="space-y-3">
@@ -272,7 +292,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                         >
                           <Sparkles className="w-3 h-3" /> Generate Prompt
                         </button>
-                        {onEdit && (
+                        {onEdit && !isArchiveView && (
                           <button
                             onClick={(e) => { e.stopPropagation(); onEdit(bug); }}
                             className="flex items-center gap-2 px-4 py-2 rounded-sm bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 text-xs font-bold uppercase transition-all"
@@ -280,7 +300,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                             <Edit2 className="w-3 h-3" /> Edit Ticket
                           </button>
                         )}
-                        {onDelete && (
+                        {onDelete && !isArchiveView && (
                           <button
                             onClick={(e) => { e.stopPropagation(); onDelete(bug.id); }}
                             className="flex items-center gap-2 px-4 py-2 rounded-sm bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs font-bold uppercase transition-all"
@@ -288,9 +308,17 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                             <Trash2 className="w-3 h-3" /> Delete
                           </button>
                         )}
+                        {isArchiveView && onStatusChange && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onStatusChange(bug.id, 'open'); }}
+                            className="flex items-center gap-2 px-4 py-2 rounded-sm bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/20 text-xs font-bold uppercase transition-all"
+                          >
+                            <Circle className="w-3 h-3" /> Reopen
+                          </button>
+                        )}
                       </div>
 
-                      {onStatusChange && (
+                      {onStatusChange && !isArchiveView && (
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] uppercase font-bold text-muted-foreground mr-1">Update Status:</span>
                           <button
@@ -308,7 +336,11 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                             <Play className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={(e) => { e.stopPropagation(); onStatusChange(bug.id, 'resolved'); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (bug.status === 'resolved') return;
+                              setResolvingBugId(bug.id);
+                            }}
                             className={`p-2 rounded-sm border transition-all ${bug.status === 'resolved' ? 'border-green-500 bg-green-500/20 text-green-400' : 'border-border text-muted-foreground hover:border-green-500/50'}`}
                             title="Resolved"
                           >
@@ -324,6 +356,18 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
           );
         })}
       </div>
+
+      {resolvingBugId && (
+        <ResolveReasonModal
+          onConfirm={(reason) => {
+            if (onStatusChange) {
+              onStatusChange(resolvingBugId, 'resolved', reason);
+            }
+            setResolvingBugId(null);
+          }}
+          onCancel={() => setResolvingBugId(null)}
+        />
+      )}
     </WoWPanel>
   );
 };

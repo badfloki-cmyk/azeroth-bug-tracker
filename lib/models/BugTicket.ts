@@ -22,6 +22,7 @@ export interface IBugTicket extends Document {
   reporter_user_id?: mongoose.Types.ObjectId;
   assigned_to?: mongoose.Types.ObjectId;
   isArchived: boolean;
+  resolveReason?: 'no_response' | 'not_reproducible' | 'user_side' | 'fixed' | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -49,6 +50,7 @@ const BugTicketSchema = new Schema(
     reporter_user_id: { type: Schema.Types.ObjectId, ref: "User", default: null },
     assigned_to: { type: Schema.Types.ObjectId, ref: "User", default: null },
     isArchived: { type: Boolean, default: false },
+    resolveReason: { type: String, enum: ['no_response', 'not_reproducible', 'user_side', 'fixed', null], default: null },
   },
   { timestamps: true }
 );

@@ -8,7 +8,7 @@ import { WoWPanel } from "@/components/WoWPanel";
 import { BugTicketList } from "@/components/BugTicketList";
 import { CodeChangeTracker } from "@/components/CodeChangeTracker";
 import { BugStats } from "@/components/BugStats";
-import { LogOut, Shield, Swords, Home } from "lucide-react";
+import { LogOut, Shield, Swords, Home, Archive } from "lucide-react";
 import { toast } from "sonner";
 import { BugReportModal } from "@/components/BugReportModal";
 import type { BugReport } from "@/components/BugReportModal";
@@ -88,6 +88,7 @@ export default function DashboardPage() {
                 isArchived: bug.is_archived || bug.isArchived || false,
                 createdAt: new Date(bug.createdAt),
                 reporter: bug.reporter_name || bug.sylvanas_username || 'Unknown',
+                resolveReason: bug.resolveReason || null,
             })));
 
             // Fetch code changes
@@ -116,11 +117,16 @@ export default function DashboardPage() {
         router.push("/");
     };
 
-    const handleStatusChange = async (ticketId: string, newStatus: 'open' | 'in-progress' | 'resolved') => {
+    const handleStatusChange = async (ticketId: string, newStatus: 'open' | 'in-progress' | 'resolved', resolveReason?: string) => {
         if (!token) return;
         try {
-            await bugAPI.updateStatus(ticketId, newStatus, token);
-            setBugs(bugs.map(b => b.id === ticketId ? { ...b, status: newStatus } : b));
+            await bugAPI.updateStatus(ticketId, newStatus, token, resolveReason);
+            setBugs(bugs.map(b => b.id === ticketId ? {
+                ...b,
+                status: newStatus,
+                isArchived: newStatus === 'resolved',
+                resolveReason: newStatus === 'resolved' ? (resolveReason || null) : null,
+            } : b));
             toast.success(`Status updated to ${newStatus}`);
         } catch (error: any) {
             toast.error(error.message || "Failed to update status");
@@ -262,6 +268,14 @@ export default function DashboardPage() {
                             title="Back to Main Page"
                         >
                             <Home className="w-5 h-5" />
+                        </button>
+
+                        <button
+                            onClick={() => router.push("/archive")}
+                            className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                            title="View Archived Tickets"
+                        >
+                            <Archive className="w-5 h-5" />
                         </button>
 
                         <button

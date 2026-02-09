@@ -43,6 +43,7 @@ export interface BugReport {
   createdAt: Date;
   reporter: string;
   isArchived?: boolean;
+  resolveReason?: string | null;
 }
 
 const developerClasses: Record<'astro' | 'bungee', WoWClass[]> = {

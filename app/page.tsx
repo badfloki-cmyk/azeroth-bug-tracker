@@ -6,7 +6,7 @@ import { bugAPI } from "@/lib/api";
 import { DeveloperCard } from "@/components/DeveloperCard";
 import { BugReportModal, BugReport } from "@/components/BugReportModal";
 import { BugTicketList } from "@/components/BugTicketList";
-import { Shield, Swords, LogIn, ExternalLink } from "lucide-react";
+import { Shield, Swords, LogIn, ExternalLink, Archive } from "lucide-react";
 import { toast } from "sonner";
 
 export default function IndexPage() {
@@ -41,6 +41,7 @@ export default function IndexPage() {
                 priority: bug.priority as BugReport['priority'],
                 status: bug.status as BugReport['status'],
                 isArchived: bug.is_archived || bug.isArchived || false,
+                resolveReason: bug.resolveReason || null,
                 createdAt: new Date(bug.createdAt),
                 reporter: bug.reporter_name || bug.sylvanas_username || '',
             })));
@@ -124,13 +125,22 @@ export default function IndexPage() {
                                 <Swords className="w-10 h-10 text-primary hidden md:block" />
                             </div>
 
-                            <Link
-                                href="/auth"
-                                className="wow-button flex items-center gap-2"
-                            >
-                                <LogIn className="w-4 h-4" />
-                                <span className="hidden md:inline">Developer Login</span>
-                            </Link>
+                            <div className="flex items-center gap-3">
+                                <Link
+                                    href="/archive"
+                                    className="wow-button flex items-center gap-2"
+                                >
+                                    <Archive className="w-4 h-4" />
+                                    <span className="hidden md:inline">Archive</span>
+                                </Link>
+                                <Link
+                                    href="/auth"
+                                    className="wow-button flex items-center gap-2"
+                                >
+                                    <LogIn className="w-4 h-4" />
+                                    <span className="hidden md:inline">Developer Login</span>
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </header>
