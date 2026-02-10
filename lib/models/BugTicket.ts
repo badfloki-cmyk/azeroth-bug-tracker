@@ -23,6 +23,7 @@ export interface IBugTicket extends Document {
   assigned_to?: mongoose.Types.ObjectId;
   isArchived: boolean;
   resolveReason?: 'no_response' | 'not_reproducible' | 'user_side' | 'fixed' | null;
+  discord_message_id?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,6 +52,7 @@ const BugTicketSchema = new Schema(
     assigned_to: { type: Schema.Types.ObjectId, ref: "User", default: null },
     isArchived: { type: Boolean, default: false },
     resolveReason: { type: String, enum: ['no_response', 'not_reproducible', 'user_side', 'fixed', null], default: null },
+    discord_message_id: { type: String, default: null },
   },
   { timestamps: true }
 );

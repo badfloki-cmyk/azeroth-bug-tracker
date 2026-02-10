@@ -43,32 +43,137 @@ const PRIORITY_EMOJIS: Record<string, string> = {
 
 /**
  * Send a Discord notification for a new bug report
+ * Returns the message ID if successful
  */
-export async function sendBugNotification(bug: BugData): Promise<void> {
+export async function sendBugNotification(bug: BugData): Promise<string | null> {
     console.log(`[Discord Webhook] Preparing notification for developer: "${bug.developer}"`);
     console.log(`[Discord Webhook] Bug Title: "${bug.title}"`);
 
-    // Get the appropriate webhook URL based on developer
     const webhookAstro = process.env.DISCORD_WEBHOOK_ASTRO;
     const webhookBungee = process.env.DISCORD_WEBHOOK_BUNGEE;
-
-    console.log(`[Discord Webhook] Env check - ASTRO: ${!!webhookAstro}, BUNGEE: ${!!webhookBungee}`);
 
     const webhookUrl = bug.developer === 'astro' ? webhookAstro : webhookBungee;
 
     if (!webhookUrl || webhookUrl.includes("YOUR_") || webhookUrl.length < 20) {
         console.error(`[Discord Webhook] ERROR: Valid Discord webhook URL NOT found for developer "${bug.developer}"`);
-        console.log(`[Discord Webhook] Raw value: "${webhookUrl || 'undefined'}"`);
-        return;
+        return null;
     }
-
-    console.log(`[Discord Webhook] Using URL starting with: ${webhookUrl.substring(0, 35)}...`);
 
     const classColor = CLASS_COLORS[bug.wow_class?.toLowerCase()] || 0xffd100;
     const priorityEmoji = PRIORITY_EMOJIS[bug.priority?.toLowerCase()] || "⚪";
 
-    // Format fields with safety checks
-    const fields = [
+    const payload = {
+        username: "Bug Reporter",
+        avatar_url: "https://raw.githubusercontent.com/badfloki-cmyk/azeroth-bug-tracker/main/public/bug-icon.png",
+        embeds: [{
+            title: `${priorityEmoji} New Bug Report: ${bug.title}`,
+            color: classColor,
+            fields: formatBugFields(bug),
+            footer: {
+                text: `Status: Open | Assigned to: ${capitalize(bug.developer)} | Bungee × Astro Bug Tracker`,
+            },
+            timestamp: new Date().toISOString(),
+        }],
+    };
+
+    try {
+        const response = await fetch(`${webhookUrl.trim()}?wait=true`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`[Discord Webhook] FAILED: ${response.status} ${errorText}`);
+            return null;
+        }
+
+        const data = await response.json();
+        console.log(`[Discord Webhook] SUCCESS! Message ID: ${data.id}`);
+        return data.id;
+    } catch (error: any) {
+        console.error('[Discord Webhook] CRITICAL ERROR:', error.message);
+        return null;
+    }
+}
+
+/**
+ * Update an existing Discord notification with new status
+ */
+export async function updateDiscordNotification(bug: any): Promise<void> {
+    if (!bug.discord_message_id) return;
+
+    const webhookUrl = bug.developer === 'astro'
+        ? process.env.DISCORD_WEBHOOK_ASTRO
+        : process.env.DISCORD_WEBHOOK_BUNGEE;
+
+    if (!webhookUrl) return;
+
+    const priorityEmoji = PRIORITY_EMOJIS[bug.priority?.toLowerCase()] || "⚪";
+    const statusText = bug.status === 'in-progress' ? "In Progress ⚙️" : capitalize(bug.status);
+
+    const payload = {
+        embeds: [{
+            title: `${priorityEmoji} Bug Report: ${bug.title}`,
+            color: bug.status === 'in-progress' ? 0x3498db : (CLASS_COLORS[bug.wow_class?.toLowerCase()] || 0xffd100),
+            fields: formatBugFields({
+                ...bug.toObject(),
+                wow_class: bug.wow_class,
+                rotation: bug.rotation,
+                pvpve_mode: bug.pvpve_mode,
+                expansion: bug.expansion,
+                level: bug.level,
+                priority: bug.priority,
+                reporter_name: bug.reporter_name,
+                discord_username: bug.discord_username,
+                sylvanas_username: bug.sylvanas_username,
+                current_behavior: bug.current_behavior,
+                expected_behavior: bug.expected_behavior
+            }),
+            footer: {
+                text: `Status: ${statusText} | Assigned to: ${capitalize(bug.developer)} | Bungee × Astro Bug Tracker`,
+            },
+            timestamp: bug.createdAt.toISOString(),
+        }],
+    };
+
+    try {
+        await fetch(`${webhookUrl.trim()}/messages/${bug.discord_message_id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+        console.log(`[Discord Sync] Updated notification for "${bug.title}"`);
+    } catch (error: any) {
+        console.error('[Discord Sync] ERROR updating notification:', error.message);
+    }
+}
+
+/**
+ * Delete an existing Discord notification (usually when resolved/archived)
+ */
+export async function deleteDiscordNotification(bug: any): Promise<void> {
+    if (!bug.discord_message_id) return;
+
+    const webhookUrl = bug.developer === 'astro'
+        ? process.env.DISCORD_WEBHOOK_ASTRO
+        : process.env.DISCORD_WEBHOOK_BUNGEE;
+
+    if (!webhookUrl) return;
+
+    try {
+        await fetch(`${webhookUrl.trim()}/messages/${bug.discord_message_id}`, {
+            method: 'DELETE',
+        });
+        console.log(`[Discord Sync] Deleted original notification for "${bug.title}"`);
+    } catch (error: any) {
+        console.error('[Discord Sync] ERROR deleting notification:', error.message);
+    }
+}
+
+function formatBugFields(bug: any) {
+    return [
         {
             name: "📋 Class & Spec",
             value: `${capitalize(bug.wow_class)} - ${bug.rotation || 'N/A'}`,
@@ -100,40 +205,6 @@ export async function sendBugNotification(bug: BugData): Promise<void> {
             inline: false,
         },
     ];
-
-    const payload = {
-        username: "Bug Reporter",
-        avatar_url: "https://raw.githubusercontent.com/badfloki-cmyk/azeroth-bug-tracker/main/public/bug-icon.png",
-        embeds: [{
-            title: `${priorityEmoji} New Bug Report: ${bug.title}`,
-            color: classColor,
-            fields: fields,
-            footer: {
-                text: `Assigned to: ${capitalize(bug.developer)} | Bungee × Astro Bug Tracker`,
-            },
-            timestamp: new Date().toISOString(),
-        }],
-    };
-
-    try {
-        console.log("[Discord Webhook] Sending fetch request...");
-        const response = await fetch(webhookUrl.trim(), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`[Discord Webhook] FAILED from Discord: ${response.status} ${response.statusText}`);
-            console.error(`[Discord Webhook] Discord Error Body: ${errorText}`);
-        } else {
-            console.log(`[Discord Webhook] SUCCESS! Message delivered to Discord for: "${bug.title}"`);
-        }
-    } catch (error: any) {
-        console.error('[Discord Webhook] CRITICAL ERROR during fetch:', error.message);
-        if (error.stack) console.error(error.stack);
-    }
 }
 
 /**

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { connectDB } from 'lib/db/mongodb';
 import BugTicket from 'lib/models/BugTicket';
 import { verifyToken, extractToken } from 'lib/auth/jwt';
-import { sendResolvedNotification } from 'lib/discord';
+import { sendBugNotification, sendResolvedNotification, updateDiscordNotification, deleteDiscordNotification } from 'lib/discord';
 
 export async function GET() {
     try {
@@ -96,40 +96,15 @@ export async function POST(request: Request) {
 
         await bugTicket.save();
 
-        // Send Discord Notification
+        // Send Discord Notification and store message ID
         try {
-            const webhookUrl = developer === 'astro'
-                ? process.env.DISCORD_WEBHOOK_ASTRO
-                : process.env.DISCORD_WEBHOOK_BUNGEE;
-
-            if (webhookUrl) {
-                await fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        embeds: [{
-                            title: `🆕 New Bug Report: ${title}`,
-                            color: priority === 'critical' ? 15548997 : (priority === 'high' ? 15105570 : 3447003),
-                            fields: [
-                                { name: 'Developer', value: developer.toUpperCase(), inline: true },
-                                { name: 'Class', value: wow_class.toUpperCase(), inline: true },
-                                { name: 'Priority', value: priority.toUpperCase(), inline: true },
-                                { name: 'Expansion', value: expansion.toUpperCase(), inline: true },
-                                { name: 'Reporter', value: reporter_name, inline: true },
-                                { name: 'Sylvanas User', value: sylvanas_username, inline: true },
-                                { name: 'Current Behavior', value: current_behavior.substring(0, 1024) },
-                                { name: 'Expected Behavior', value: expected_behavior.substring(0, 1024) },
-                                { name: 'Video/Logs', value: `[Logs](${logs})\n[Video](${video_url || 'N/A'})` }
-                            ],
-                            timestamp: new Date().toISOString(),
-                            footer: { text: 'Azeroth Bug Tracker' }
-                        }]
-                    })
-                });
+            const messageId = await sendBugNotification(bugTicket);
+            if (messageId) {
+                bugTicket.discord_message_id = messageId;
+                await bugTicket.save();
             }
         } catch (discordError) {
             console.error("Failed to send Discord notification:", discordError);
-            // Don't fail the whole request if Discord notification fails
         }
 
         return NextResponse.json({ message: 'Bug Report successfully created!', ticket: bugTicket }, { status: 201 });
@@ -168,12 +143,22 @@ export async function PATCH(request: Request) {
             return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
         }
 
-        // Send Discord Archive Notification if resolved
+        // Sync with Discord
         if (status === 'resolved') {
             try {
+                // Send Archive Notification
                 await sendResolvedNotification(ticket, resolveReason);
+                // Delete original notification
+                await deleteDiscordNotification(ticket);
             } catch (discordError) {
-                console.error("Failed to send Discord archive notification:", discordError);
+                console.error("Failed to sync Discord archive/delete:", discordError);
+            }
+        } else {
+            try {
+                // Update original notification status
+                await updateDiscordNotification(ticket);
+            } catch (discordError) {
+                console.error("Failed to update Discord notification:", discordError);
             }
         }
 
@@ -207,11 +192,12 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
         }
 
-        // Send Discord Archive Notification
+        // Sync with Discord
         try {
-            await sendResolvedNotification(ticket, 'fixed'); // Default to 'fixed' when using the main delete/archive action
+            await sendResolvedNotification(ticket, 'fixed');
+            await deleteDiscordNotification(ticket);
         } catch (discordError) {
-            console.error("Failed to send Discord archive notification:", discordError);
+            console.error("Failed to sync Discord archive/delete:", discordError);
         }
 
         return NextResponse.json({ message: 'Ticket archived and resolved' });
