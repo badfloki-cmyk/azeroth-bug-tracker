@@ -9,7 +9,7 @@ import { useBugs } from "@/hooks/useBugs";
 
 export default function ArchivePage() {
     const { token } = useAuth();
-    const { bugs, isLoading: loading, updateStatus } = useBugs();
+    const { bugs, isLoading: loading, updateStatus, deleteBug } = useBugs();
 
     const handleStatusChange = async (ticketId: string, newStatus: 'open' | 'in-progress' | 'resolved', resolveReason?: string) => {
         if (!token) {
@@ -21,6 +21,22 @@ export default function ArchivePage() {
             toast.success(`Ticket moved to ${newStatus}`);
         } catch (error: any) {
             toast.error(error.message || "Failed to update status");
+        }
+    };
+
+    const handleDeleteBug = async (ticketId: string, hardDelete: boolean = false) => {
+        if (!token) return;
+        const confirmMsg = hardDelete
+            ? "Möchtest du diesen Bug wirklich ENDGÜLTIG aus der Datenbank löschen? Er wird komplett aus der Statistik entfernt."
+            : "Are you sure you want to delete this bug report? It will be archived and counted as resolved.";
+
+        if (!window.confirm(confirmMsg)) return;
+
+        try {
+            await deleteBug.mutateAsync({ ticketId, token, hardDelete });
+            toast.success(hardDelete ? "Bug report permanently removed." : "Bug report archived and resolved.");
+        } catch (error: any) {
+            toast.error(error.message || "Failed to delete bug report");
         }
     };
 
@@ -91,6 +107,7 @@ export default function ArchivePage() {
                                 isExpandable={true}
                                 showActions={!!token}
                                 onStatusChange={token ? handleStatusChange : undefined}
+                                onDelete={token ? handleDeleteBug : undefined}
                                 isArchiveView={true}
                             />
                             <BugTicketList
@@ -99,6 +116,7 @@ export default function ArchivePage() {
                                 isExpandable={true}
                                 showActions={!!token}
                                 onStatusChange={token ? handleStatusChange : undefined}
+                                onDelete={token ? handleDeleteBug : undefined}
                                 isArchiveView={true}
                             />
                         </div>
