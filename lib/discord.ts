@@ -136,6 +136,85 @@ export async function sendBugNotification(bug: BugData): Promise<void> {
     }
 }
 
+/**
+ * Send a Discord notification for a resolved bug report
+ */
+export async function sendResolvedNotification(bug: any, resolveReason?: string): Promise<void> {
+    console.log(`[Discord Archiving] Preparing resolved notification for developer: "${bug.developer}"`);
+
+    const webhookAstroArchive = process.env.DISCORD_WEBHOOK_ASTRO_ARCHIVE;
+    const webhookBungeeArchive = process.env.DISCORD_WEBHOOK_BUNGEE_ARCHIVE;
+
+    const webhookUrl = bug.developer === 'astro' ? webhookAstroArchive : webhookBungeeArchive;
+
+    if (!webhookUrl || webhookUrl.includes("YOUR_") || webhookUrl.length < 20) {
+        console.error(`[Discord Archiving] ERROR: Valid Discord archive webhook URL NOT found for developer "${bug.developer}"`);
+        return;
+    }
+
+    const classColor = CLASS_COLORS[bug.wow_class?.toLowerCase()] || 0xffd100;
+
+    const fields = [
+        {
+            name: "📋 Class & Spec",
+            value: `${capitalize(bug.wow_class)} - ${bug.rotation || 'N/A'}`,
+            inline: true,
+        },
+        {
+            name: "🎮 Mode",
+            value: `${bug.pvpve_mode?.toUpperCase() || 'N/A'} | ${capitalize(bug.expansion)}`,
+            inline: true,
+        },
+        {
+            name: "✅ Resolution",
+            value: resolveReason ? (REASON_LABELS[resolveReason] || capitalize(resolveReason)) : "Resolved",
+            inline: true,
+        },
+        {
+            name: "🔴 Bug Description",
+            value: truncate(bug.description || bug.current_behavior, 400),
+            inline: false,
+        },
+        {
+            name: "👤 Original Reporter",
+            value: `${bug.reporter_name || 'Anonymous'}\n📱 Discord: ${bug.discord_username || 'N/A'}`,
+            inline: false,
+        },
+    ];
+
+    const payload = {
+        username: "Bug Archiver",
+        avatar_url: "https://raw.githubusercontent.com/badfloki-cmyk/azeroth-bug-tracker/main/public/bug-icon.png",
+        embeds: [{
+            title: `✅ Bug Resolved & Archived: ${bug.title}`,
+            color: 0x43b581, // Discord Green
+            fields: fields,
+            footer: {
+                text: `Developer: ${capitalize(bug.developer)} | Archiving System`,
+            },
+            timestamp: new Date().toISOString(),
+        }],
+    };
+
+    try {
+        await fetch(webhookUrl.trim(), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+        console.log(`[Discord Archiving] SUCCESS! Bug "${bug.title}" archived to Discord.`);
+    } catch (error: any) {
+        console.error('[Discord Archiving] ERROR sending archive notification:', error.message);
+    }
+}
+
+const REASON_LABELS: Record<string, string> = {
+    'no_response': "User didn't respond",
+    'not_reproducible': "Couldn't replicate",
+    'user_side': "User side problem",
+    'fixed': "Fixed / Implemented",
+};
+
 function capitalize(str: string): string {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1).replace(/-/g, ' ');

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { connectDB } from 'lib/db/mongodb';
 import BugTicket from 'lib/models/BugTicket';
 import { verifyToken, extractToken } from 'lib/auth/jwt';
+import { sendResolvedNotification } from 'lib/discord';
 
 export async function GET() {
     try {
@@ -167,6 +168,15 @@ export async function PATCH(request: Request) {
             return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
         }
 
+        // Send Discord Archive Notification if resolved
+        if (status === 'resolved') {
+            try {
+                await sendResolvedNotification(ticket, resolveReason);
+            } catch (discordError) {
+                console.error("Failed to send Discord archive notification:", discordError);
+            }
+        }
+
         return NextResponse.json({ message: 'Status updated', ticket });
     } catch (error: any) {
         return NextResponse.json({ error: 'Failed to update status', details: error.message }, { status: 500 });
@@ -195,6 +205,13 @@ export async function DELETE(request: Request) {
 
         if (!ticket) {
             return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
+        }
+
+        // Send Discord Archive Notification
+        try {
+            await sendResolvedNotification(ticket, 'fixed'); // Default to 'fixed' when using the main delete/archive action
+        } catch (discordError) {
+            console.error("Failed to send Discord archive notification:", discordError);
         }
 
         return NextResponse.json({ message: 'Ticket archived and resolved' });
