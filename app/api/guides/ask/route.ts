@@ -14,34 +14,63 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Groq API key is not configured" }, { status: 500 });
         }
 
-        // Build compressed context from all guide data to fit token limits
-        let context = "GUIDE DATA (Compressed):\n\n";
+        // SMART FILTERING LOGIC
+        const q = question.toLowerCase();
+        const availableClasses = guidesData.map(cg => cg.className.toLowerCase());
 
-        guidesData.forEach((cg) => {
-            context += `[${cg.className}]\n`;
+        // 1. Identify which classes are relevant
+        const targetedClasses = guidesData.filter(cg => {
+            const name = cg.className.toLowerCase();
+            // Include if class name mentioned in question
+            if (q.includes(name)) return true;
+            // Include the current class user is looking at
+            if (className && className.toLowerCase() === name) return true;
+            return false;
+        });
+
+        // 2. Fallback: If no class matched and no current class, include first 2 or just a summary
+        let classesToInclude = targetedClasses;
+        if (classesToInclude.length === 0) {
+            // If it's a very general question, we'll try to include a broader but light context
+            classesToInclude = className
+                ? guidesData.filter(cg => cg.className.toLowerCase() === className.toLowerCase())
+                : [guidesData[0]]; // Default to first class if totally lost
+        }
+
+        // 3. Build filtered context
+        let context = "EXTRACTED GUIDE CONTEXT (Relevant Classes Only):\n\n";
+
+        classesToInclude.forEach((cg) => {
+            context += `[CLASS: ${cg.className}]\n`;
             cg.tabs.forEach((tab) => {
+                context += `- Tab: ${tab.name}\n`;
                 tab.options.forEach((opt) => {
-                    // Stripping type but keeping default to save tokens
-                    context += `${opt.name}${opt.default ? `(${opt.default})` : ""}: ${opt.description}\n`;
+                    // Only include name and description to save tokens
+                    context += `  * ${opt.name}: ${opt.description}\n`;
                 });
             });
             context += "\n";
         });
 
-        const systemPrompt = `You are a helpful assistant for the Azeroth Bug Tracker's F1 Menu Guide. This guide documents all the settings available in the F1 custom menu for a World of Warcraft TBC bot.
+        // 4. Add a global summary if many classes were skipped
+        if (classesToInclude.length < guidesData.length) {
+            context += "OTHER AVAILABLE CLASSES (Summary only):\n";
+            guidesData.forEach(cg => {
+                if (!classesToInclude.find(c => c.className === cg.className)) {
+                    context += `- ${cg.className}: Tools for ${cg.tabs.map(t => t.name).join(", ")}\n`;
+                }
+            });
+        }
 
-Your job is to answer questions about the bot's settings, explain what options do, and help users configure their class correctly. 
+        const systemPrompt = `You are a helpful assistant for the Azeroth Bug Tracker's F1 Menu Guide. 
 
-You have access to the data for ALL classes. Users might be looking at one class guide but asking about another, or comparing them.
+Your job is to answer questions about the bot's settings. You have been provided with a FILTERED section of the guide data below that is most relevant to the user's question.
 
 RULES:
-- Only answer questions related to the guide data provided below.
-- If the answer isn't in the data, say so honestly.
-- Keep answers concise but thorough (2-4 sentences is ideal).
-- Use the setting names exactly as they appear in the data.
-- When mentioning settings, format them in bold.
-- You may reference any class/tab from the provided data.
-- The user is currently viewing the ${className || "General"} guide and the ${tabName || "Home"} tab, but you should answer based on the entire guide.
+- Only answer based on the provided guide data.
+- If the user asks about a class not in the "Relevant Classes" section, check the "Other Available Classes" summary and tell them you have data for it, but they should ask specifically about it.
+- Keep answers concise (2-4 sentences).
+- Use **bold** for setting names.
 
 GUIDE DATA:
 ${context}`;
