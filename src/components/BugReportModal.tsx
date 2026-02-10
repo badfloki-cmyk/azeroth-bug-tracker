@@ -10,7 +10,6 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
-import { toast } from "sonner";
 
 export type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp';
 
@@ -169,6 +168,11 @@ const classSpecs: Partial<Record<WoWClass, string[]>> = {
   druid: ['Balance', 'Feral', 'Restoration'],
 };
 
+const FieldError = ({ error }: { error?: string }) => {
+  if (!error) return null;
+  return <p className="text-xs text-red-400 mt-1">{error}</p>;
+};
+
 export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: BugReportModalProps) => {
   const [selectedClass, setSelectedClass] = useState<WoWClass | null>(initialBug?.wowClass || null);
   const [rotation, setRotation] = useState<string>(initialBug?.rotation || '');
@@ -180,11 +184,13 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
 
   const handleExpansionChange = (value: 'tbc' | 'era' | 'hc') => {
     setExpansion(value);
+    clearError('expansion');
     const newMax = getMaxLevel(value);
     if (level && parseInt(level) > newMax) {
       setLevel(newMax.toString());
     }
   };
+
   const [title, setTitle] = useState(initialBug?.title || "");
   const [description, setDescription] = useState(initialBug?.description || "");
   const [currentBehavior, setCurrentBehavior] = useState(initialBug?.currentBehavior || "");
@@ -199,6 +205,18 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
   const [discordUsername, setDiscordUsername] = useState(initialBug?.discordUsername || "");
   const [sylvanasUsername, setSylvanasUsername] = useState(initialBug?.sylvanasUsername || "");
   const [priority, setPriority] = useState<'low' | 'medium' | 'high' | 'critical'>(initialBug?.priority || 'medium');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => {
+    setErrors(prev => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
+
+  const errClass = (field: string) => errors[field] ? 'border-red-500/40' : '';
 
   const addScreenshotUrl = () => {
     setScreenshotUrls([...screenshotUrls, '']);
@@ -216,58 +234,68 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const newErrors: Record<string, string> = {};
 
-    if (!discordUsername.trim()) {
-      toast.error("Discord Username ist ein Pflichtfeld.");
-      return;
+    // Required fields
+    if (!selectedClass) newErrors.selectedClass = "Bitte wähle eine Klasse.";
+    if (selectedClass && selectedClass !== 'esp' && !rotation) newErrors.rotation = "Bitte wähle eine Spezialisierung.";
+    if (!pvpveMode) newErrors.pvpveMode = "Bitte wähle PvE oder PvP.";
+    if (!expansion) newErrors.expansion = "Bitte wähle eine Expansion.";
+
+    // Level
+    if (!level) {
+      newErrors.level = "Level ist ein Pflichtfeld.";
+    } else if (expansion) {
+      const levelNum = parseInt(level);
+      const levelMax = getMaxLevel(expansion);
+      if (isNaN(levelNum) || levelNum < 1 || levelNum > levelMax) {
+        newErrors.level = `Level muss zwischen 1 und ${levelMax} liegen (${expansion.toUpperCase()}).`;
+      }
     }
 
-    if (!selectedClass || (selectedClass !== 'esp' && !rotation) || !pvpveMode || !level || !expansion || !title ||
-      !currentBehavior || !expectedBehavior || !sylvanasUsername || !logs) {
-      toast.error("Please fill in all required fields.");
-      return;
+    if (!sylvanasUsername.trim()) newErrors.sylvanasUsername = "Sylvanas Username ist ein Pflichtfeld.";
+    if (!discordUsername.trim()) newErrors.discordUsername = "Discord Username ist ein Pflichtfeld.";
+    if (!title.trim()) newErrors.title = "Bug-Titel ist ein Pflichtfeld.";
+    if (!logs.trim()) newErrors.logs = "Logs ist ein Pflichtfeld.";
+
+    // Current Behavior
+    if (!currentBehavior.trim()) {
+      newErrors.currentBehavior = "Current Behavior ist ein Pflichtfeld.";
+    } else if (currentBehavior.length < 50) {
+      newErrors.currentBehavior = "Mindestens 50 Zeichen erforderlich.";
+    } else {
+      const err = validateTextQuality(currentBehavior);
+      if (err) newErrors.currentBehavior = err;
     }
 
-    // Level validation based on expansion
-    const levelNum = parseInt(level);
-    const levelMax = getMaxLevel(expansion);
-    if (isNaN(levelNum) || levelNum < 1 || levelNum > levelMax) {
-      toast.error(`Level muss zwischen 1 und ${levelMax} liegen (${expansion.toUpperCase()}).`);
-      return;
+    // Expected Behavior
+    if (!expectedBehavior.trim()) {
+      newErrors.expectedBehavior = "Expected Behavior ist ein Pflichtfeld.";
+    } else if (expectedBehavior.length < 50) {
+      newErrors.expectedBehavior = "Mindestens 50 Zeichen erforderlich.";
+    } else {
+      const err = validateTextQuality(expectedBehavior);
+      if (err) newErrors.expectedBehavior = err;
     }
 
-    if (currentBehavior.length < 50) {
-      toast.error("Current behavior must be at least 50 characters long.");
-      return;
+    // Cross-field: identical check
+    if (!newErrors.currentBehavior && !newErrors.expectedBehavior) {
+      if (currentBehavior.trim().toLowerCase() === expectedBehavior.trim().toLowerCase()) {
+        newErrors.expectedBehavior = "Darf nicht identisch mit Current Behavior sein.";
+      }
     }
 
-    if (expectedBehavior.length < 50) {
-      toast.error("Expected behavior must be at least 50 characters long.");
-      return;
-    }
-
-    // Text quality validation
-    const currentBehaviorError = validateTextQuality(currentBehavior);
-    if (currentBehaviorError) {
-      toast.error(`Current Behavior: ${currentBehaviorError}`);
-      return;
-    }
-
-    const expectedBehaviorError = validateTextQuality(expectedBehavior);
-    if (expectedBehaviorError) {
-      toast.error(`Expected Behavior: ${expectedBehaviorError}`);
-      return;
-    }
-
-    if (currentBehavior.trim().toLowerCase() === expectedBehavior.trim().toLowerCase()) {
-      toast.error("Current Behavior und Expected Behavior dürfen nicht identisch sein.");
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      const firstKey = Object.keys(newErrors)[0];
+      document.getElementById(`field-${firstKey}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
     const bug: BugReport = {
       id: initialBug?.id || Math.random().toString(36).substr(2, 9),
       developer,
-      wowClass: selectedClass,
+      wowClass: selectedClass!,
       rotation,
       pvpveMode: pvpveMode as 'pve' | 'pvp',
       level: parseInt(level),
@@ -314,16 +342,16 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Class Selection */}
-          <div>
+          <div id="field-selectedClass">
             <label className="block font-display text-sm text-primary mb-3 tracking-wider">
               Rotation / Class
             </label>
-            <div className="flex flex-wrap gap-3">
+            <div className={`flex flex-wrap gap-3 rounded-sm p-1 ${errors.selectedClass ? 'ring-1 ring-red-500/40' : ''}`}>
               {developerClasses[developer].map((wowClass) => (
                 <button
                   key={wowClass}
                   type="button"
-                  onClick={() => { setSelectedClass(wowClass); setRotation(''); }}
+                  onClick={() => { setSelectedClass(wowClass); setRotation(''); clearError('selectedClass'); clearError('rotation'); }}
                   className={`flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 rounded-sm border-2 transition-all text-xs sm:text-sm ${selectedClass === wowClass
                     ? 'border-primary bg-primary/10'
                     : 'border-border hover:border-primary/50'
@@ -334,16 +362,17 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
                 </button>
               ))}
             </div>
+            <FieldError error={errors.selectedClass} />
           </div>
 
           {/* Spec Selection */}
           {selectedClass && selectedClass !== 'esp' && classSpecs[selectedClass] && (
-            <div>
+            <div id="field-rotation">
               <label className="block font-display text-sm text-primary mb-2 tracking-wider">
                 Specialization
               </label>
-              <Select value={rotation} onValueChange={(value) => setRotation(value)}>
-                <SelectTrigger className="wow-input">
+              <Select value={rotation} onValueChange={(value) => { setRotation(value); clearError('rotation'); }}>
+                <SelectTrigger className={`wow-input ${errClass('rotation')}`}>
                   <SelectValue placeholder="Select Specialization" />
                 </SelectTrigger>
                 <SelectContent>
@@ -352,16 +381,17 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
                   ))}
                 </SelectContent>
               </Select>
+              <FieldError error={errors.rotation} />
             </div>
           )}
 
           {/* PvE / PvP */}
-          <div>
+          <div id="field-pvpveMode">
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
               PvE / PvP
             </label>
-            <Select value={pvpveMode} onValueChange={(value) => setPvpveMode(value as 'pve' | 'pvp')}>
-              <SelectTrigger className="wow-input">
+            <Select value={pvpveMode} onValueChange={(value) => { setPvpveMode(value as 'pve' | 'pvp'); clearError('pvpveMode'); }}>
+              <SelectTrigger className={`wow-input ${errClass('pvpveMode')}`}>
                 <SelectValue placeholder="Select PvE or PvP" />
               </SelectTrigger>
               <SelectContent>
@@ -369,37 +399,38 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
                 <SelectItem value="pvp">PvP</SelectItem>
               </SelectContent>
             </Select>
+            <FieldError error={errors.pvpveMode} />
           </div>
 
           {/* Current Level */}
-          <div>
+          <div id="field-level">
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
               Current Level
             </label>
             <input
               type="number"
               value={level}
-              onChange={(e) => setLevel(e.target.value)}
+              onChange={(e) => { setLevel(e.target.value); clearError('level'); }}
               placeholder={expansion ? `1 - ${maxLevel}` : "Wähle zuerst eine Expansion"}
               min="1"
               max={maxLevel}
-              className="wow-input"
-              required
+              className={`wow-input ${errClass('level')}`}
             />
-            {expansion && (
+            {expansion && !errors.level && (
               <p className="text-xs text-muted-foreground mt-1">
                 Level 1-{maxLevel} ({expansion.toUpperCase()})
               </p>
             )}
+            <FieldError error={errors.level} />
           </div>
 
           {/* Used Expansion */}
-          <div>
+          <div id="field-expansion">
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
               Used Expansion
             </label>
             <Select value={expansion} onValueChange={(value) => handleExpansionChange(value as 'tbc' | 'era' | 'hc')}>
-              <SelectTrigger className="wow-input">
+              <SelectTrigger className={`wow-input ${errClass('expansion')}`}>
                 <SelectValue placeholder="Select Expansion" />
               </SelectTrigger>
               <SelectContent>
@@ -408,51 +439,52 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
                 <SelectItem value="hc">HC</SelectItem>
               </SelectContent>
             </Select>
+            <FieldError error={errors.expansion} />
           </div>
 
           {/* Project Sylvanas Username */}
-          <div>
+          <div id="field-sylvanasUsername">
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
               Project Sylvanas Username
             </label>
             <input
               type="text"
               value={sylvanasUsername}
-              onChange={(e) => setSylvanasUsername(e.target.value)}
+              onChange={(e) => { setSylvanasUsername(e.target.value); clearError('sylvanasUsername'); }}
               placeholder="Your Project Sylvanas Username..."
-              className="wow-input"
-              required
+              className={`wow-input ${errClass('sylvanasUsername')}`}
             />
+            <FieldError error={errors.sylvanasUsername} />
           </div>
 
           {/* Discord Username */}
-          <div>
+          <div id="field-discordUsername">
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
               Discord Username <span className="text-red-400">*</span>
             </label>
             <input
               type="text"
               value={discordUsername}
-              onChange={(e) => setDiscordUsername(e.target.value)}
+              onChange={(e) => { setDiscordUsername(e.target.value); clearError('discordUsername'); }}
               placeholder="Your Discord Username..."
-              className="wow-input"
-              required
+              className={`wow-input ${errClass('discordUsername')}`}
             />
+            <FieldError error={errors.discordUsername} />
           </div>
 
           {/* Title */}
-          <div>
+          <div id="field-title">
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
               Bug Title
             </label>
             <input
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => { setTitle(e.target.value); clearError('title'); }}
               placeholder="Brief description of the bug..."
-              className="wow-input"
-              required
+              className={`wow-input ${errClass('title')}`}
             />
+            <FieldError error={errors.title} />
           </div>
 
           {/* Description */}
@@ -469,50 +501,51 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
           </div>
 
           {/* Current Behavior */}
-          <div>
+          <div id="field-currentBehavior">
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
               Current Behavior (minimum 50 characters)
             </label>
             <Textarea
               value={currentBehavior}
-              onChange={(e) => setCurrentBehavior(e.target.value)}
+              onChange={(e) => { setCurrentBehavior(e.target.value); clearError('currentBehavior'); }}
               placeholder="Describe the current behavior in detail..."
-              className="wow-input min-h-[100px] sm:min-h-[150px] resize-y"
-              required
+              className={`wow-input min-h-[100px] sm:min-h-[150px] resize-y ${errClass('currentBehavior')}`}
             />
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className={`text-xs mt-1 ${errors.currentBehavior ? 'text-red-400' : 'text-muted-foreground'}`}>
               {currentBehavior.length} / 50 characters (Minimum)
             </p>
+            <FieldError error={errors.currentBehavior} />
           </div>
 
           {/* Expected Behavior */}
-          <div>
+          <div id="field-expectedBehavior">
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
               Expected Behavior (minimum 50 characters)
             </label>
             <Textarea
               value={expectedBehavior}
-              onChange={(e) => setExpectedBehavior(e.target.value)}
+              onChange={(e) => { setExpectedBehavior(e.target.value); clearError('expectedBehavior'); }}
               placeholder="Describe the expected behavior in detail..."
-              className="wow-input min-h-[100px] sm:min-h-[150px] resize-y"
-              required
+              className={`wow-input min-h-[100px] sm:min-h-[150px] resize-y ${errClass('expectedBehavior')}`}
             />
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className={`text-xs mt-1 ${errors.expectedBehavior ? 'text-red-400' : 'text-muted-foreground'}`}>
               {expectedBehavior.length} / 50 characters (Minimum)
             </p>
+            <FieldError error={errors.expectedBehavior} />
           </div>
 
           {/* Logs */}
-          <div>
+          <div id="field-logs">
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
               Logs
             </label>
             <Textarea
               value={logs}
-              onChange={(e) => setLogs(e.target.value)}
+              onChange={(e) => { setLogs(e.target.value); clearError('logs'); }}
               placeholder="Add relevant logs here..."
-              className="wow-input min-h-[60px] sm:min-h-[100px] resize-y"
+              className={`wow-input min-h-[60px] sm:min-h-[100px] resize-y ${errClass('logs')}`}
             />
+            <FieldError error={errors.logs} />
           </div>
 
           {/* Video URL */}
