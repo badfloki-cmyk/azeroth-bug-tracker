@@ -111,7 +111,7 @@ export function GuideAIChat({ className, tabName }: GuideAIChatProps) {
 
                     {/* Context indicator */}
                     <div className="ai-chat-context">
-                        Answering about: <strong>{className}</strong> → {tabName}
+                        Answering about: <strong>Full Guide</strong> (All Classes)
                     </div>
 
                     {/* Messages */}

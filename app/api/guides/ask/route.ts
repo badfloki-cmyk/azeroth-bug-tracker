@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { guidesData } from "@/data/guidesData";
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: NextRequest) {
     try {
@@ -12,58 +9,31 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Question is required" }, { status: 400 });
         }
 
-        if (!process.env.GEMINI_API_KEY) {
-            return NextResponse.json({ error: "Gemini API key is not configured" }, { status: 500 });
+        const apiKey = process.env.GROQ_API_KEY;
+        if (!apiKey) {
+            return NextResponse.json({ error: "Groq API key is not configured" }, { status: 500 });
         }
 
-        // Build context from guide data
-        let context = "";
+        // Build full context from all guide data to allow cross-class questions
+        let context = "EXTENDED GUIDE DATA (All Classes):\n\n";
 
-        if (className) {
-            const classGuide = guidesData.find(
-                (cg) => cg.className.toLowerCase() === className.toLowerCase()
-            );
-            if (classGuide) {
-                if (tabName) {
-                    // Specific tab context
-                    const tab = classGuide.tabs.find(
-                        (t) => t.name.toLowerCase() === tabName.toLowerCase()
-                    );
-                    if (tab) {
-                        context = `Class: ${classGuide.className}\nTab: ${tab.name}\nSettings:\n`;
-                        tab.options.forEach((opt) => {
-                            context += `- ${opt.name} (${opt.type}${opt.default ? `, default: ${opt.default}` : ""}): ${opt.description}\n`;
-                        });
-                    }
-                }
-
-                if (!context) {
-                    // Full class context
-                    context = `Class: ${classGuide.className}\n\n`;
-                    classGuide.tabs.forEach((tab) => {
-                        context += `## ${tab.name}\n`;
-                        tab.options.forEach((opt) => {
-                            context += `- ${opt.name} (${opt.type}${opt.default ? `, default: ${opt.default}` : ""}): ${opt.description}\n`;
-                        });
-                        context += "\n";
-                    });
-                }
-            }
-        }
-
-        // If no specific class, provide a summary of all classes
-        if (!context) {
-            context = "Available classes and their tabs:\n\n";
-            guidesData.forEach((cg) => {
-                context += `${cg.icon} ${cg.className}: Tabs - ${cg.tabs.map((t) => t.name).join(", ")}\n`;
+        guidesData.forEach((cg) => {
+            context += `=== CLASS: ${cg.className} ${cg.icon} ===\n`;
+            cg.tabs.forEach((tab) => {
+                context += `Tab: ${tab.name}\n`;
+                tab.options.forEach((opt) => {
+                    context += `- ${opt.name} (${opt.type}${opt.default ? `, default: ${opt.default}` : ""}): ${opt.description}\n`;
+                });
+                context += "\n";
             });
-        }
-
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+            context += "\n";
+        });
 
         const systemPrompt = `You are a helpful assistant for the Azeroth Bug Tracker's F1 Menu Guide. This guide documents all the settings available in the F1 custom menu for a World of Warcraft TBC bot.
 
-Your job is to answer questions about the bot's settings, explain what options do, and help users configure their class correctly.
+Your job is to answer questions about the bot's settings, explain what options do, and help users configure their class correctly. 
+
+You have access to the data for ALL classes. Users might be looking at one class guide but asking about another, or comparing them.
 
 RULES:
 - Only answer questions related to the guide data provided below.
@@ -71,25 +41,38 @@ RULES:
 - Keep answers concise but thorough (2-4 sentences is ideal).
 - Use the setting names exactly as they appear in the data.
 - When mentioning settings, format them in bold.
-- You may reference other classes/tabs if relevant to the question.
+- You may reference any class/tab from the provided data.
+- The user is currently viewing the ${className || "General"} guide and the ${tabName || "Home"} tab, but you should answer based on the entire guide.
 
 GUIDE DATA:
 ${context}`;
 
-        const result = await model.generateContent({
-            contents: [
-                { role: "user", parts: [{ text: systemPrompt + "\n\nUser question: " + question.trim() }] },
-            ],
-            generationConfig: {
-                maxOutputTokens: 500,
-                temperature: 0.3,
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
             },
+            body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: question.trim() },
+                ],
+                max_tokens: 500,
+                temperature: 0.3,
+            }),
         });
 
-        const response = result.response;
-        const text = response.text();
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`Groq API error: ${errorData.error?.message || response.statusText}`);
+        }
 
-        return NextResponse.json({ answer: text });
+        const data = await response.json();
+        const answer = data.choices[0]?.message?.content || "I couldn't generate an answer.";
+
+        return NextResponse.json({ answer });
     } catch (error: unknown) {
         console.error("Guide AI error:", error);
         const message = error instanceof Error ? error.message : "Failed to generate answer";
