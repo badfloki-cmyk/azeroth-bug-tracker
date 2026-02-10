@@ -82,14 +82,14 @@ export default function RoadmapPage() {
                     <div className="lg:col-span-2 space-y-8">
                         <BugTicketList
                             bugs={inProgressBugs}
-                            title="Aktuell in Arbeit (Roadmap)"
+                            title="Currently In Progress (Roadmap)"
                             isExpandable={true}
                             pageSize={3}
                         />
 
                         <BugTicketList
                             bugs={resolvedBugs}
-                            title="Letzte Fehlerbehebungen (Changelog)"
+                            title="Latest Fixes (Changelog)"
                             isExpandable={true}
                             isArchiveView={true}
                             pageSize={10}
@@ -121,17 +121,17 @@ export default function RoadmapPage() {
                                         </div>
                                     ))
                                 ) : (
-                                    <p className="text-center text-muted-foreground py-4 italic">Noch keine Helden gesichtet...</p>
+                                    <p className="text-center text-muted-foreground py-4 italic">No heroes spotted yet...</p>
                                 )}
                             </div>
                         </WoWPanel>
 
                         {/* project info */}
                         <WoWPanel className="p-6 bg-primary/5">
-                            <h3 className="font-display text-sm text-primary mb-3 uppercase tracking-tighter">Projekt Info</h3>
+                            <h3 className="font-display text-sm text-primary mb-3 uppercase tracking-tighter">Project Info</h3>
                             <p className="text-xs text-muted-foreground leading-relaxed">
-                                Hier kannst du den Fortschritt unseres World of Warcraft Classic & TBC Projekts live mitverfolgen.
-                                Jeder Report hilft uns dabei, die perfekte Rotation für alle Klassen zu entwickeln.
+                                Here you can follow the progress of our World of Warcraft Classic & TBC project live.
+                                Every report helps us develop the perfect rotation for all classes.
                             </p>
                             <div className="mt-4 pt-4 border-t border-primary/10 flex items-center justify-between text-[10px] uppercase font-bold text-primary">
                                 <span>Astro × Bungee</span>

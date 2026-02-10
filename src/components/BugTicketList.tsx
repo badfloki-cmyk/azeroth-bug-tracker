@@ -19,36 +19,36 @@ const generatePrompt = (bug: BugReport) => {
   const expansion = expansionMap[bug.expansion] || bug.expansion?.toUpperCase();
   const mode = bug.pvpveMode?.toUpperCase();
 
-  return `Du bist Lua-Entwickler für World of Warcraft ${expansion} Rotations. Deine Aufgabe ist es so nah wie möglich an die perfekte WoW ${bug.wowClass} ${mode} Rotation zu kommen. Du darfst nur Project Sylvanas API verwenden und nicht die standardmäßige WoW Classic LUA API.
+  return `You are a Lua developer for World of Warcraft ${expansion} Rotations. Your task is to get as close as possible to the perfect WoW ${bug.wowClass} ${mode} rotation. You may only use the Project Sylvanas API and not the standard WoW Classic LUA API.
 
-Die API findest du im documentations oder im .api folder.
+The API can be found in the documentations or in the .api folder.
 
 ## Bug Report: ${bug.title}
-- Klasse: ${bug.wowClass}
+- Class: ${bug.wowClass}
 - Rotation/Spec: ${bug.rotation}
 - Level: ${bug.level}
 - Expansion: ${expansion}
-- Modus: ${mode}
-- Priorität: ${bug.priority}
+- Mode: ${mode}
+- Priority: ${bug.priority}
 
-## Beschreibung
+## Description
 ${bug.description}
 
-## Aktuelles Verhalten
+## Current Behavior
 ${bug.currentBehavior}
 
-## Erwartetes Verhalten
+## Expected Behavior
 ${bug.expectedBehavior}
 
 ## Logs
-${bug.logs || 'Keine Logs vorhanden'}
+${bug.logs || 'No logs available'}
 ${bug.videoUrl ? `\n## Video\n${bug.videoUrl}` : ''}
 ${bug.screenshotUrls?.length ? `\n## Screenshots\n${bug.screenshotUrls.join('\n')}` : ''}
 
-Recherchiere im Internet nach Guides und lies dir diese ausreichend durch. Du sollst verstehen lernen wie man den ${bug.wowClass} in ${expansion} spielt und das dann mit dem erwarteten Verhalten vergleichen (ob dieses auch gerechtfertig ist) und mit der aktuellen Rotation vergleichen. Das Verhalten der Rotation soll möglichst dem im Guide entsprehen. Das erwartete Verhalten wird vom benutzer reported und kann fehlinterpretiert sein und soll nur als Anhaltspunkt dienen.
+Research guides on the internet and read them thoroughly. You should learn how to play the ${bug.wowClass} in ${expansion} and then compare it with the expected behavior (whether it is justified) and the current rotation. The rotation's behavior should match the guide as closely as possible. The expected behavior is reported by the user and may be misinterpreted, so it should only serve as a guide.
 
-Stelle so viele Rückfragen wie möglich.
-Lasse dir bei der Fehlersuche ruhig Zeit dabei. Qualität ist besser als Schnelligkeit. Deepthink.`;
+Ask as many follow-up questions as possible.
+Take your time with troubleshooting. Quality is better than speed. Deepthink.`;
 };
 
 const RESOLVE_REASON_LABELS: Record<string, string> = {
@@ -171,7 +171,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
   };
 
   const handleHardDelete = async (bug: BugReport) => {
-    if (window.confirm(`Möchtest du diesen Bug (${bug.title}) wirklich ENDGÜLTIG aus der Datenbank löschen? (Wird nicht archiviert und zählt nicht als resolved)`)) {
+    if (window.confirm(`Do you really want to PERMANENTLY delete this bug (${bug.title}) from the database? (It will not be archived and won't count as resolved)`)) {
       try {
         const token = localStorage.getItem('auth_token') || "";
         // We use a custom call or pass a flag to the existing delete function
@@ -184,7 +184,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
           (onDelete as any)(bug.id, true);
         }
       } catch (error: any) {
-        toast.error("Fehler beim Löschen: " + error.message);
+        toast.error("Error deleting: " + error.message);
       }
     }
   };
@@ -202,7 +202,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
           <div className="relative flex-1 sm:flex-none">
             <input
               type="text"
-              placeholder="Suchen..."
+              placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="wow-input text-xs py-1.5 pl-8 pr-3 w-full sm:w-40"
@@ -215,7 +215,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
             value={selectedClass}
             onChange={(e) => setSelectedClass(e.target.value)}
           >
-            <option value="all">Alle Klassen</option>
+            <option value="all">All Classes</option>
             {Object.keys(classNames).map(c => (
               <option key={c} value={c}>{classNames[c as WoWClass]}</option>
             ))}
@@ -226,9 +226,9 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
           >
-            <option value="oldest">Älteste zuerst</option>
-            <option value="newest">Neueste zuerst</option>
-            <option value="priority">Priorität</option>
+            <option value="oldest">Oldest First</option>
+            <option value="newest">Newest First</option>
+            <option value="priority">Priority</option>
           </select>
         </div>
       </div>
@@ -291,12 +291,12 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (window.confirm("Bist du sicher? (Wird archiviert)")) {
+                          if (window.confirm("Are you sure? (Will be archived)")) {
                             onDelete(bug.id);
                           }
                         }}
                         className="p-1 hover:bg-red-500/10 rounded-full transition-colors group/delete"
-                        title="Archivieren"
+                        title="Archive"
                       >
                         <Trash2 className="w-4 h-4 text-muted-foreground group-hover/delete:text-red-400" />
                       </button>
@@ -306,7 +306,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                           handleHardDelete(bug);
                         }}
                         className="p-1 hover:bg-red-600/20 rounded-full transition-colors group/hard-delete"
-                        title="Endgültig löschen (Statistics Cleanup)"
+                        title="Permanently Delete (Statistics Cleanup)"
                       >
                         <ShieldAlert className="w-4 h-4 text-muted-foreground group-hover/hard-delete:text-red-600" />
                       </button>
@@ -415,7 +415,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                           onClick={(e) => {
                             e.stopPropagation();
                             navigator.clipboard.writeText(generatePrompt(bug));
-                            toast.success("Prompt in Zwischenablage kopiert!");
+                            toast.success("Prompt copied to clipboard!");
                           }}
                           className="flex items-center gap-2 px-4 py-2 rounded-sm bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 text-xs font-bold uppercase transition-all"
                         >
@@ -429,63 +429,76 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                             <Edit2 className="w-3 h-3" /> Edit Ticket
                           </button>
                         )}
-                        {onDelete && !isArchiveView && (
+                        {(onDelete && !isArchiveView) && (
                           <div className="flex gap-2">
                             <button
                               onClick={(e) => { e.stopPropagation(); onDelete(bug.id); }}
                               className="flex items-center gap-2 px-4 py-2 rounded-sm bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs font-bold uppercase transition-all"
-                              title="Archivieren & Resolved"
+                              title="Archive & Resolved"
                             >
                               <Archive className="w-3 h-3" /> Archive
                             </button>
                             <button
                               onClick={(e) => { e.stopPropagation(); handleHardDelete(bug); }}
                               className="flex items-center gap-2 px-4 py-2 rounded-sm bg-red-600/10 border border-red-600/30 text-red-600 hover:bg-red-600/20 text-xs font-bold uppercase transition-all"
-                              title="Endgültig aus DB löschen"
+                              title="Permanently delete from DB"
                             >
                               <ShieldAlert className="w-3 h-3" /> Hard Delete
                             </button>
                           </div>
                         )}
-                        {isArchiveView && onStatusChange && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); onStatusChange(bug.id, 'open'); }}
-                            className="flex items-center gap-2 px-4 py-2 rounded-sm bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/20 text-xs font-bold uppercase transition-all"
-                          >
-                            <Circle className="w-3 h-3" /> Reopen
-                          </button>
-                        )}
                       </div>
 
-                      {onStatusChange && !isArchiveView && (
+                      {isArchiveView ? (
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] uppercase font-bold text-muted-foreground mr-1">Update Status:</span>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); onStatusChange(bug.id, 'open'); }}
-                            className={`p-2 rounded-sm border transition-all ${bug.status === 'open' ? 'border-red-500 bg-red-500/20 text-red-400' : 'border-border text-muted-foreground hover:border-red-500/50'}`}
-                            title="Open"
-                          >
-                            <Circle className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); onStatusChange(bug.id, 'in-progress'); }}
-                            className={`p-2 rounded-sm border transition-all ${bug.status === 'in-progress' ? 'border-yellow-500 bg-yellow-500/20 text-yellow-400' : 'border-border text-muted-foreground hover:border-yellow-500/50'}`}
-                            title="In Progress"
-                          >
-                            <Play className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (bug.status === 'resolved') return;
-                              setResolvingBugId(bug.id);
-                            }}
-                            className={`p-2 rounded-sm border transition-all ${bug.status === 'resolved' ? 'border-green-500 bg-green-500/20 text-green-400' : 'border-border text-muted-foreground hover:border-green-500/50'}`}
-                            title="Resolved"
-                          >
-                            <CheckCircle className="w-4 h-4" />
-                          </button>
+                          {onDelete && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleHardDelete(bug); }}
+                              className="flex items-center gap-2 px-4 py-2 rounded-sm bg-red-600/10 border border-red-600/30 text-red-600 hover:bg-red-600/20 text-xs font-bold uppercase transition-all"
+                            >
+                              <ShieldAlert className="w-3 h-3" /> Hard Delete
+                            </button>
+                          )}
+                          {onStatusChange && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); onStatusChange(bug.id, 'open'); }}
+                              className="flex items-center gap-2 px-4 py-2 rounded-sm bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/20 text-xs font-bold uppercase transition-all"
+                            >
+                              <Circle className="w-3 h-3" /> Reopen
+                            </button>
+                          )}
                         </div>
+                      ) : (
+                        onStatusChange && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] uppercase font-bold text-muted-foreground mr-1">Update Status:</span>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); onStatusChange(bug.id, 'open'); }}
+                              className={`p-2 rounded-sm border transition-all ${bug.status === 'open' ? 'border-red-500 bg-red-500/20 text-red-400' : 'border-border text-muted-foreground hover:border-red-500/50'}`}
+                              title="Open"
+                            >
+                              <Circle className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); onStatusChange(bug.id, 'in-progress'); }}
+                              className={`p-2 rounded-sm border transition-all ${bug.status === 'in-progress' ? 'border-yellow-500 bg-yellow-500/20 text-yellow-400' : 'border-border text-muted-foreground hover:border-yellow-500/50'}`}
+                              title="In Progress"
+                            >
+                              <Play className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (bug.status === 'resolved') return;
+                                setResolvingBugId(bug.id);
+                              }}
+                              className={`p-2 rounded-sm border transition-all ${bug.status === 'resolved' ? 'border-green-500 bg-green-500/20 text-green-400' : 'border-border text-muted-foreground hover:border-green-500/50'}`}
+                              title="Resolved"
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )
                       )}
                     </div>
                   )}

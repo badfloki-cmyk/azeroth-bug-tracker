@@ -27,7 +27,7 @@ export default function ArchivePage() {
     const handleDeleteBug = async (ticketId: string, hardDelete: boolean = false) => {
         if (!token) return;
         const confirmMsg = hardDelete
-            ? "Möchtest du diesen Bug wirklich ENDGÜLTIG aus der Datenbank löschen? Er wird komplett aus der Statistik entfernt."
+            ? "Do you really want to PERMANENTLY delete this bug from the database? It will be completely removed from statistics."
             : "Are you sure you want to delete this bug report? It will be archived and counted as resolved.";
 
         if (!window.confirm(confirmMsg)) return;
