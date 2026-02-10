@@ -4,7 +4,7 @@ import { useBugs } from "@/hooks/useBugs";
 import { WoWPanel } from "@/components/WoWPanel";
 import { BugTicketList } from "@/components/BugTicketList";
 import { BugStats } from "@/components/BugStats";
-import { Shield, Swords, Home, Archive, Trophy, Construction, History } from "lucide-react";
+import { Shield, Swords, Home, Archive, Trophy, Construction, History, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 
@@ -63,6 +63,10 @@ export default function RoadmapPage() {
                         <Link href="/" className="wow-button flex items-center gap-2">
                             <Home className="w-4 h-4" />
                             <span className="hidden sm:inline">Home</span>
+                        </Link>
+                        <Link href="/guides" className="wow-button flex items-center gap-2">
+                            <BookOpen className="w-4 h-4" />
+                            <span className="hidden sm:inline">Guides</span>
                         </Link>
                         <Link href="/dashboard" className="wow-button flex items-center gap-2">
                             <Swords className="w-4 h-4" />

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f5d070"/>
+      <stop offset="50%" stop-color="#daa520"/>
+      <stop offset="100%" stop-color="#8b6914"/>
+    </linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a1f14"/>
+      <stop offset="100%" stop-color="#1a1008"/>
+    </linearGradient>
+    <linearGradient id="bug" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff4444"/>
+      <stop offset="100%" stop-color="#cc2222"/>
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#bg)" stroke="url(#gold)" stroke-width="3"/>
+  <!-- Inner ring -->
+  <circle cx="32" cy="32" r="24" fill="none" stroke="url(#gold)" stroke-width="1" opacity="0.4"/>
+  <!-- Shield shape -->
+  <path d="M32 12 L48 20 L48 36 C48 44 40 50 32 54 C24 50 16 44 16 36 L16 20 Z" 
+        fill="url(#bg)" stroke="url(#gold)" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Bug icon (stylized beetle) -->
+  <ellipse cx="32" cy="34" rx="6" ry="8" fill="url(#bug)" opacity="0.9"/>
+  <line x1="32" y1="26" x2="32" y2="42" stroke="#1a1008" stroke-width="1.2"/>
+  <line x1="26" y1="32" x2="38" y2="32" stroke="#1a1008" stroke-width="1"/>
+  <line x1="26" y1="36" x2="38" y2="36" stroke="#1a1008" stroke-width="1"/>
+  <!-- Bug head -->
+  <circle cx="32" cy="27" r="3" fill="url(#bug)" opacity="0.9"/>
+  <!-- Bug antennae -->
+  <line x1="30" y1="25" x2="27" y2="21" stroke="url(#gold)" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="34" y1="25" x2="37" y2="21" stroke="url(#gold)" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Bug legs -->
+  <line x1="26" y1="30" x2="22" y2="28" stroke="url(#gold)" stroke-width="1" stroke-linecap="round"/>
+  <line x1="26" y1="34" x2="22" y2="34" stroke="url(#gold)" stroke-width="1" stroke-linecap="round"/>
+  <line x1="26" y1="38" x2="22" y2="40" stroke="url(#gold)" stroke-width="1" stroke-linecap="round"/>
+  <line x1="38" y1="30" x2="42" y2="28" stroke="url(#gold)" stroke-width="1" stroke-linecap="round"/>
+  <line x1="38" y1="34" x2="42" y2="34" stroke="url(#gold)" stroke-width="1" stroke-linecap="round"/>
+  <line x1="38" y1="38" x2="42" y2="40" stroke="url(#gold)" stroke-width="1" stroke-linecap="round"/>
+</svg>

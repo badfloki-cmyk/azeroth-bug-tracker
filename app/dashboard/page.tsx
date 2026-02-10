@@ -9,7 +9,7 @@ import { WoWPanel } from "@/components/WoWPanel";
 import { BugTicketList } from "@/components/BugTicketList";
 import { CodeChangeTracker } from "@/components/CodeChangeTracker";
 import { BugStats } from "@/components/BugStats";
-import { LogOut, Shield, Swords, Home, Archive, Construction } from "lucide-react";
+import { LogOut, Shield, Swords, Home, Archive, Construction, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { BugReportModal } from "@/components/BugReportModal";
 import type { BugReport } from "@/components/BugReportModal";
@@ -228,6 +228,14 @@ export default function DashboardPage() {
                                 className="w-10 h-10 rounded-sm border border-primary/50 bg-black/50"
                             />
                         </div>
+
+                        <button
+                            onClick={() => router.push("/guides")}
+                            className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                            title="F1 Menu Guides"
+                        >
+                            <BookOpen className="w-5 h-5" />
+                        </button>
 
                         <button
                             onClick={() => router.push("/roadmap")}

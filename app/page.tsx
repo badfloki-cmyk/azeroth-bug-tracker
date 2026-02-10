@@ -5,7 +5,7 @@ import Link from "next/link";
 import { DeveloperCard } from "@/components/DeveloperCard";
 import { BugReportModal, BugReport } from "@/components/BugReportModal";
 import { BugTicketList } from "@/components/BugTicketList";
-import { Shield, Swords, LogIn, ExternalLink, Archive, Construction } from "lucide-react";
+import { Shield, Swords, LogIn, ExternalLink, Archive, Construction, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { useBugs } from "@/hooks/useBugs";
 
@@ -86,6 +86,13 @@ export default function IndexPage() {
                             </div>
 
                             <div className="flex items-center gap-3">
+                                <Link
+                                    href="/guides"
+                                    className="wow-button flex items-center gap-2"
+                                >
+                                    <BookOpen className="w-4 h-4" />
+                                    <span className="hidden md:inline">Guides</span>
+                                </Link>
                                 <Link
                                     href="/roadmap"
                                     className="wow-button flex items-center gap-2"
