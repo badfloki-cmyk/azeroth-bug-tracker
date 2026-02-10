@@ -9,7 +9,7 @@ import { WoWPanel } from "@/components/WoWPanel";
 import { BugTicketList } from "@/components/BugTicketList";
 import { CodeChangeTracker } from "@/components/CodeChangeTracker";
 import { BugStats } from "@/components/BugStats";
-import { LogOut, Shield, Swords, Home, Archive } from "lucide-react";
+import { LogOut, Shield, Swords, Home, Archive, Construction } from "lucide-react";
 import { toast } from "sonner";
 import { BugReportModal } from "@/components/BugReportModal";
 import type { BugReport } from "@/components/BugReportModal";
@@ -99,13 +99,17 @@ export default function DashboardPage() {
         }
     };
 
-    const handleDeleteBug = async (ticketId: string) => {
+    const handleDeleteBug = async (ticketId: string, hardDelete: boolean = false) => {
         if (!token) return;
-        if (!window.confirm("Are you sure you want to delete this bug report? It will be archived and counted as resolved.")) return;
+        const confirmMsg = hardDelete
+            ? "Möchtest du diesen Bug wirklich ENDGÜLTIG aus der Datenbank löschen? Er wird komplett aus der Statistik entfernt."
+            : "Are you sure you want to delete this bug report? It will be archived and counted as resolved.";
+
+        if (!window.confirm(confirmMsg)) return;
 
         try {
-            await deleteBug.mutateAsync({ ticketId, token });
-            toast.success("Bug report archived and resolved.");
+            await deleteBug.mutateAsync({ ticketId, token, hardDelete });
+            toast.success(hardDelete ? "Bug report permanently removed." : "Bug report archived and resolved.");
         } catch (error: any) {
             toast.error(error.message || "Failed to delete bug report");
         }
@@ -224,6 +228,14 @@ export default function DashboardPage() {
                                 className="w-10 h-10 rounded-sm border border-primary/50 bg-black/50"
                             />
                         </div>
+
+                        <button
+                            onClick={() => router.push("/roadmap")}
+                            className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                            title="View Public Roadmap"
+                        >
+                            <Construction className="w-5 h-5" />
+                        </button>
 
                         <button
                             onClick={() => router.push("/")}

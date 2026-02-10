@@ -1,11 +1,12 @@
-import { BugReport } from "./BugReportModal";
+import { BugReport, classNames, WoWClass } from "./BugReportModal";
 import { ClassIcon } from "./ClassIcon";
 import { WoWPanel } from "./WoWPanel";
 import { ResolveReasonModal } from "./ResolveReasonModal";
 import {
   Bug, Clock, User, CheckCircle, Play, Circle,
   ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Trash2, Edit2,
-  Terminal, Video, Image as ImageIcon, Info, Target, Layers, Sparkles
+  Terminal, Video, Image as ImageIcon, Info, Target, Layers, Sparkles,
+  Search, ShieldAlert, Archive
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { enUS } from "date-fns/locale";
@@ -105,12 +106,47 @@ function generatePageNumbers(current: number, total: number): (number | '...')[]
 export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onDelete, onEdit, showActions, isExpandable = true, isArchiveView = false, pageSize = 5 }: BugTicketListProps) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [resolvingBugId, setResolvingBugId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedClass, setSelectedClass] = useState<string>("all");
+  const [selectedPriority, setSelectedPriority] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'priority'>('oldest');
 
-  const sortByOldestFirst = useCallback(
-    (a: BugReport, b: BugReport) =>
-      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-    []
-  );
+  const filteredAndSortedBugs = useMemo(() => {
+    let result = [...bugs];
+
+    // Search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(bug =>
+        bug.title.toLowerCase().includes(term) ||
+        bug.description.toLowerCase().includes(term) ||
+        bug.reporter.toLowerCase().includes(term)
+      );
+    }
+
+    // Class filter
+    if (selectedClass !== "all") {
+      result = result.filter(bug => bug.wowClass === selectedClass);
+    }
+
+    // Priority filter
+    if (selectedPriority !== "all") {
+      result = result.filter(bug => bug.priority === selectedPriority);
+    }
+
+    // Sorting
+    result.sort((a, b) => {
+      if (sortBy === 'priority') {
+        const priorityScore = { critical: 4, high: 3, medium: 2, low: 1 };
+        return priorityScore[b.priority] - priorityScore[a.priority];
+      }
+      const timeA = new Date(a.createdAt).getTime();
+      const timeB = new Date(b.createdAt).getTime();
+      return sortBy === 'newest' ? timeB - timeA : timeA - timeB;
+    });
+
+    return result;
+  }, [bugs, searchTerm, selectedClass, selectedPriority, sortBy]);
 
   const {
     currentItems,
@@ -123,9 +159,10 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
     hasNextPage,
     hasPrevPage,
   } = usePagination({
-    items: bugs,
+    items: filteredAndSortedBugs,
     itemsPerPage: pageSize,
-    sortFn: sortByOldestFirst,
+    // Sort logic is now handled in useMemo for more flexibility (priority sorting)
+    sortFn: (a, b) => 0,
   });
 
   const toggleExpand = (id: string) => {
@@ -133,25 +170,68 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
     setExpandedId(expandedId === id ? null : id);
   };
 
-  if (bugs.length === 0) {
-    return (
-      <WoWPanel className="text-center py-12">
-        <Bug className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-muted-foreground mb-4 opacity-50" />
-        <h3 className="font-display text-base sm:text-lg text-muted-foreground">No Bug Reports</h3>
-        <p className="text-sm text-muted-foreground/60 mt-2">
-          All systems working! Report a bug if you find one.
-        </p>
-      </WoWPanel>
-    );
-  }
+  const handleHardDelete = async (bug: BugReport) => {
+    if (window.confirm(`Möchtest du diesen Bug (${bug.title}) wirklich ENDGÜLTIG aus der Datenbank löschen? (Wird nicht archiviert und zählt nicht als resolved)`)) {
+      try {
+        const token = localStorage.getItem('auth_token') || "";
+        // We use a custom call or pass a flag to the existing delete function
+        // For simplicity, we'll assume the parent onDelete handles the logic if we pass a second param
+        // But since onDelete only takes one arg in the interface, we'll use a hack or update the interface.
+        // Let's stick to the plan and assume we might need to update the prop interface.
+        if (onDelete) {
+          // We'll update the component and its parent to support hard delete
+          // For now, let's keep it simple and use a dedicated function if provided
+          (onDelete as any)(bug.id, true);
+        }
+      } catch (error: any) {
+        toast.error("Fehler beim Löschen: " + error.message);
+      }
+    }
+  };
 
   return (
     <WoWPanel>
-      <h2 className="font-display text-xl wow-gold-text mb-6 flex items-center gap-3">
-        <Bug className="w-5 h-5" />
-        {title}
-        <span className="text-sm text-muted-foreground">({totalItems})</span>
-      </h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <h2 className="font-display text-xl wow-gold-text flex items-center gap-3">
+          <Bug className="w-5 h-5" />
+          {title}
+          <span className="text-sm text-muted-foreground">({totalItems})</span>
+        </h2>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative flex-1 sm:flex-none">
+            <input
+              type="text"
+              placeholder="Suchen..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="wow-input text-xs py-1.5 pl-8 pr-3 w-full sm:w-40"
+            />
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          </div>
+
+          <select
+            className="wow-input text-xs py-1.5 px-2 bg-background border-border"
+            value={selectedClass}
+            onChange={(e) => setSelectedClass(e.target.value)}
+          >
+            <option value="all">Alle Klassen</option>
+            {Object.keys(classNames).map(c => (
+              <option key={c} value={c}>{classNames[c as WoWClass]}</option>
+            ))}
+          </select>
+
+          <select
+            className="wow-input text-xs py-1.5 px-2 bg-background border-border"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as any)}
+          >
+            <option value="oldest">Älteste zuerst</option>
+            <option value="newest">Neueste zuerst</option>
+            <option value="priority">Priorität</option>
+          </select>
+        </div>
+      </div>
 
       <div className="space-y-3">
         {currentItems.map((bug) => {
@@ -207,19 +287,30 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                     isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   )}
                   {!isExpandable && onDelete && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Optional: Add confirmation here, or rely on parent
-                        if (window.confirm("Are you sure you want to delete this bug report?")) {
-                          onDelete(bug.id);
-                        }
-                      }}
-                      className="p-1 hover:bg-red-500/10 rounded-full transition-colors group/delete"
-                      title="Delete Ticket"
-                    >
-                      <Trash2 className="w-4 h-4 text-muted-foreground group-hover/delete:text-red-400" />
-                    </button>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm("Bist du sicher? (Wird archiviert)")) {
+                            onDelete(bug.id);
+                          }
+                        }}
+                        className="p-1 hover:bg-red-500/10 rounded-full transition-colors group/delete"
+                        title="Archivieren"
+                      >
+                        <Trash2 className="w-4 h-4 text-muted-foreground group-hover/delete:text-red-400" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleHardDelete(bug);
+                        }}
+                        className="p-1 hover:bg-red-600/20 rounded-full transition-colors group/hard-delete"
+                        title="Endgültig löschen (Statistics Cleanup)"
+                      >
+                        <ShieldAlert className="w-4 h-4 text-muted-foreground group-hover/hard-delete:text-red-600" />
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -232,7 +323,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                       <h5 className="text-xs font-bold uppercase text-primary flex items-center gap-2 tracking-widest">
                         <Info className="w-3.5 h-3.5" /> Current Behavior
                       </h5>
-                      <p className="text-sm text-balance text-muted-foreground bg-background/40 p-3 sm:p-4 rounded-sm border border-border/50 min-h-[80px] sm:min-h-[120px] whitespace-pre-wrap leading-relaxed">
+                      <p className="text-balance text-sm text-muted-foreground bg-background/40 p-3 sm:p-4 rounded-sm border border-border/50 min-h-[80px] sm:min-h-[120px] whitespace-pre-wrap leading-relaxed">
                         {bug.currentBehavior}
                       </p>
                     </div>
@@ -240,7 +331,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                       <h5 className="text-xs font-bold uppercase text-green-400 flex items-center gap-2 tracking-widest">
                         <CheckCircle className="w-3.5 h-3.5" /> Expected Behavior
                       </h5>
-                      <p className="text-sm text-balance text-muted-foreground bg-background/40 p-3 sm:p-4 rounded-sm border border-border/50 min-h-[80px] sm:min-h-[120px] whitespace-pre-wrap leading-relaxed">
+                      <p className="text-balance text-sm text-muted-foreground bg-background/40 p-3 sm:p-4 rounded-sm border border-border/50 min-h-[80px] sm:min-h-[120px] whitespace-pre-wrap leading-relaxed">
                         {bug.expectedBehavior}
                       </p>
                     </div>
@@ -283,7 +374,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                       <h5 className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-2 tracking-widest">
                         <Terminal className="w-3.5 h-3.5" /> System Logs
                       </h5>
-                      <pre className="text-xs text-muted-foreground bg-black/40 p-3 sm:p-4 rounded-sm border border-border/50 min-h-[60px] sm:min-h-[100px] whitespace-pre-wrap font-mono overflow-x-auto">
+                      <pre className="text-xs text-muted-foreground bg-black/40 p-3 sm:p-4 rounded-sm border border-border/50 min-h-[60px] sm:min-h-[100px] whitespace-pre-wrap font-mono overflow-x-auto text-balance">
                         {bug.logs}
                       </pre>
                     </div>
@@ -339,12 +430,22 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                           </button>
                         )}
                         {onDelete && !isArchiveView && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); onDelete(bug.id); }}
-                            className="flex items-center gap-2 px-4 py-2 rounded-sm bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs font-bold uppercase transition-all"
-                          >
-                            <Trash2 className="w-3 h-3" /> Delete
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); onDelete(bug.id); }}
+                              className="flex items-center gap-2 px-4 py-2 rounded-sm bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs font-bold uppercase transition-all"
+                              title="Archivieren & Resolved"
+                            >
+                              <Archive className="w-3 h-3" /> Archive
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleHardDelete(bug); }}
+                              className="flex items-center gap-2 px-4 py-2 rounded-sm bg-red-600/10 border border-red-600/30 text-red-600 hover:bg-red-600/20 text-xs font-bold uppercase transition-all"
+                              title="Endgültig aus DB löschen"
+                            >
+                              <ShieldAlert className="w-3 h-3" /> Hard Delete
+                            </button>
+                          </div>
                         )}
                         {isArchiveView && onStatusChange && (
                           <button

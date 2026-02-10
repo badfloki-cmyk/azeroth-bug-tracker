@@ -12,7 +12,7 @@ import {
 import { Textarea } from "./ui/textarea";
 import { toast } from "sonner";
 
-type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp';
+export type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp';
 
 interface BugReportModalProps {
   developer: 'astro' | 'bungee';
@@ -51,7 +51,7 @@ const developerClasses: Record<'astro' | 'bungee', WoWClass[]> = {
   bungee: ['priest', 'mage', 'shaman', 'druid', 'esp'],
 };
 
-const classNames: Record<WoWClass, string> = {
+export const classNames: Record<WoWClass, string> = {
   rogue: "Rogue",
   hunter: "Hunter",
   warrior: "Warrior",
@@ -430,13 +430,13 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
             <label className="block font-display text-sm text-primary mb-3 tracking-wider">
               Priority
             </label>
-            <div className="flex flex-wrap gap-2 sm:gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
               {(['low', 'medium', 'high', 'critical'] as const).map((p) => (
                 <button
                   key={p}
                   type="button"
                   onClick={() => setPriority(p)}
-                  className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-sm border-2 font-display text-xs sm:text-sm uppercase transition-all ${priority === p
+                  className={`px-3 py-2 sm:px-4 sm:py-2 rounded-sm border-2 font-display text-xs sm:text-sm uppercase transition-all ${priority === p
                     ? p === 'critical'
                       ? 'border-red-500 bg-red-500/20 text-red-400'
                       : p === 'high'
@@ -444,7 +444,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
                         : p === 'medium'
                           ? 'border-yellow-500 bg-yellow-500/20 text-yellow-400'
                           : 'border-green-500 bg-green-500/20 text-green-400'
-                    : 'border-border hover:border-primary/50'
+                    : 'border-border hover:border-primary/50 text-muted-foreground'
                     }`}
                 >
                   {p}

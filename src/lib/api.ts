@@ -114,11 +114,11 @@ export const bugAPI = {
     return response.json();
   },
 
-  delete: async (ticketId: string, token: string) => {
+  delete: async (ticketId: string, token: string, hardDelete: boolean = false) => {
     const response = await fetch(`${API_URL}/api/bugs/tickets`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ id: ticketId }),
+      body: JSON.stringify({ id: ticketId, hardDelete }),
     });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

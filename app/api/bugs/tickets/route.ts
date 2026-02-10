@@ -178,29 +178,40 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
         }
 
-        const { id } = body;
+        const { id, hardDelete } = body;
         if (!id) {
             return NextResponse.json({ error: 'Missing ticket ID' }, { status: 400 });
         }
 
-        const ticket = await BugTicket.findByIdAndUpdate(id, {
-            isArchived: true,
-            status: 'resolved'
-        }, { new: true });
-
+        const ticket = await BugTicket.findById(id);
         if (!ticket) {
             return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
         }
 
-        // Sync with Discord
+        // Always delete original Discord notification to keep primary channel clean
         try {
-            await sendResolvedNotification(ticket, 'fixed');
             await deleteDiscordNotification(ticket);
         } catch (discordError) {
-            console.error("Failed to sync Discord archive/delete:", discordError);
+            console.error("Failed to delete Discord notification during archive/delete:", discordError);
         }
 
-        return NextResponse.json({ message: 'Ticket archived and resolved' });
+        if (hardDelete) {
+            await BugTicket.findByIdAndDelete(id);
+            return NextResponse.json({ message: 'Ticket permanently deleted' });
+        } else {
+            ticket.isArchived = true;
+            ticket.status = 'resolved';
+            await ticket.save();
+
+            // Send Archive Notification
+            try {
+                await sendResolvedNotification(ticket, 'fixed');
+            } catch (discordError) {
+                console.error("Failed to send Discord archive notification:", discordError);
+            }
+
+            return NextResponse.json({ message: 'Ticket archived and resolved' });
+        }
     } catch (error: any) {
         return NextResponse.json({ error: 'Failed to delete ticket', details: error.message }, { status: 500 });
     }

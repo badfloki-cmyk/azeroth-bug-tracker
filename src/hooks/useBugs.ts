@@ -66,8 +66,8 @@ export function useBugs() {
     });
 
     const deleteBug = useMutation({
-        mutationFn: async ({ ticketId, token }: { ticketId: string; token: string }) => {
-            return bugAPI.delete(ticketId, token);
+        mutationFn: async ({ ticketId, token, hardDelete = false }: { ticketId: string; token: string; hardDelete?: boolean }) => {
+            return bugAPI.delete(ticketId, token, hardDelete);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: BUGS_QUERY_KEY });
