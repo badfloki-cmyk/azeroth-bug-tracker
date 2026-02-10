@@ -41,6 +41,11 @@ const PRIORITY_EMOJIS: Record<string, string> = {
     critical: "🔴",
 };
 
+const DEVELOPER_PINGS: Record<string, string> = {
+    astro: "<@173179043598827522>",
+    bungee: "<@260411245000261632>",
+};
+
 /**
  * Send a Discord notification for a new bug report
  * Returns the message ID if successful
@@ -65,6 +70,7 @@ export async function sendBugNotification(bug: BugData): Promise<string | null> 
     const payload = {
         username: "Bug Reporter",
         avatar_url: "https://raw.githubusercontent.com/badfloki-cmyk/azeroth-bug-tracker/main/public/bug-icon.png",
+        content: DEVELOPER_PINGS[bug.developer?.toLowerCase()] || "",
         embeds: [{
             title: `${priorityEmoji} New Bug Report: ${bug.title}`,
             color: classColor,
