@@ -64,6 +64,99 @@ export const classNames: Record<WoWClass, string> = {
   esp: "ESP System",
 };
 
+const getMaxLevel = (expansion: string): number => {
+  return expansion === 'tbc' ? 70 : 60;
+};
+
+const validateTextQuality = (text: string): string | null => {
+  // Repeated punctuation/special characters (more than 3 in a row)
+  if (/([./\\,;:!?*#\-_=+~^°@€$%&(){}\[\]<>'"´`|])\1{3,}/.test(text)) {
+    return "Satzzeichen dürfen nicht mehr als 3x hintereinander vorkommen.";
+  }
+
+  // Repeated letters or umlauts (more than 5 in a row, case-insensitive)
+  if (/([a-zA-ZäöüÄÖÜß])\1{5,}/i.test(text)) {
+    return "Buchstaben dürfen nicht mehr als 5x hintereinander vorkommen.";
+  }
+
+  // Repeated digits (more than 5 in a row)
+  if (/(\d)\1{5,}/.test(text)) {
+    return "Zahlen dürfen nicht mehr als 5x hintereinander vorkommen.";
+  }
+
+  // Excessive consecutive spaces (more than 3)
+  if (/ {4,}/.test(text)) {
+    return "Zu viele aufeinanderfolgende Leerzeichen.";
+  }
+
+  // Excessive consecutive newlines (more than 3)
+  if (/\n{4,}/.test(text)) {
+    return "Zu viele aufeinanderfolgende Zeilenumbrüche.";
+  }
+
+  // Minimum word count (at least 5 words)
+  const words = text.trim().split(/\s+/).filter(w => w.length > 0);
+  if (words.length < 5) {
+    return "Der Text muss mindestens 5 Wörter enthalten.";
+  }
+
+  // Must contain at least 2 distinct words
+  const uniqueWords = new Set(words.map(w => w.toLowerCase()));
+  if (uniqueWords.size < 2) {
+    return "Der Text muss mindestens 2 verschiedene Wörter enthalten.";
+  }
+
+  // Repeated emoji (more than 3 in a row)
+  if (/(\p{Emoji_Presentation})\1{3,}/u.test(text)) {
+    return "Emojis dürfen nicht mehr als 3x hintereinander vorkommen.";
+  }
+
+  // Repeating short patterns (2-4 chars repeated 4+ times): "hahaha", "asdfasdf"
+  if (/(.{2,4})\1{3,}/i.test(text)) {
+    return "Sich wiederholende Textmuster sind nicht erlaubt.";
+  }
+
+  // All caps prevention (>70% uppercase of alphabetic content)
+  const alphaChars = text.replace(/[^a-zA-ZäöüÄÖÜß]/g, '');
+  if (alphaChars.length > 10) {
+    const upperCount = (text.match(/[A-ZÄÖÜ]/g) || []).length;
+    if (upperCount / alphaChars.length > 0.7) {
+      return "Bitte nicht nur in Großbuchstaben schreiben.";
+    }
+  }
+
+  // Keyboard walk detection
+  const keyboardWalks = ['qwert', 'werty', 'asdfg', 'sdfgh', 'yxcvb', 'xcvbn', 'qwertz', 'asdfgh', 'yxcvbn'];
+  const lower = text.toLowerCase();
+  if (keyboardWalks.some(walk => lower.includes(walk))) {
+    return "Der Text enthält sinnlose Tastatureingaben.";
+  }
+
+  // Minimum alphabetic ratio (at least 40% letters)
+  const nonSpaceChars = text.replace(/\s/g, '');
+  if (nonSpaceChars.length > 0) {
+    const letterCount = (text.match(/[a-zA-ZäöüÄÖÜß]/g) || []).length;
+    if (letterCount / nonSpaceChars.length < 0.4) {
+      return "Der Text muss überwiegend aus Wörtern bestehen.";
+    }
+  }
+
+  // Repeating word patterns ("foo bar foo bar foo bar")
+  const wordList = text.trim().toLowerCase().split(/\s+/);
+  for (let patLen = 2; patLen <= 3; patLen++) {
+    for (let i = 0; i <= wordList.length - patLen * 3; i++) {
+      const pattern = wordList.slice(i, i + patLen).join(' ');
+      const next1 = wordList.slice(i + patLen, i + patLen * 2).join(' ');
+      const next2 = wordList.slice(i + patLen * 2, i + patLen * 3).join(' ');
+      if (pattern === next1 && pattern === next2) {
+        return "Sich wiederholende Wortmuster sind nicht erlaubt.";
+      }
+    }
+  }
+
+  return null;
+};
+
 const classSpecs: Partial<Record<WoWClass, string[]>> = {
   warrior: ['Arms', 'Fury', 'Protection'],
   rogue: ['Assassination', 'Combat', 'Subtlety'],
@@ -80,8 +173,18 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
   const [selectedClass, setSelectedClass] = useState<WoWClass | null>(initialBug?.wowClass || null);
   const [rotation, setRotation] = useState<string>(initialBug?.rotation || '');
   const [pvpveMode, setPvpveMode] = useState<'pve' | 'pvp' | ''>(initialBug?.pvpveMode || '');
-  const [level, setLevel] = useState<string>(initialBug?.level?.toString() || '80');
+  const [level, setLevel] = useState<string>(initialBug?.level?.toString() || '');
   const [expansion, setExpansion] = useState<'tbc' | 'era' | 'hc' | ''>(initialBug?.expansion || '');
+
+  const maxLevel = expansion ? getMaxLevel(expansion) : 70;
+
+  const handleExpansionChange = (value: 'tbc' | 'era' | 'hc') => {
+    setExpansion(value);
+    const newMax = getMaxLevel(value);
+    if (level && parseInt(level) > newMax) {
+      setLevel(newMax.toString());
+    }
+  };
   const [title, setTitle] = useState(initialBug?.title || "");
   const [description, setDescription] = useState(initialBug?.description || "");
   const [currentBehavior, setCurrentBehavior] = useState(initialBug?.currentBehavior || "");
@@ -114,9 +217,22 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!discordUsername.trim()) {
+      toast.error("Discord Username ist ein Pflichtfeld.");
+      return;
+    }
+
     if (!selectedClass || (selectedClass !== 'esp' && !rotation) || !pvpveMode || !level || !expansion || !title ||
-      !currentBehavior || !expectedBehavior || !discordUsername || !sylvanasUsername || !logs) {
+      !currentBehavior || !expectedBehavior || !sylvanasUsername || !logs) {
       toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    // Level validation based on expansion
+    const levelNum = parseInt(level);
+    const levelMax = getMaxLevel(expansion);
+    if (isNaN(levelNum) || levelNum < 1 || levelNum > levelMax) {
+      toast.error(`Level muss zwischen 1 und ${levelMax} liegen (${expansion.toUpperCase()}).`);
       return;
     }
 
@@ -127,6 +243,24 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
 
     if (expectedBehavior.length < 50) {
       toast.error("Expected behavior must be at least 50 characters long.");
+      return;
+    }
+
+    // Text quality validation
+    const currentBehaviorError = validateTextQuality(currentBehavior);
+    if (currentBehaviorError) {
+      toast.error(`Current Behavior: ${currentBehaviorError}`);
+      return;
+    }
+
+    const expectedBehaviorError = validateTextQuality(expectedBehavior);
+    if (expectedBehaviorError) {
+      toast.error(`Expected Behavior: ${expectedBehaviorError}`);
+      return;
+    }
+
+    if (currentBehavior.trim().toLowerCase() === expectedBehavior.trim().toLowerCase()) {
+      toast.error("Current Behavior und Expected Behavior dürfen nicht identisch sein.");
       return;
     }
 
@@ -246,12 +380,17 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
               type="number"
               value={level}
               onChange={(e) => setLevel(e.target.value)}
-              placeholder="e.g. 80"
+              placeholder={expansion ? `1 - ${maxLevel}` : "Wähle zuerst eine Expansion"}
               min="1"
-              max="80"
+              max={maxLevel}
               className="wow-input"
               required
             />
+            {expansion && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Level 1-{maxLevel} ({expansion.toUpperCase()})
+              </p>
+            )}
           </div>
 
           {/* Used Expansion */}
@@ -259,7 +398,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
               Used Expansion
             </label>
-            <Select value={expansion} onValueChange={(value) => setExpansion(value as 'tbc' | 'era' | 'hc')}>
+            <Select value={expansion} onValueChange={(value) => handleExpansionChange(value as 'tbc' | 'era' | 'hc')}>
               <SelectTrigger className="wow-input">
                 <SelectValue placeholder="Select Expansion" />
               </SelectTrigger>
@@ -289,7 +428,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
           {/* Discord Username */}
           <div>
             <label className="block font-display text-sm text-primary mb-2 tracking-wider">
-              Discord Username
+              Discord Username <span className="text-red-400">*</span>
             </label>
             <input
               type="text"
