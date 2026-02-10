@@ -14,17 +14,16 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Groq API key is not configured" }, { status: 500 });
         }
 
-        // Build full context from all guide data to allow cross-class questions
-        let context = "EXTENDED GUIDE DATA (All Classes):\n\n";
+        // Build compressed context from all guide data to fit token limits
+        let context = "GUIDE DATA (Compressed):\n\n";
 
         guidesData.forEach((cg) => {
-            context += `=== CLASS: ${cg.className} ${cg.icon} ===\n`;
+            context += `[${cg.className}]\n`;
             cg.tabs.forEach((tab) => {
-                context += `Tab: ${tab.name}\n`;
                 tab.options.forEach((opt) => {
-                    context += `- ${opt.name} (${opt.type}${opt.default ? `, default: ${opt.default}` : ""}): ${opt.description}\n`;
+                    // Stripping type but keeping default to save tokens
+                    context += `${opt.name}${opt.default ? `(${opt.default})` : ""}: ${opt.description}\n`;
                 });
-                context += "\n";
             });
             context += "\n";
         });
