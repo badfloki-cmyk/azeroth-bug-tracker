@@ -73,6 +73,7 @@ export default function IndexPage() {
                     description: feature.description,
                     discord_username: feature.discordUsername,
                     sylvanas_username: feature.sylvanasUsername,
+                    is_private: feature.isPrivate,
                 }),
             });
 

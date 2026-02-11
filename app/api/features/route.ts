@@ -4,10 +4,18 @@ import FeatureRequest from 'lib/models/FeatureRequest';
 import { sendFeatureRequestNotification } from 'lib/discord';
 import { verifyToken, extractToken } from 'lib/auth/jwt';
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
         await connectDB();
-        const features = await FeatureRequest.find().sort({ createdAt: -1 });
+        const token = extractToken(request.headers.get('authorization') || "");
+
+        let query = {};
+        if (!token || !verifyToken(token)) {
+            // Public users only see non-private requests
+            query = { is_private: { $ne: true } };
+        }
+
+        const features = await FeatureRequest.find(query).sort({ createdAt: -1 });
         return NextResponse.json(features);
     } catch (error: any) {
         return NextResponse.json({ error: 'Failed to fetch feature requests', details: error.message }, { status: 500 });
@@ -27,6 +35,7 @@ export async function POST(request: Request) {
             description,
             discord_username,
             sylvanas_username,
+            is_private,
         } = body;
 
         if (
@@ -48,6 +57,7 @@ export async function POST(request: Request) {
             description,
             discord_username,
             sylvanas_username,
+            is_private: !!is_private,
             status: 'open',
         });
 

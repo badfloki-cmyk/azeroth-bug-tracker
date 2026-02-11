@@ -2,7 +2,7 @@ import { ClassIcon } from "./ClassIcon";
 import { WoWPanel } from "./WoWPanel";
 import { WoWClass } from "./FeatureRequestModal";
 import {
-    Lightbulb, Clock, User, CheckCircle, XCircle, Trash2,
+    Lightbulb, Clock, User, CheckCircle, XCircle, Trash2, Lock,
     ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
     Target, Layers
 } from "lucide-react";
@@ -21,6 +21,7 @@ interface FeatureRequest {
     status: 'open' | 'accepted' | 'rejected';
     discord_username: string;
     sylvanas_username: string;
+    is_private?: boolean;
     createdAt: string;
 }
 
@@ -94,6 +95,11 @@ export const FeatureRequestList = ({ features, title = "Feature Requests", onSta
                                         <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded border ${statusColors[feature.status]}`}>
                                             {feature.status}
                                         </span>
+                                        {feature.is_private && (
+                                            <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded border border-yellow-500/30 text-yellow-400 bg-yellow-500/10 flex items-center gap-1">
+                                                <Lock className="w-2.5 h-2.5" /> Private
+                                            </span>
+                                        )}
                                     </div>
 
                                     <p className={`text-sm text-muted-foreground mb-2 ${isExpanded ? '' : 'line-clamp-1'}`}>

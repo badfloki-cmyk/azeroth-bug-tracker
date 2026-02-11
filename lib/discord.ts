@@ -320,6 +320,7 @@ export async function sendFeatureRequestNotification(feature: any): Promise<stri
                 { name: "📝 Description", value: truncate(feature.description, 1000), inline: false },
                 { name: "📱 Discord", value: feature.discord_username, inline: true },
                 { name: "🎮 Sylvanas", value: feature.sylvanas_username, inline: true },
+                { name: "🔒 Privacy", value: feature.is_private ? "Private" : "Public", inline: true },
             ],
             footer: {
                 text: `Status: Open | Bungee × Astro Feature Tracker`,
@@ -397,6 +398,7 @@ export async function updateFeatureRequestNotification(feature: any): Promise<vo
                 { name: "📝 Description", value: truncate(feature.description, 1000), inline: false },
                 { name: "📱 Discord", value: feature.discord_username, inline: true },
                 { name: "🎮 Sylvanas", value: feature.sylvanas_username, inline: true },
+                { name: "🔒 Privacy", value: feature.is_private ? "Private" : "Public", inline: true },
             ],
             footer: {
                 text: `Status: ${capitalize(feature.status)} | Bungee × Astro Feature Tracker`,

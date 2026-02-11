@@ -27,6 +27,7 @@ export interface FeatureRequest {
     description: string;
     discordUsername: string;
     sylvanasUsername: string;
+    isPrivate: boolean;
 }
 
 const developerClasses: Record<'astro' | 'bungee', WoWClass[]> = {
@@ -59,6 +60,7 @@ export const FeatureRequestModal = ({ developer, onClose, onSubmit }: FeatureReq
     const [description, setDescription] = useState("");
     const [discordUsername, setDiscordUsername] = useState("");
     const [sylvanasUsername, setSylvanasUsername] = useState("");
+    const [isPrivate, setIsPrivate] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const clearError = (field: string) => {
@@ -92,6 +94,7 @@ export const FeatureRequestModal = ({ developer, onClose, onSubmit }: FeatureReq
             description,
             discordUsername,
             sylvanasUsername,
+            isPrivate,
         });
         onClose();
     };
@@ -192,6 +195,22 @@ export const FeatureRequestModal = ({ developer, onClose, onSubmit }: FeatureReq
                             placeholder="What would you like to see added?"
                         />
                         <FieldError error={errors.description} />
+                    </div>
+
+                    <div className="flex items-center gap-3 p-3 rounded-sm border border-primary/20 bg-primary/5">
+                        <label className="relative flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={isPrivate}
+                                onChange={(e) => setIsPrivate(e.target.checked)}
+                                className="sr-only peer"
+                            />
+                            <div className="w-10 h-5 bg-border rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div>
+                        </label>
+                        <div className="flex-1">
+                            <span className="block text-sm font-display text-primary tracking-wide">Private Request</span>
+                            <span className="block text-[10px] text-muted-foreground uppercase font-bold">Will not be shown on the public homepage</span>
+                        </div>
                     </div>
 
                     <div className="flex gap-4 pt-4">

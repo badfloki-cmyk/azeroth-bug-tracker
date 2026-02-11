@@ -6,6 +6,7 @@ export interface IFeatureRequest extends Document {
     wow_class?: string;
     title: string;
     description: string;
+    is_private: boolean;
     status: "open" | "accepted" | "rejected";
     discord_username: string;
     sylvanas_username: string;
@@ -21,6 +22,7 @@ const FeatureRequestSchema = new Schema(
         wow_class: { type: String, default: null },
         title: { type: String, required: true },
         description: { type: String, required: true },
+        is_private: { type: Boolean, default: false },
         status: { type: String, required: true, enum: ["open", "accepted", "rejected"], default: "open" },
         discord_username: { type: String, required: true },
         sylvanas_username: { type: String, required: true },
