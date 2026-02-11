@@ -67,12 +67,16 @@ export const DeveloperCard = ({ developer, onReportBug, onRequestFeature }: Deve
       {/* Developer Header */}
       <div className="flex items-center gap-3 sm:gap-4 mb-6 pb-4 border-b border-border">
         <div className="relative">
-          <img
-            src={data.avatar}
-            alt={data.name}
-            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-accent shadow-lg animate-glow-pulse"
-          />
-          <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-4 border-[#1a1a1b] ${statusColors[status]}`} />
+          <div className={`w-16 h-16 sm:w-20 sm:h-20 avatar-animated-frame ${developer === 'astro' ? 'universe-border' : developer === 'bungee' ? 'fire-border' : 'border-4 border-accent shadow-lg animate-glow-pulse'}`}>
+            <div className="avatar-inner-mask">
+              <img
+                src={data.avatar}
+                alt={data.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+          <div className={`absolute -bottom-1 -right-1 z-20 w-6 h-6 rounded-full border-4 border-[#1a1a1b] ${statusColors[status]}`} />
         </div>
 
         <div className="flex-1">
