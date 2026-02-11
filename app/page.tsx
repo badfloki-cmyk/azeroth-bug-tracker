@@ -145,26 +145,26 @@ export default function IndexPage() {
                                     href="https://project-sylvanas.net/panel/plugins/detail/335"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="wow-button flex items-center gap-2 text-yellow-500/80 hover:text-yellow-400 transition-colors"
+                                    className="wow-button"
                                 >
-                                    <Puzzle className="w-4 h-4" />
-                                    <span className="hidden md:inline">Sylvanas Plugin</span>
+                                    <Puzzle className="w-4 h-4 text-primary" />
+                                    <span className="hidden xl:inline">Sylvanas Plugin</span>
                                 </a>
                                 <a
                                     href="https://discord.gg/qd9TAusz"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="wow-button flex items-center gap-2 text-blue-400/80 hover:text-blue-300 transition-colors"
+                                    className="wow-button"
                                 >
-                                    <MessageSquare className="w-4 h-4" />
-                                    <span className="hidden md:inline">Project Sylvanas Discord</span>
+                                    <MessageSquare className="w-4 h-4 text-primary" />
+                                    <span className="hidden xl:inline">PS Discord</span>
                                 </a>
                                 <Link
                                     href="/guides"
-                                    className="wow-button flex items-center gap-2"
+                                    className="wow-button"
                                 >
-                                    <BookOpen className="w-4 h-4" />
-                                    <span className="hidden md:inline">Guides</span>
+                                    <BookOpen className="w-4 h-4 text-primary" />
+                                    <span className="hidden lg:inline">Guides</span>
                                 </Link>
                                 <Link
                                     href="/roadmap"

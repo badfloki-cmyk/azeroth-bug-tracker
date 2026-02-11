@@ -144,13 +144,14 @@
 
   /* WoW Button Styles */
   .wow-button {
-    @apply relative px-6 py-2 font-bold uppercase tracking-wider;
+    @apply relative px-4 py-2 font-bold uppercase tracking-wider whitespace-nowrap flex items-center justify-center gap-2;
     font-family: 'Cinzel', serif;
     background: linear-gradient(180deg, hsl(30 30% 25%) 0%, hsl(25 25% 15%) 100%);
     border: 2px solid hsl(35 50% 35%);
     color: hsl(43 80% 70%);
     text-shadow: 0 1px 2px hsl(0 0% 0% / 0.5);
     transition: all 0.2s ease;
+    min-height: 42px;
   }
 
   .wow-button:hover {
