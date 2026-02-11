@@ -45,7 +45,15 @@ export default function IndexPage() {
             const response = await fetch('/api/features', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(feature),
+                body: JSON.stringify({
+                    developer: feature.developer,
+                    category: feature.category,
+                    wow_class: feature.wowClass,
+                    title: feature.title,
+                    description: feature.description,
+                    discord_username: feature.discordUsername,
+                    sylvanas_username: feature.sylvanasUsername,
+                }),
             });
 
             if (!response.ok) {
