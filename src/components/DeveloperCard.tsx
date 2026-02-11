@@ -76,15 +76,21 @@ export const DeveloperCard = ({ developer, onReportBug, onRequestFeature }: Deve
         </div>
 
         <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <h2 className="font-display text-xl sm:text-2xl wow-gold-text">{data.name}</h2>
-            <span className={`text-[10px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-sm border ${status === 'online' ? 'text-green-400 border-green-500/30 bg-green-500/10' : 'text-zinc-400 border-zinc-500/30 bg-zinc-500/10'}`}>
-              {statusLabels[status]}
-            </span>
+          <div className="flex flex-col">
+            <h2 className="font-display text-xl sm:text-2xl wow-gold-text leading-tight">{data.name}</h2>
+            <div className="flex flex-col gap-1 mt-1">
+              <span className="text-[10px] text-primary/60 uppercase font-bold tracking-[0.15em]">Discord Status</span>
+              <div className="flex items-center gap-2">
+                <div className={`w-2.5 h-2.5 rounded-full ${statusColors[status]}`} />
+                <span className={`text-[10px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-sm border ${status === 'online' ? 'text-green-400 border-green-500/30 bg-green-500/10' : 'text-zinc-400 border-zinc-500/30 bg-zinc-500/10'}`}>
+                  {statusLabels[status]}
+                </span>
+              </div>
+            </div>
           </div>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-xs mt-2 border-t border-border/30 pt-2">
             {lanyard?.activities?.[0] ? (
-              <span className="text-primary/80 italic line-clamp-1">
+              <span className="text-primary/70 italic line-clamp-1">
                 {lanyard.activities[0].type === 0 ? "🎮 Playing " : ""}
                 {lanyard.activities[0].name}
               </span>
