@@ -110,29 +110,29 @@ export const BugStats = ({ bugs }: BugStatsProps) => {
     return (
         <div className="space-y-6">
             {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <WoWPanel className="text-center p-4">
-                    <p className="text-3xl font-display wow-gold-text">{totalBugs}</p>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Bugs</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+                <WoWPanel className="text-center p-3 sm:p-4">
+                    <p className="text-2xl sm:text-3xl font-display wow-gold-text">{totalBugs}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Total Bugs</p>
                 </WoWPanel>
-                <WoWPanel className="text-center p-4">
-                    <p className="text-3xl font-display text-red-400">{openBugs}</p>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Open</p>
+                <WoWPanel className="text-center p-3 sm:p-4">
+                    <p className="text-2xl sm:text-3xl font-display text-red-400">{openBugs}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Open</p>
                 </WoWPanel>
-                <WoWPanel className="text-center p-4">
-                    <p className="text-3xl font-display text-green-400">{resolvedBugs}</p>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Resolved</p>
+                <WoWPanel className="text-center p-3 sm:p-4">
+                    <p className="text-2xl sm:text-3xl font-display text-green-400">{resolvedBugs}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Resolved</p>
                 </WoWPanel>
-                <WoWPanel className="text-center p-4">
-                    <p className="text-3xl font-display text-primary">{resolutionRate}%</p>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Resolution Rate</p>
+                <WoWPanel className="text-center p-3 sm:p-4">
+                    <p className="text-2xl sm:text-3xl font-display text-primary">{resolutionRate}%</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Resolution Rate</p>
                 </WoWPanel>
             </div>
 
             {/* Charts Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {/* Status Pie Chart */}
-                <WoWPanel className="p-4">
+                <WoWPanel className="p-3 sm:p-4">
                     <div className="flex items-center gap-2 mb-4">
                         <PieChartIcon className="w-5 h-5 text-primary" />
                         <h3 className="font-display text-sm wow-gold-text">Bug Status</h3>
@@ -167,7 +167,7 @@ export const BugStats = ({ bugs }: BugStatsProps) => {
                 </WoWPanel>
 
                 {/* Developer Distribution */}
-                <WoWPanel className="p-4">
+                <WoWPanel className="p-3 sm:p-4">
                     <div className="flex items-center gap-2 mb-4">
                         <BarChart3 className="w-5 h-5 text-primary" />
                         <h3 className="font-display text-sm wow-gold-text">By Developer</h3>
@@ -191,7 +191,7 @@ export const BugStats = ({ bugs }: BugStatsProps) => {
                 </WoWPanel>
 
                 {/* Class Distribution */}
-                <WoWPanel className="p-4 md:col-span-2 lg:col-span-1">
+                <WoWPanel className="p-3 sm:p-4 sm:col-span-2 lg:col-span-1">
                     <div className="flex items-center gap-2 mb-4">
                         <TrendingUp className="w-5 h-5 text-primary" />
                         <h3 className="font-display text-sm wow-gold-text">By Class</h3>

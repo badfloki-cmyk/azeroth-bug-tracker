@@ -125,8 +125,8 @@ export default function IndexPage() {
             <div className="relative z-10">
                 {/* Header */}
                 <header className="border-b border-border bg-card/40 backdrop-blur-md">
-                    <div className="container mx-auto px-4 py-4">
-                        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
                             {/* Logo Section */}
                             <div className="flex items-center gap-3">
                                 <div className="p-2.5 wow-panel bg-primary/10 border-primary/20">
@@ -198,22 +198,22 @@ export default function IndexPage() {
                 </header>
 
                 {/* Main Content */}
-                <main className="container mx-auto px-4 py-8">
+                <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
                     {/* Donation Section - Prominent at Top */}
-                    <div className="mb-8 text-center">
+                    <div className="mb-6 sm:mb-8 text-center">
                         <a
                             href="https://revolut.me/mauromp4"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-full bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all group text-center"
+                            className="inline-flex items-center gap-2 px-3 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-full bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all group text-center"
                         >
-                            <span className="font-display tracking-wide text-xs sm:text-sm md:text-base">If you want to support Bungee x Astro, tips are appreciated</span>
-                            <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                            <span className="font-display tracking-wide text-[11px] sm:text-sm md:text-base">If you want to support Bungee x Astro, tips are appreciated</span>
+                            <ExternalLink className="w-4 h-4 flex-shrink-0 group-hover:translate-x-0.5 transition-transform" />
                         </a>
                     </div>
 
                     {/* Developer Cards */}
-                    <div className="grid lg:grid-cols-2 gap-8 mb-12 items-start">
+                    <div className="grid lg:grid-cols-2 gap-4 sm:gap-8 mb-8 sm:mb-12 items-start">
                         <DeveloperCard
                             developer="astro"
                             onReportBug={() => setShowBugModal('astro')}
@@ -234,7 +234,7 @@ export default function IndexPage() {
                             </div>
                         </div>
                     ) : (
-                        <div className="grid lg:grid-cols-2 gap-8 items-start">
+                        <div className="grid lg:grid-cols-2 gap-4 sm:gap-8 items-start">
                             <BugTicketList
                                 bugs={astroBugs}
                                 title="Astro's Bug Reports"
@@ -251,7 +251,7 @@ export default function IndexPage() {
                     )}
 
                     {/* Feature Requests Section */}
-                    <div className="mt-16">
+                    <div className="mt-8 sm:mt-16">
                         {featuresLoading ? (
                             <div className="text-center py-12">
                                 <div className="wow-gold-text font-display text-xl animate-pulse">
@@ -270,7 +270,7 @@ export default function IndexPage() {
                 </main>
 
                 {/* Footer */}
-                <footer className="border-t border-border bg-card/60 backdrop-blur-sm mt-12">
+                <footer className="border-t border-border bg-card/60 backdrop-blur-sm mt-8 sm:mt-12">
                     <div className="container mx-auto px-4 py-6 text-center">
                         <p className="text-muted-foreground text-xs sm:text-sm">
                             © 2026 Bungee × Astro • World of Warcraft Class Optimization Project

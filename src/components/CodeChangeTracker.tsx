@@ -183,8 +183,8 @@ export const CodeChangeTracker = ({ changes, onAddChange, onDelete, bugs, curren
                 <FileCode className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2 overflow-hidden">
+                  <div className="flex items-start justify-between mb-1 gap-1">
+                    <div className="flex items-center gap-2 overflow-hidden flex-wrap">
                       <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded ${changeTypeConfig[change.change_type].color}`}>
                         {changeTypeConfig[change.change_type].label}
                       </span>
@@ -219,7 +219,7 @@ export const CodeChangeTracker = ({ changes, onAddChange, onDelete, bugs, curren
                     {change.change_description}
                   </p>
 
-                  <div className="flex items-center gap-3 text-[10px] text-muted-foreground/70">
+                  <div className="flex items-center gap-3 text-[10px] text-muted-foreground/70 flex-wrap">
                     <span className="flex items-center gap-1 text-primary/80">
                       <User className="w-3 h-3" />
                       {typeof change.developer_id === 'object' ? (change.developer_id as any).username : 'Developer'}

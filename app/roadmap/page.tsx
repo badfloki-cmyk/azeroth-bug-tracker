@@ -53,13 +53,13 @@ export default function RoadmapPage() {
 
             {/* Header */}
             <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur-md">
-                <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Construction className="w-6 h-6 text-primary" />
-                        <h1 className="font-display text-lg wow-gold-text">Public Roadmap & Changelog</h1>
+                <div className="container mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                        <Construction className="w-5 h-5 sm:w-6 sm:h-6 text-primary flex-shrink-0" />
+                        <h1 className="font-display text-sm sm:text-lg wow-gold-text truncate">Roadmap & Changelog</h1>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1 sm:gap-4 flex-shrink-0">
                         <Link href="/" className="wow-button flex items-center gap-2">
                             <Home className="w-4 h-4" />
                             <span className="hidden sm:inline">Home</span>
@@ -76,7 +76,7 @@ export default function RoadmapPage() {
                 </div>
             </header>
 
-            <main className="container mx-auto px-4 py-8 relative z-10 space-y-12">
+            <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 relative z-10 space-y-8 sm:space-y-12">
                 {/* Stats Summary */}
                 <BugStats bugs={bugs} />
 

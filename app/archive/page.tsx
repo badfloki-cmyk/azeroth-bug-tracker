@@ -123,21 +123,21 @@ export default function ArchivePage() {
             <div className="relative z-10">
                 {/* Header */}
                 <header className="border-b border-border bg-card/80 backdrop-blur-sm">
-                    <div className="container mx-auto px-4 py-6">
-                        <div className="flex items-center justify-between">
+                    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
                             <div className="flex items-center gap-2 sm:gap-4">
-                                <Archive className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
-                                <div className="text-center md:text-left">
-                                    <h1 className="font-display text-2xl md:text-4xl wow-gold-text tracking-wider">
+                                <Archive className="w-7 h-7 sm:w-10 sm:h-10 text-primary flex-shrink-0" />
+                                <div>
+                                    <h1 className="font-display text-xl sm:text-2xl md:text-4xl wow-gold-text tracking-wider">
                                         Archived Reports
                                     </h1>
-                                    <p className="text-muted-foreground text-xs md:text-sm tracking-widest uppercase mt-1">
-                                        Resolved Bugs & Closed Feature Requests
+                                    <p className="text-muted-foreground text-[10px] sm:text-xs md:text-sm tracking-widest uppercase mt-1">
+                                        Resolved Bugs & Closed Requests
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3">
                                 <Link href="/" className="wow-button flex items-center gap-2">
                                     <Home className="w-4 h-4" />
                                     <span className="hidden md:inline">Main Page</span>
@@ -152,18 +152,18 @@ export default function ArchivePage() {
                 </header>
 
                 {/* Main Content */}
-                <main className="container mx-auto px-4 py-8">
+                <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
                     {/* Tab Switcher */}
-                    <div className="flex gap-4 mb-6">
+                    <div className="flex gap-2 sm:gap-4 mb-6">
                         <button
                             onClick={() => setActiveTab('bugs')}
-                            className={`font-display px-6 py-2 rounded-sm border-2 transition-all ${activeTab === 'bugs' ? 'border-primary bg-primary/10 wow-gold-text' : 'border-border text-muted-foreground hover:border-primary/50'}`}
+                            className={`font-display flex-1 sm:flex-none px-3 sm:px-6 py-2 rounded-sm border-2 text-sm sm:text-base transition-all ${activeTab === 'bugs' ? 'border-primary bg-primary/10 wow-gold-text' : 'border-border text-muted-foreground hover:border-primary/50'}`}
                         >
                             Bug Reports
                         </button>
                         <button
                             onClick={() => setActiveTab('features')}
-                            className={`font-display px-6 py-2 rounded-sm border-2 transition-all ${activeTab === 'features' ? 'border-primary bg-primary/10 wow-gold-text' : 'border-border text-muted-foreground hover:border-primary/50'}`}
+                            className={`font-display flex-1 sm:flex-none px-3 sm:px-6 py-2 rounded-sm border-2 text-sm sm:text-base transition-all ${activeTab === 'features' ? 'border-primary bg-primary/10 wow-gold-text' : 'border-border text-muted-foreground hover:border-primary/50'}`}
                         >
                             Feature Requests
                         </button>
@@ -185,7 +185,7 @@ export default function ArchivePage() {
                                 </p>
                             </div>
                         ) : (
-                            <div className="grid lg:grid-cols-2 gap-8">
+                            <div className="grid lg:grid-cols-2 gap-4 sm:gap-8">
                                 <BugTicketList
                                     bugs={astroBugs}
                                     title="Astro's Archived Reports"
@@ -216,7 +216,7 @@ export default function ArchivePage() {
                                 </p>
                             </div>
                         ) : (
-                            <div className="grid lg:grid-cols-2 gap-8">
+                            <div className="grid lg:grid-cols-2 gap-4 sm:gap-8">
                                 <FeatureRequestList
                                     features={astroFeatures}
                                     title="Astro's Feature Requests"
@@ -237,7 +237,7 @@ export default function ArchivePage() {
                 </main>
 
                 {/* Footer */}
-                <footer className="border-t border-border bg-card/60 backdrop-blur-sm mt-12">
+                <footer className="border-t border-border bg-card/60 backdrop-blur-sm mt-8 sm:mt-12">
                     <div className="container mx-auto px-4 py-6 text-center">
                         <p className="text-muted-foreground text-xs sm:text-sm">
                             &copy; 2026 Bungee &times; Astro &bull; World of Warcraft Class Optimization Project

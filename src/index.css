@@ -151,7 +151,7 @@
     color: hsl(43 80% 60%);
     text-shadow: 0 1px 1px hsl(0 0% 0% / 0.8);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    height: 32px;
+    height: 36px;
     min-width: 36px;
     box-shadow: inset 0 1px 1px hsl(35 40% 40% / 0.05), 0 1px 3px hsl(0 0% 0% / 0.4);
   }
@@ -1087,10 +1087,11 @@
       max-height: 70vh;
       border-radius: 8px 8px 0 0;
       border-bottom: none;
+      padding-bottom: env(safe-area-inset-bottom, 0);
     }
 
     .ai-chat-fab {
-      bottom: 1rem;
+      bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
       right: 1rem;
     }
   }

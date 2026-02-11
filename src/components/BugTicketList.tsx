@@ -347,7 +347,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-sm bg-primary/5 border border-primary/10">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 p-3 sm:p-4 rounded-sm bg-primary/5 border border-primary/10">
                     <div className="text-xs">
                       <span className="text-muted-foreground/60 font-bold uppercase block mb-2 text-[10px]">Rotation / Specs</span>
                       <span className="text-foreground font-medium flex items-center gap-2 text-sm bg-black/20 p-2 rounded-sm border border-border/30">
@@ -422,60 +422,60 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                   )}
 
                   {showActions && (
-                    <div className="flex justify-between items-center pt-4 border-t border-border/50">
-                      <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-4 border-t border-border/50">
+                      <div className="flex flex-wrap gap-2">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             navigator.clipboard.writeText(generatePrompt(bug));
                             toast.success("Prompt copied to clipboard!");
                           }}
-                          className="flex items-center gap-2 px-4 py-2 rounded-sm bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 text-xs font-bold uppercase transition-all"
+                          className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-sm bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 text-xs font-bold uppercase transition-all"
                         >
-                          <Sparkles className="w-3 h-3" /> Generate Prompt
+                          <Sparkles className="w-3 h-3" /> <span className="hidden sm:inline">Generate</span> Prompt
                         </button>
                         {onEdit && !isArchiveView && (
                           <button
                             onClick={(e) => { e.stopPropagation(); onEdit(bug); }}
-                            className="flex items-center gap-2 px-4 py-2 rounded-sm bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 text-xs font-bold uppercase transition-all"
+                            className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-sm bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 text-xs font-bold uppercase transition-all"
                           >
-                            <Edit2 className="w-3 h-3" /> Edit Ticket
+                            <Edit2 className="w-3 h-3" /> Edit
                           </button>
                         )}
                         {(onDelete && !isArchiveView) && (
                           <div className="flex gap-2">
                             <button
                               onClick={(e) => { e.stopPropagation(); onDelete(bug.id); }}
-                              className="flex items-center gap-2 px-4 py-2 rounded-sm bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs font-bold uppercase transition-all"
+                              className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-sm bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs font-bold uppercase transition-all"
                               title="Archive & Resolved"
                             >
                               <Archive className="w-3 h-3" /> Archive
                             </button>
                             <button
                               onClick={(e) => { e.stopPropagation(); handleHardDelete(bug); }}
-                              className="flex items-center gap-2 px-4 py-2 rounded-sm bg-red-600/10 border border-red-600/30 text-red-600 hover:bg-red-600/20 text-xs font-bold uppercase transition-all"
+                              className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-sm bg-red-600/10 border border-red-600/30 text-red-600 hover:bg-red-600/20 text-xs font-bold uppercase transition-all"
                               title="Permanently delete from DB"
                             >
-                              <ShieldAlert className="w-3 h-3" /> Hard Delete
+                              <ShieldAlert className="w-3 h-3" /> <span className="hidden sm:inline">Hard</span> Delete
                             </button>
                           </div>
                         )}
                       </div>
 
                       {isArchiveView ? (
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           {onDelete && (
                             <button
                               onClick={(e) => { e.stopPropagation(); handleHardDelete(bug); }}
-                              className="flex items-center gap-2 px-4 py-2 rounded-sm bg-red-600/10 border border-red-600/30 text-red-600 hover:bg-red-600/20 text-xs font-bold uppercase transition-all"
+                              className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-sm bg-red-600/10 border border-red-600/30 text-red-600 hover:bg-red-600/20 text-xs font-bold uppercase transition-all"
                             >
-                              <ShieldAlert className="w-3 h-3" /> Hard Delete
+                              <ShieldAlert className="w-3 h-3" /> <span className="hidden sm:inline">Hard</span> Delete
                             </button>
                           )}
                           {onStatusChange && (
                             <button
                               onClick={(e) => { e.stopPropagation(); onStatusChange(bug.id, 'open'); }}
-                              className="flex items-center gap-2 px-4 py-2 rounded-sm bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/20 text-xs font-bold uppercase transition-all"
+                              className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-sm bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/20 text-xs font-bold uppercase transition-all"
                             >
                               <Circle className="w-3 h-3" /> Reopen
                             </button>
@@ -484,7 +484,7 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                       ) : (
                         onStatusChange && (
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] uppercase font-bold text-muted-foreground mr-1">Update Status:</span>
+                            <span className="text-[10px] uppercase font-bold text-muted-foreground mr-1 hidden sm:inline">Status:</span>
                             <button
                               onClick={(e) => { e.stopPropagation(); onStatusChange(bug.id, 'open'); }}
                               className={`p-2 rounded-sm border transition-all ${bug.status === 'open' ? 'border-red-500 bg-red-500/20 text-red-400' : 'border-border text-muted-foreground hover:border-red-500/50'}`}
@@ -524,21 +524,22 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
 
       {totalPages > 1 && (
         <div className="mt-4 pt-4 border-t border-border/50">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <button
               onClick={goToPrevPage}
               disabled={!hasPrevPage}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm border-2 text-xs font-bold uppercase tracking-wider transition-all font-display
+              className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-sm border-2 text-xs font-bold uppercase tracking-wider transition-all font-display
                 ${hasPrevPage
                   ? 'border-border hover:border-primary/50 text-muted-foreground hover:text-primary cursor-pointer'
                   : 'border-border/30 text-muted-foreground/30 cursor-not-allowed'
                 }`}
             >
               <ChevronLeft className="w-3.5 h-3.5" />
-              Prev
+              <span className="hidden sm:inline">Prev</span>
             </button>
 
-            <div className="flex items-center gap-1">
+            {/* Page numbers - hidden on mobile, showing text instead */}
+            <div className="hidden sm:flex items-center gap-1">
               {generatePageNumbers(currentPage, totalPages).map((page, idx) =>
                 page === '...' ? (
                   <span key={`ellipsis-${idx}`} className="px-2 text-muted-foreground/50 text-xs">
@@ -559,22 +560,25 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                 )
               )}
             </div>
+            <span className="sm:hidden text-xs text-muted-foreground font-display">
+              {currentPage} / {totalPages}
+            </span>
 
             <button
               onClick={goToNextPage}
               disabled={!hasNextPage}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm border-2 text-xs font-bold uppercase tracking-wider transition-all font-display
+              className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-sm border-2 text-xs font-bold uppercase tracking-wider transition-all font-display
                 ${hasNextPage
                   ? 'border-border hover:border-primary/50 text-muted-foreground hover:text-primary cursor-pointer'
                   : 'border-border/30 text-muted-foreground/30 cursor-not-allowed'
                 }`}
             >
-              Next
+              <span className="hidden sm:inline">Next</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <p className="text-center text-xs text-muted-foreground/60 mt-2 font-display tracking-wider">
+          <p className="text-center text-xs text-muted-foreground/60 mt-2 font-display tracking-wider hidden sm:block">
             Page {currentPage} of {totalPages}
           </p>
         </div>

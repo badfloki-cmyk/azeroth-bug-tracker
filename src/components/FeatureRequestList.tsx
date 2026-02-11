@@ -60,11 +60,11 @@ export const FeatureRequestList = ({ features, title = "Feature Requests", onSta
 
     return (
         <WoWPanel>
-            <div className="flex items-center justify-between mb-6">
-                <h2 className="font-display text-xl wow-gold-text flex items-center gap-3">
-                    <Lightbulb className="w-5 h-5" />
-                    {title}
-                    <span className="text-sm text-muted-foreground">({totalItems})</span>
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <h2 className="font-display text-lg sm:text-xl wow-gold-text flex items-center gap-2 sm:gap-3">
+                    <Lightbulb className="w-5 h-5 flex-shrink-0" />
+                    <span className="truncate">{title}</span>
+                    <span className="text-sm text-muted-foreground flex-shrink-0">({totalItems})</span>
                 </h2>
             </div>
 
@@ -78,7 +78,7 @@ export const FeatureRequestList = ({ features, title = "Feature Requests", onSta
                             className="rounded-sm bg-background/50 border border-border hover:border-primary/30 transition-all overflow-hidden"
                         >
                             <div
-                                className="p-4 flex items-start gap-4 cursor-pointer hover:bg-white/5"
+                                className="p-3 sm:p-4 flex items-start gap-2 sm:gap-4 cursor-pointer hover:bg-white/5"
                                 onClick={() => setExpandedId(isExpanded ? null : feature._id)}
                             >
                                 {feature.wow_class ? (
@@ -142,7 +142,7 @@ export const FeatureRequestList = ({ features, title = "Feature Requests", onSta
                             </div>
 
                             {isExpanded && (
-                                <div className="px-5 pb-6 pt-3 border-t border-border bg-black/40 space-y-4">
+                                <div className="px-3 pb-4 pt-2 sm:px-5 sm:pb-6 sm:pt-3 border-t border-border bg-black/40 space-y-4">
                                     <div className="space-y-2">
                                         <h5 className="text-[10px] font-bold uppercase text-primary tracking-widest">Description</h5>
                                         <p className="text-sm text-muted-foreground bg-background/40 p-3 rounded-sm border border-border/50 whitespace-pre-wrap">
@@ -150,11 +150,11 @@ export const FeatureRequestList = ({ features, title = "Feature Requests", onSta
                                         </p>
                                     </div>
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                         <div className="text-xs">
                                             <span className="text-muted-foreground/60 font-bold uppercase block mb-1 text-[10px]">Contact</span>
-                                            <span className="text-foreground font-medium flex items-center gap-2 bg-black/20 p-2 rounded-sm border border-border/30">
-                                                📱 @{feature.discord_username} (Sylvanas: {feature.sylvanas_username})
+                                            <span className="text-foreground font-medium flex items-center gap-2 bg-black/20 p-2 rounded-sm border border-border/30 break-all">
+                                                @{feature.discord_username} (Sylvanas: {feature.sylvanas_username})
                                             </span>
                                         </div>
                                         {feature.wow_class && (
@@ -168,7 +168,7 @@ export const FeatureRequestList = ({ features, title = "Feature Requests", onSta
                                     </div>
 
                                     {showActions && (
-                                        <div className="flex justify-between items-center pt-4 border-t border-border/50 gap-2">
+                                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-4 border-t border-border/50">
                                             <div className="flex gap-2">
                                                 {onDelete && (
                                                     <button
@@ -186,8 +186,8 @@ export const FeatureRequestList = ({ features, title = "Feature Requests", onSta
                                             </div>
 
                                             {onStatusChange && (
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[10px] uppercase font-bold text-muted-foreground mr-2">Update Status:</span>
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <span className="text-[10px] uppercase font-bold text-muted-foreground hidden sm:inline">Status:</span>
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); onStatusChange(feature._id, 'accepted'); }}
                                                         className={`px-3 py-1.5 rounded-sm border text-xs font-bold uppercase transition-all flex items-center gap-1.5 ${feature.status === 'accepted' ? 'border-green-500 bg-green-500/20 text-green-400' : 'border-border text-muted-foreground hover:border-green-500/50 hover:text-green-400'}`}

@@ -239,15 +239,25 @@ export default function DashboardPage() {
 
             {/* Header */}
             <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur-md">
-                <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Swords className="w-6 h-6 text-primary" />
-                        <h1 className="font-display text-lg wow-gold-text hidden sm:block">Developer Dashboard</h1>
+                <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-0 sm:h-16 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
+                    <div className="flex items-center justify-between w-full sm:w-auto">
+                        <div className="flex items-center gap-3">
+                            <Swords className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                            <h1 className="font-display text-base sm:text-lg wow-gold-text">Dashboard</h1>
+                        </div>
+
+                        <div className="flex items-center gap-2 sm:hidden">
+                            <img
+                                src={profile?.developer_type === 'astro' ? "/astro-avatar.png" : "/bungee-avatar.png"}
+                                alt="Avatar"
+                                className="w-8 h-8 rounded-sm border border-primary/50 bg-black/50"
+                            />
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-3 pr-4 border-r border-border">
-                            <div className="text-right hidden xs:block">
+                    <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                        <div className="hidden sm:flex items-center gap-3 pr-4 border-r border-border">
+                            <div className="text-right">
                                 <p className="text-sm font-display leading-tight">{profile?.username}</p>
                                 <p className="text-[10px] text-primary uppercase font-bold tracking-tighter">
                                     {profile?.developer_type} Developer
@@ -260,67 +270,69 @@ export default function DashboardPage() {
                             />
                         </div>
 
-                        <button
-                            onClick={() => router.push("/guides")}
-                            className="p-2 text-muted-foreground hover:text-primary transition-colors"
-                            title="F1 Menu Guides"
-                        >
-                            <BookOpen className="w-5 h-5" />
-                        </button>
+                        <div className="flex items-center gap-1 sm:gap-2">
+                            <button
+                                onClick={() => router.push("/guides")}
+                                className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                                title="F1 Menu Guides"
+                            >
+                                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
+                            </button>
 
-                        <button
-                            onClick={() => router.push("/roadmap")}
-                            className="p-2 text-muted-foreground hover:text-primary transition-colors"
-                            title="View Public Roadmap"
-                        >
-                            <Construction className="w-5 h-5" />
-                        </button>
+                            <button
+                                onClick={() => router.push("/roadmap")}
+                                className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                                title="View Public Roadmap"
+                            >
+                                <Construction className="w-4 h-4 sm:w-5 sm:h-5" />
+                            </button>
 
-                        <button
-                            onClick={() => router.push("/")}
-                            className="p-2 text-muted-foreground hover:text-primary transition-colors"
-                            title="Back to Main Page"
-                        >
-                            <Home className="w-5 h-5" />
-                        </button>
+                            <button
+                                onClick={() => router.push("/")}
+                                className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                                title="Back to Main Page"
+                            >
+                                <Home className="w-4 h-4 sm:w-5 sm:h-5" />
+                            </button>
 
-                        <button
-                            onClick={() => router.push("/archive")}
-                            className="p-2 text-muted-foreground hover:text-primary transition-colors"
-                            title="View Archived Tickets"
-                        >
-                            <Archive className="w-5 h-5" />
-                        </button>
+                            <button
+                                onClick={() => router.push("/archive")}
+                                className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                                title="View Archived Tickets"
+                            >
+                                <Archive className="w-4 h-4 sm:w-5 sm:h-5" />
+                            </button>
 
-                        <button
-                            onClick={handleLogout}
-                            className="p-2 text-muted-foreground hover:text-red-400 transition-colors"
-                            title="Logout"
-                        >
-                            <LogOut className="w-5 h-5" />
-                        </button>
+                            <button
+                                onClick={handleLogout}
+                                className="p-2 text-muted-foreground hover:text-red-400 transition-colors"
+                                title="Logout"
+                            >
+                                <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
 
             {/* Content */}
-            <main className="container mx-auto px-4 py-8 relative z-10">
+            <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 relative z-10">
                 {/* Statistics Section */}
-                <div className="mb-8">
+                <div className="mb-6 sm:mb-8">
                     <BugStats bugs={bugs} />
                 </div>
 
                 {/* Tab Switcher */}
-                <div className="flex gap-4 mb-6">
+                <div className="flex gap-2 sm:gap-4 mb-6">
                     <button
                         onClick={() => setActiveTab('bugs')}
-                        className={`font-display px-6 py-2 rounded-sm border-2 transition-all ${activeTab === 'bugs' ? 'border-primary bg-primary/10 wow-gold-text' : 'border-border text-muted-foreground hover:border-primary/50'}`}
+                        className={`font-display flex-1 sm:flex-none px-3 sm:px-6 py-2 rounded-sm border-2 text-sm sm:text-base transition-all ${activeTab === 'bugs' ? 'border-primary bg-primary/10 wow-gold-text' : 'border-border text-muted-foreground hover:border-primary/50'}`}
                     >
                         Bug Tickets
                     </button>
                     <button
                         onClick={() => setActiveTab('features')}
-                        className={`font-display px-6 py-2 rounded-sm border-2 transition-all ${activeTab === 'features' ? 'border-primary bg-primary/10 wow-gold-text' : 'border-border text-muted-foreground hover:border-primary/50'}`}
+                        className={`font-display flex-1 sm:flex-none px-3 sm:px-6 py-2 rounded-sm border-2 text-sm sm:text-base transition-all ${activeTab === 'features' ? 'border-primary bg-primary/10 wow-gold-text' : 'border-border text-muted-foreground hover:border-primary/50'}`}
                     >
                         Feature Requests
                     </button>

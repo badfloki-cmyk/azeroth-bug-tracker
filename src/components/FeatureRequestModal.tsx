@@ -124,8 +124,8 @@ export const FeatureRequestModal = ({ developer, onClose, onSubmit }: FeatureReq
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
 
-            <WoWPanel className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-auto p-6">
-                <button onClick={onClose} className="absolute top-4 right-4 text-muted-foreground hover:text-primary transition-colors">
+            <WoWPanel className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-auto p-4 sm:p-6">
+                <button onClick={onClose} className="absolute top-2 right-2 sm:top-4 sm:right-4 text-muted-foreground hover:text-primary transition-colors">
                     <X className="w-6 h-6" />
                 </button>
 
@@ -179,7 +179,7 @@ export const FeatureRequestModal = ({ developer, onClose, onSubmit }: FeatureReq
                     </div>
                 ) : (
                     <>
-                        <h2 className="font-display text-2xl wow-gold-text mb-6">
+                        <h2 className="font-display text-xl sm:text-2xl wow-gold-text mb-4 sm:mb-6">
                             Request Feature - {developer === 'astro' ? 'Astro' : 'Bungee'}
                         </h2>
 
@@ -284,7 +284,7 @@ export const FeatureRequestModal = ({ developer, onClose, onSubmit }: FeatureReq
                                 </div>
                             </div>
 
-                            <div className="flex gap-4 pt-4">
+                            <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 pt-4">
                                 <button type="button" onClick={onClose} className="wow-button flex-1" disabled={isSubmitting}>Cancel</button>
                                 <button type="submit" className="wow-button-primary flex-1" disabled={isSubmitting}>
                                     {isSubmitting ? "Submitting..." : "Submit Request"}
