@@ -2,7 +2,7 @@ import { ClassIcon } from "./ClassIcon";
 import { WoWPanel } from "./WoWPanel";
 import { WoWClass } from "./FeatureRequestModal";
 import {
-    Lightbulb, Clock, User, CheckCircle, XCircle,
+    Lightbulb, Clock, User, CheckCircle, XCircle, Trash2,
     ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
     Target, Layers
 } from "lucide-react";
@@ -28,6 +28,7 @@ interface FeatureRequestListProps {
     features: FeatureRequest[];
     title?: string;
     onStatusChange?: (featureId: string, newStatus: 'open' | 'accepted' | 'rejected') => void;
+    onDelete?: (featureId: string) => void;
     showActions?: boolean;
 }
 
@@ -37,7 +38,7 @@ const statusColors = {
     'rejected': 'text-red-400 bg-red-500/10 border-red-500/30',
 };
 
-export const FeatureRequestList = ({ features, title = "Feature Requests", onStatusChange, showActions }: FeatureRequestListProps) => {
+export const FeatureRequestList = ({ features, title = "Feature Requests", onStatusChange, onDelete, showActions }: FeatureRequestListProps) => {
     const [expandedId, setExpandedId] = useState<string | null>(null);
 
     const {
@@ -117,6 +118,20 @@ export const FeatureRequestList = ({ features, title = "Feature Requests", onSta
 
                                 <div className="flex flex-col items-end gap-2 flex-shrink-0">
                                     {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                                    {showActions && onDelete && !isExpanded && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (window.confirm("Are you sure you want to delete this feature request?")) {
+                                                    onDelete(feature._id);
+                                                }
+                                            }}
+                                            className="p-1 hover:bg-red-500/10 rounded-full transition-colors text-muted-foreground hover:text-red-400"
+                                            title="Delete Request"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
@@ -146,23 +161,43 @@ export const FeatureRequestList = ({ features, title = "Feature Requests", onSta
                                         )}
                                     </div>
 
-                                    {showActions && onStatusChange && (
-                                        <div className="flex justify-end items-center pt-4 border-t border-border/50 gap-2">
-                                            <span className="text-[10px] uppercase font-bold text-muted-foreground mr-2">Update Status:</span>
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); onStatusChange(feature._id, 'accepted'); }}
-                                                className={`px-3 py-1.5 rounded-sm border text-xs font-bold uppercase transition-all flex items-center gap-1.5 ${feature.status === 'accepted' ? 'border-green-500 bg-green-500/20 text-green-400' : 'border-border text-muted-foreground hover:border-green-500/50 hover:text-green-400'}`}
-                                                disabled={feature.status === 'accepted'}
-                                            >
-                                                <CheckCircle className="w-3.5 h-3.5" /> Accept
-                                            </button>
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); onStatusChange(feature._id, 'rejected'); }}
-                                                className={`px-3 py-1.5 rounded-sm border text-xs font-bold uppercase transition-all flex items-center gap-1.5 ${feature.status === 'rejected' ? 'border-red-500 bg-red-500/20 text-red-400' : 'border-border text-muted-foreground hover:border-red-500/50 hover:text-red-400'}`}
-                                                disabled={feature.status === 'rejected'}
-                                            >
-                                                <XCircle className="w-3.5 h-3.5" /> Reject
-                                            </button>
+                                    {showActions && (
+                                        <div className="flex justify-between items-center pt-4 border-t border-border/50 gap-2">
+                                            <div className="flex gap-2">
+                                                {onDelete && (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            if (window.confirm("Are you sure you want to delete this feature request?")) {
+                                                                onDelete(feature._id);
+                                                            }
+                                                        }}
+                                                        className="px-3 py-1.5 rounded-sm border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-bold uppercase transition-all flex items-center gap-1.5"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" /> Delete
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            {onStatusChange && (
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] uppercase font-bold text-muted-foreground mr-2">Update Status:</span>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); onStatusChange(feature._id, 'accepted'); }}
+                                                        className={`px-3 py-1.5 rounded-sm border text-xs font-bold uppercase transition-all flex items-center gap-1.5 ${feature.status === 'accepted' ? 'border-green-500 bg-green-500/20 text-green-400' : 'border-border text-muted-foreground hover:border-green-500/50 hover:text-green-400'}`}
+                                                        disabled={feature.status === 'accepted'}
+                                                    >
+                                                        <CheckCircle className="w-3.5 h-3.5" /> Accept
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); onStatusChange(feature._id, 'rejected'); }}
+                                                        className={`px-3 py-1.5 rounded-sm border text-xs font-bold uppercase transition-all flex items-center gap-1.5 ${feature.status === 'rejected' ? 'border-red-500 bg-red-500/20 text-red-400' : 'border-border text-muted-foreground hover:border-red-500/50 hover:text-red-400'}`}
+                                                        disabled={feature.status === 'rejected'}
+                                                    >
+                                                        <XCircle className="w-3.5 h-3.5" /> Reject
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>

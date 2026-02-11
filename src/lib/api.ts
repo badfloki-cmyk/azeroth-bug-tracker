@@ -206,4 +206,17 @@ export const featureAPI = {
     }
     return response.json();
   },
+
+  delete: async (id: string, token: string) => {
+    const response = await fetch(`${API_URL}/api/features`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ id }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.details || errorData.error || "Failed to delete feature request");
+    }
+    return response.json();
+  },
 };

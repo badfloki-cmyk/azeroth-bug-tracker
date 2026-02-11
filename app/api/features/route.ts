@@ -100,3 +100,29 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: 'Failed to update feature', details: error.message }, { status: 500 });
     }
 }
+
+export async function DELETE(request: Request) {
+    try {
+        await connectDB();
+        const body = await request.json();
+        const token = extractToken(request.headers.get('authorization') || "");
+
+        if (!token || !verifyToken(token)) {
+            return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+        }
+
+        const { id } = body;
+        if (!id) {
+            return NextResponse.json({ error: 'Missing feature ID' }, { status: 400 });
+        }
+
+        const feature = await FeatureRequest.findByIdAndDelete(id);
+        if (!feature) {
+            return NextResponse.json({ error: 'Feature not found' }, { status: 404 });
+        }
+
+        return NextResponse.json({ message: 'Feature request deleted successfully' });
+    } catch (error: any) {
+        return NextResponse.json({ error: 'Failed to delete feature request', details: error.message }, { status: 500 });
+    }
+}

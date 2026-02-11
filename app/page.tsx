@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { DeveloperCard } from "@/components/DeveloperCard";
 import { BugReportModal, BugReport } from "@/components/BugReportModal";
 import { FeatureRequestModal, FeatureRequest } from "@/components/FeatureRequestModal";
 import { BugTicketList } from "@/components/BugTicketList";
+import { FeatureRequestList } from "@/components/FeatureRequestList";
 import { Shield, Swords, LogIn, ExternalLink, Archive, Construction, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { useBugs } from "@/hooks/useBugs";
@@ -13,7 +14,26 @@ import { useBugs } from "@/hooks/useBugs";
 export default function IndexPage() {
     const [showBugModal, setShowBugModal] = useState<'astro' | 'bungee' | null>(null);
     const [showFeatureModal, setShowFeatureModal] = useState<'astro' | 'bungee' | null>(null);
+    const [features, setFeatures] = useState<any[]>([]);
+    const [featuresLoading, setFeaturesLoading] = useState(true);
     const { bugs, isLoading: loading, createBug, deleteBug } = useBugs();
+
+    useEffect(() => {
+        const fetchFeatures = async () => {
+            try {
+                const response = await fetch('/api/features');
+                if (response.ok) {
+                    const data = await response.json();
+                    setFeatures(data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch features:", err);
+            } finally {
+                setFeaturesLoading(false);
+            }
+        };
+        fetchFeatures();
+    }, []);
 
     const handleBugSubmit = async (bug: BugReport) => {
         try {
@@ -62,6 +82,9 @@ export default function IndexPage() {
             }
 
             toast.success("Feature request submitted successfully!");
+            // Refresh features list
+            const updated = await fetch('/api/features').then(res => res.json());
+            setFeatures(updated);
         } catch (error: any) {
             toast.error(error.message || "Error submitting feature request.");
             console.error(error);
@@ -201,6 +224,23 @@ export default function IndexPage() {
                             />
                         </div>
                     )}
+
+                    {/* Feature Requests Section */}
+                    <div className="mt-16">
+                        {featuresLoading ? (
+                            <div className="text-center py-12">
+                                <div className="wow-gold-text font-display text-xl animate-pulse">
+                                    Loading Feature Requests...
+                                </div>
+                            </div>
+                        ) : (
+                            <FeatureRequestList
+                                features={features}
+                                title="Recent Feature Requests"
+                                showActions={false}
+                            />
+                        )}
+                    </div>
 
                 </main>
 

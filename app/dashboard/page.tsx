@@ -171,6 +171,19 @@ export default function DashboardPage() {
         }
     };
 
+    const handleFeatureDelete = async (featureId: string) => {
+        if (!token) return;
+        try {
+            await featureAPI.delete(featureId, token);
+            setFeatures(prev => prev.map(f => f._id === featureId ? { ...f, isDeleted: true } : f).filter(f => !f.isDeleted)); // Hacky filter because of potential type issues in state
+            // Better: setFeatures(prev => prev.filter(f => f._id !== featureId));
+            setFeatures(prev => prev.filter(f => f._id !== featureId));
+            toast.success("Feature request deleted");
+        } catch (error: any) {
+            toast.error(error.message || "Failed to delete feature request");
+        }
+    };
+
     const handleAddCodeChange = async (filePath: string, description: string, type: CodeChange['change_type'], ticketId?: string, githubUrl?: string) => {
         if (!token || !profile) return;
         try {
@@ -341,6 +354,7 @@ export default function DashboardPage() {
                                 features={features}
                                 title="Feature Requests"
                                 onStatusChange={handleFeatureStatusChange}
+                                onDelete={handleFeatureDelete}
                                 showActions={true}
                             />
                         )}

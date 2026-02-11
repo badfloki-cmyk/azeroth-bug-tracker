@@ -401,7 +401,7 @@ export async function updateFeatureRequestNotification(feature: any): Promise<vo
             footer: {
                 text: `Status: ${capitalize(feature.status)} | Bungee × Astro Feature Tracker`,
             },
-            timestamp: feature.createdAt.toISOString(),
+            timestamp: new Date(feature.createdAt).toISOString(),
         }],
         components: [] // Remove buttons after status is decided
     };
