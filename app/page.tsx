@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { DeveloperCard } from "@/components/DeveloperCard";
 import { BugReportModal, BugReport } from "@/components/BugReportModal";
 import { FeatureRequestModal, FeatureRequest } from "@/components/FeatureRequestModal";
 import { BugTicketList } from "@/components/BugTicketList";
 import { FeatureRequestList } from "@/components/FeatureRequestList";
-import { Shield, Swords, LogIn, ExternalLink, Archive, Construction, BookOpen } from "lucide-react";
+import { Shield, Swords, LogIn, ExternalLink, Archive, Construction, BookOpen, X, CheckCircle, Copy, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
 import { useBugs } from "@/hooks/useBugs";
 
@@ -77,15 +77,16 @@ export default function IndexPage() {
                 }),
             });
 
+            const data = await response.json();
             if (!response.ok) {
-                const data = await response.json();
                 throw new Error(data.error || 'Failed to submit feature request');
             }
-
             toast.success("Feature request submitted successfully!");
             // Refresh features list
             const updated = await fetch('/api/features').then(res => res.json());
             setFeatures(updated);
+
+            return data.feature?._id;
         } catch (error: any) {
             toast.error(error.message || "Error submitting feature request.");
             console.error(error);
