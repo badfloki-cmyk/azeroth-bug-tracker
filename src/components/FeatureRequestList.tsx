@@ -1,0 +1,184 @@
+import { ClassIcon } from "./ClassIcon";
+import { WoWPanel } from "./WoWPanel";
+import { WoWClass } from "./FeatureRequestModal";
+import {
+    Lightbulb, Clock, User, CheckCircle, XCircle,
+    ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
+    Target, Layers
+} from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { enUS } from "date-fns/locale";
+import { useState, useMemo } from "react";
+import { usePagination } from "@/hooks/usePagination";
+
+interface FeatureRequest {
+    _id: string;
+    developer: 'astro' | 'bungee';
+    category: 'class' | 'esp' | 'other';
+    wow_class?: WoWClass;
+    title: string;
+    description: string;
+    status: 'open' | 'accepted' | 'rejected';
+    discord_username: string;
+    sylvanas_username: string;
+    createdAt: string;
+}
+
+interface FeatureRequestListProps {
+    features: FeatureRequest[];
+    title?: string;
+    onStatusChange?: (featureId: string, newStatus: 'open' | 'accepted' | 'rejected') => void;
+    showActions?: boolean;
+}
+
+const statusColors = {
+    'open': 'text-blue-400 bg-blue-500/10',
+    'accepted': 'text-green-400 bg-green-500/10 border-green-500/30',
+    'rejected': 'text-red-400 bg-red-500/10 border-red-500/30',
+};
+
+export const FeatureRequestList = ({ features, title = "Feature Requests", onStatusChange, showActions }: FeatureRequestListProps) => {
+    const [expandedId, setExpandedId] = useState<string | null>(null);
+
+    const {
+        currentItems,
+        currentPage,
+        totalPages,
+        totalItems,
+        goToPage,
+        goToNextPage,
+        goToPrevPage,
+        hasNextPage,
+        hasPrevPage,
+    } = usePagination({
+        items: features,
+        itemsPerPage: 5,
+        sortFn: (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    });
+
+    return (
+        <WoWPanel>
+            <div className="flex items-center justify-between mb-6">
+                <h2 className="font-display text-xl wow-gold-text flex items-center gap-3">
+                    <Lightbulb className="w-5 h-5" />
+                    {title}
+                    <span className="text-sm text-muted-foreground">({totalItems})</span>
+                </h2>
+            </div>
+
+            <div className="space-y-3">
+                {currentItems.map((feature) => {
+                    const isExpanded = expandedId === feature._id;
+
+                    return (
+                        <div
+                            key={feature._id}
+                            className="rounded-sm bg-background/50 border border-border hover:border-primary/30 transition-all overflow-hidden"
+                        >
+                            <div
+                                className="p-4 flex items-start gap-4 cursor-pointer hover:bg-white/5"
+                                onClick={() => setExpandedId(isExpanded ? null : feature._id)}
+                            >
+                                {feature.wow_class ? (
+                                    <ClassIcon wowClass={feature.wow_class} size="md" />
+                                ) : (
+                                    <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center border border-primary/20">
+                                        <Lightbulb className="w-5 h-5 text-primary" />
+                                    </div>
+                                )}
+
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-3 mb-1 flex-wrap">
+                                        <h4 className="font-display text-base text-foreground truncate">{feature.title}</h4>
+                                        <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded border ${statusColors[feature.status]}`}>
+                                            {feature.status}
+                                        </span>
+                                    </div>
+
+                                    <p className={`text-sm text-muted-foreground mb-2 ${isExpanded ? '' : 'line-clamp-1'}`}>
+                                        {feature.description}
+                                    </p>
+
+                                    <div className="flex items-center gap-4 text-xs text-muted-foreground/70 flex-wrap">
+                                        <span className="flex items-center gap-1">
+                                            <User className="w-3 h-3" />
+                                            {feature.sylvanas_username || feature.discord_username}
+                                        </span>
+                                        <span className="flex items-center gap-1">
+                                            <Clock className="w-3 h-3" />
+                                            {formatDistanceToNow(new Date(feature.createdAt), { addSuffix: true, locale: enUS })}
+                                        </span>
+                                        <span className="flex items-center gap-1">
+                                            <Layers className="w-3 h-3" />
+                                            {feature.category.toUpperCase()}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                                    {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                                </div>
+                            </div>
+
+                            {isExpanded && (
+                                <div className="px-5 pb-6 pt-3 border-t border-border bg-black/40 space-y-4">
+                                    <div className="space-y-2">
+                                        <h5 className="text-[10px] font-bold uppercase text-primary tracking-widest">Description</h5>
+                                        <p className="text-sm text-muted-foreground bg-background/40 p-3 rounded-sm border border-border/50 whitespace-pre-wrap">
+                                            {feature.description}
+                                        </p>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="text-xs">
+                                            <span className="text-muted-foreground/60 font-bold uppercase block mb-1 text-[10px]">Contact</span>
+                                            <span className="text-foreground font-medium flex items-center gap-2 bg-black/20 p-2 rounded-sm border border-border/30">
+                                                📱 @{feature.discord_username} (Sylvanas: {feature.sylvanas_username})
+                                            </span>
+                                        </div>
+                                        {feature.wow_class && (
+                                            <div className="text-xs">
+                                                <span className="text-muted-foreground/60 font-bold uppercase block mb-1 text-[10px]">Class</span>
+                                                <span className="text-foreground font-medium flex items-center gap-2 bg-black/20 p-2 rounded-sm border border-border/30">
+                                                    <Target className="w-3.5 h-3.5 text-primary" /> {feature.wow_class.toUpperCase()}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {showActions && onStatusChange && (
+                                        <div className="flex justify-end items-center pt-4 border-t border-border/50 gap-2">
+                                            <span className="text-[10px] uppercase font-bold text-muted-foreground mr-2">Update Status:</span>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); onStatusChange(feature._id, 'accepted'); }}
+                                                className={`px-3 py-1.5 rounded-sm border text-xs font-bold uppercase transition-all flex items-center gap-1.5 ${feature.status === 'accepted' ? 'border-green-500 bg-green-500/20 text-green-400' : 'border-border text-muted-foreground hover:border-green-500/50 hover:text-green-400'}`}
+                                                disabled={feature.status === 'accepted'}
+                                            >
+                                                <CheckCircle className="w-3.5 h-3.5" /> Accept
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); onStatusChange(feature._id, 'rejected'); }}
+                                                className={`px-3 py-1.5 rounded-sm border text-xs font-bold uppercase transition-all flex items-center gap-1.5 ${feature.status === 'rejected' ? 'border-red-500 bg-red-500/20 text-red-400' : 'border-border text-muted-foreground hover:border-red-500/50 hover:text-red-400'}`}
+                                                disabled={feature.status === 'rejected'}
+                                            >
+                                                <XCircle className="w-3.5 h-3.5" /> Reject
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+
+            {totalPages > 1 && (
+                <div className="mt-4 pt-4 border-t border-border/50 flex justify-center gap-2">
+                    <button onClick={goToPrevPage} disabled={!hasPrevPage} className="wow-button py-1 px-3 text-xs disabled:opacity-50">Prev</button>
+                    <span className="flex items-center text-xs text-muted-foreground">Page {currentPage} of {totalPages}</span>
+                    <button onClick={goToNextPage} disabled={!hasNextPage} className="wow-button py-1 px-3 text-xs disabled:opacity-50">Next</button>
+                </div>
+            )}
+        </WoWPanel>
+    );
+};

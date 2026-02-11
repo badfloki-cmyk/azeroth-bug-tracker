@@ -180,3 +180,30 @@ export const codeChangeAPI = {
     return response.json();
   },
 };
+
+export const featureAPI = {
+  getAll: async (token: string) => {
+    const response = await fetch(`${API_URL}/api/features`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.details || errorData.error || "Failed to fetch feature requests");
+    }
+    return response.json();
+  },
+
+  updateStatus: async (id: string, status: string, token: string) => {
+    const response = await fetch(`${API_URL}/api/features`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ id, status }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.details || errorData.error || "Failed to update feature status");
+    }
+    return response.json();
+  },
+};

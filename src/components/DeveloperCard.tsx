@@ -13,6 +13,7 @@ interface ClassInfo {
 interface DeveloperCardProps {
   developer: 'astro' | 'bungee';
   onReportBug: () => void;
+  onRequestFeature: () => void;
 }
 
 const developerData = {
@@ -40,7 +41,7 @@ const developerData = {
   },
 };
 
-export const DeveloperCard = ({ developer, onReportBug }: DeveloperCardProps) => {
+export const DeveloperCard = ({ developer, onReportBug, onRequestFeature }: DeveloperCardProps) => {
   const data = developerData[developer];
 
   return (
@@ -80,13 +81,21 @@ export const DeveloperCard = ({ developer, onReportBug }: DeveloperCardProps) =>
         </div>
       </div>
 
-      {/* Report Bug Button */}
-      <button
-        onClick={onReportBug}
-        className="wow-button-primary w-full mt-6 py-2 sm:py-3"
-      >
-        Report Bug for {data.name}
-      </button>
+      {/* Action Buttons */}
+      <div className="mt-6 flex flex-col sm:flex-row gap-3">
+        <button
+          onClick={onReportBug}
+          className="wow-button w-full py-2 sm:py-3"
+        >
+          Report Bug
+        </button>
+        <button
+          onClick={onRequestFeature}
+          className="wow-button-primary w-full py-2 sm:py-3"
+        >
+          Request Feature
+        </button>
+      </div>
     </WoWPanel>
   );
 };

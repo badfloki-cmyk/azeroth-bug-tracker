@@ -7,7 +7,9 @@ import { userAPI, codeChangeAPI } from "@/lib/api";
 import { useBugs } from "@/hooks/useBugs";
 import { WoWPanel } from "@/components/WoWPanel";
 import { BugTicketList } from "@/components/BugTicketList";
+import { FeatureRequestList } from "@/components/FeatureRequestList";
 import { CodeChangeTracker } from "@/components/CodeChangeTracker";
+import { featureAPI } from "@/lib/api";
 import { BugStats } from "@/components/BugStats";
 import { LogOut, Shield, Swords, Home, Archive, Construction, BookOpen } from "lucide-react";
 import { toast } from "sonner";
@@ -37,6 +39,8 @@ export default function DashboardPage() {
     const { bugs, isLoading: bugsLoading, updateStatus, deleteBug, updateBug } = useBugs();
     const [profile, setProfile] = useState<Profile | null>(null);
     const [codeChanges, setCodeChanges] = useState<CodeChange[]>([]);
+    const [features, setFeatures] = useState<any[]>([]);
+    const [activeTab, setActiveTab] = useState<'bugs' | 'features'>('bugs');
     const [loading, setLoading] = useState(true);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingBug, setEditingBug] = useState<BugReport | null>(null);
@@ -75,6 +79,9 @@ export default function DashboardPage() {
                 github_url: change.github_url,
                 created_at: change.createdAt || new Date().toISOString()
             })));
+
+            const featuresData = await featureAPI.getAll(token);
+            setFeatures(featuresData);
         } catch (error) {
             console.error("Error loading dashboard data:", error);
             toast.error("Failed to load dashboard data");
@@ -150,6 +157,17 @@ export default function DashboardPage() {
             setEditingBug(null);
         } catch (error: any) {
             toast.error(error.message || "Failed to update bug report");
+        }
+    };
+
+    const handleFeatureStatusChange = async (featureId: string, newStatus: 'open' | 'accepted' | 'rejected') => {
+        if (!token) return;
+        try {
+            await featureAPI.updateStatus(featureId, newStatus, token);
+            setFeatures(prev => prev.map(f => f._id === featureId ? { ...f, status: newStatus } : f));
+            toast.success(`Feature status updated to ${newStatus}`);
+        } catch (error: any) {
+            toast.error(error.message || "Failed to update feature status");
         }
     };
 
@@ -279,26 +297,53 @@ export default function DashboardPage() {
                     <BugStats bugs={bugs} />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Main Column - Bug Tickets */}
-                    <div className="lg:col-span-2 space-y-8">
-                        <BugTicketList
-                            bugs={myBugs}
-                            title={`My Bug Tickets (${profile?.developer_type})`}
-                            showActions={true}
-                            onStatusChange={handleStatusChange}
-                            onDelete={handleDeleteBug}
-                            onEdit={handleEditBug}
-                        />
+                {/* Tab Switcher */}
+                <div className="flex gap-4 mb-6">
+                    <button
+                        onClick={() => setActiveTab('bugs')}
+                        className={`font-display px-6 py-2 rounded-sm border-2 transition-all ${activeTab === 'bugs' ? 'border-primary bg-primary/10 wow-gold-text' : 'border-border text-muted-foreground hover:border-primary/50'}`}
+                    >
+                        Bug Tickets
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('features')}
+                        className={`font-display px-6 py-2 rounded-sm border-2 transition-all ${activeTab === 'features' ? 'border-primary bg-primary/10 wow-gold-text' : 'border-border text-muted-foreground hover:border-primary/50'}`}
+                    >
+                        Feature Requests
+                    </button>
+                </div>
 
-                        <BugTicketList
-                            bugs={otherBugs}
-                            title="Other Bug Tickets"
-                            showActions={true}
-                            onStatusChange={handleStatusChange}
-                            onDelete={handleDeleteBug}
-                            onEdit={handleEditBug}
-                        />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Main Column */}
+                    <div className="lg:col-span-2 space-y-8">
+                        {activeTab === 'bugs' ? (
+                            <>
+                                <BugTicketList
+                                    bugs={myBugs}
+                                    title={`My Bug Tickets (${profile?.developer_type})`}
+                                    showActions={true}
+                                    onStatusChange={handleStatusChange}
+                                    onDelete={handleDeleteBug}
+                                    onEdit={handleEditBug}
+                                />
+
+                                <BugTicketList
+                                    bugs={otherBugs}
+                                    title="Other Bug Tickets"
+                                    showActions={true}
+                                    onStatusChange={handleStatusChange}
+                                    onDelete={handleDeleteBug}
+                                    onEdit={handleEditBug}
+                                />
+                            </>
+                        ) : (
+                            <FeatureRequestList
+                                features={features}
+                                title="Feature Requests"
+                                onStatusChange={handleFeatureStatusChange}
+                                showActions={true}
+                            />
+                        )}
                     </div>
 
                     {/* Sidebar - Code Activity */}

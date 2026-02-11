@@ -292,6 +292,131 @@ const REASON_LABELS: Record<string, string> = {
     'fixed': "Fixed / Implemented",
 };
 
+/**
+ * Send a Discord notification for a new feature request
+ * Returns the message ID if successful
+ */
+export async function sendFeatureRequestNotification(feature: any): Promise<string | null> {
+    const webhookAstro = process.env.DISCORD_WEBHOOK_ASTRO_FEATURES;
+    const webhookBungee = process.env.DISCORD_WEBHOOK_BUNGEE_FEATURES;
+
+    const webhookUrl = feature.developer === 'astro' ? webhookAstro : webhookBungee;
+
+    if (!webhookUrl || webhookUrl.includes("YOUR_") || webhookUrl.length < 20) {
+        console.error(`[Discord Features] ERROR: Valid Discord webhook URL NOT found for developer "${feature.developer}"`);
+        return null;
+    }
+
+    const payload = {
+        username: "Feature Request Bot",
+        avatar_url: "https://raw.githubusercontent.com/badfloki-cmyk/azeroth-bug-tracker/main/public/feature-icon.png",
+        embeds: [{
+            title: `💡 New Feature Request: ${feature.title}`,
+            color: 0x3498db, // Business Blue
+            fields: [
+                { name: "👤 Requester", value: feature.reporter_name || feature.discord_username, inline: true },
+                { name: "🏷 Category", value: capitalize(feature.category), inline: true },
+                { name: "🎮 Developer", value: capitalize(feature.developer), inline: true },
+                { name: "📝 Description", value: truncate(feature.description, 1000), inline: false },
+                { name: "📱 Discord", value: feature.discord_username, inline: true },
+                { name: "🎮 Sylvanas", value: feature.sylvanas_username, inline: true },
+            ],
+            footer: {
+                text: `Status: Open | Bungee × Astro Feature Tracker`,
+            },
+            timestamp: new Date().toISOString(),
+        }],
+        components: [
+            {
+                type: 1, // Action Row
+                components: [
+                    {
+                        type: 2, // Button
+                        style: 3, // Success (Green)
+                        label: "Accept",
+                        custom_id: `feature_accept_${feature._id}`,
+                    },
+                    {
+                        type: 2, // Button
+                        style: 4, // Danger (Red)
+                        label: "Reject",
+                        custom_id: `feature_reject_${feature._id}`,
+                    }
+                ]
+            }
+        ]
+    };
+
+    try {
+        const response = await fetch(`${webhookUrl.trim()}?wait=true`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`[Discord Features] FAILED: ${response.status} ${errorText}`);
+            return null;
+        }
+
+        const data = await response.json();
+        return data.id;
+    } catch (error: any) {
+        console.error('[Discord Features] CRITICAL ERROR:', error.message);
+        return null;
+    }
+}
+
+/**
+ * Update a feature request notification status
+ */
+export async function updateFeatureRequestNotification(feature: any): Promise<void> {
+    if (!feature.discord_message_id) return;
+
+    const webhookUrl = feature.developer === 'astro'
+        ? process.env.DISCORD_WEBHOOK_ASTRO_FEATURES
+        : process.env.DISCORD_WEBHOOK_BUNGEE_FEATURES;
+
+    if (!webhookUrl) return;
+
+    const statusColors = {
+        open: 0x3498db,
+        accepted: 0x2ecc71,
+        rejected: 0xe74c3c
+    };
+
+    const payload = {
+        embeds: [{
+            title: `${feature.status === 'accepted' ? '✅' : feature.status === 'rejected' ? '❌' : '💡'} Feature Request: ${feature.title}`,
+            color: statusColors[feature.status as keyof typeof statusColors] || 0x3498db,
+            fields: [
+                { name: "👤 Requester", value: feature.discord_username, inline: true },
+                { name: "🏷 Category", value: capitalize(feature.category), inline: true },
+                { name: "🎮 Developer", value: capitalize(feature.developer), inline: true },
+                { name: "📝 Description", value: truncate(feature.description, 1000), inline: false },
+                { name: "📱 Discord", value: feature.discord_username, inline: true },
+                { name: "🎮 Sylvanas", value: feature.sylvanas_username, inline: true },
+            ],
+            footer: {
+                text: `Status: ${capitalize(feature.status)} | Bungee × Astro Feature Tracker`,
+            },
+            timestamp: feature.createdAt.toISOString(),
+        }],
+        components: [] // Remove buttons after status is decided
+    };
+
+    try {
+        await fetch(`${webhookUrl.trim()}/messages/${feature.discord_message_id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+    } catch (error: any) {
+        console.error('[Discord Sync] ERROR updating feature notification:', error.message);
+    }
+}
+
 function capitalize(str: string): string {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1).replace(/-/g, ' ');

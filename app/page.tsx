@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { DeveloperCard } from "@/components/DeveloperCard";
 import { BugReportModal, BugReport } from "@/components/BugReportModal";
+import { FeatureRequestModal, FeatureRequest } from "@/components/FeatureRequestModal";
 import { BugTicketList } from "@/components/BugTicketList";
 import { Shield, Swords, LogIn, ExternalLink, Archive, Construction, BookOpen } from "lucide-react";
 import { toast } from "sonner";
@@ -11,6 +12,7 @@ import { useBugs } from "@/hooks/useBugs";
 
 export default function IndexPage() {
     const [showBugModal, setShowBugModal] = useState<'astro' | 'bungee' | null>(null);
+    const [showFeatureModal, setShowFeatureModal] = useState<'astro' | 'bungee' | null>(null);
     const { bugs, isLoading: loading, createBug, deleteBug } = useBugs();
 
     const handleBugSubmit = async (bug: BugReport) => {
@@ -34,6 +36,26 @@ export default function IndexPage() {
             toast.success("Bug report created successfully!");
         } catch (error: any) {
             toast.error(error.message || "Error creating bug report.");
+            console.error(error);
+        }
+    };
+
+    const handleFeatureSubmit = async (feature: FeatureRequest) => {
+        try {
+            const response = await fetch('/api/features', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(feature),
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to submit feature request');
+            }
+
+            toast.success("Feature request submitted successfully!");
+        } catch (error: any) {
+            toast.error(error.message || "Error submitting feature request.");
             console.error(error);
         }
     };
@@ -139,10 +161,12 @@ export default function IndexPage() {
                         <DeveloperCard
                             developer="astro"
                             onReportBug={() => setShowBugModal('astro')}
+                            onRequestFeature={() => setShowFeatureModal('astro')}
                         />
                         <DeveloperCard
                             developer="bungee"
                             onReportBug={() => setShowBugModal('bungee')}
+                            onRequestFeature={() => setShowFeatureModal('bungee')}
                         />
                     </div>
 
@@ -188,6 +212,14 @@ export default function IndexPage() {
                     developer={showBugModal}
                     onClose={() => setShowBugModal(null)}
                     onSubmit={handleBugSubmit}
+                />
+            )}
+            {/* Feature Request Modal */}
+            {showFeatureModal && (
+                <FeatureRequestModal
+                    developer={showFeatureModal}
+                    onClose={() => setShowFeatureModal(null)}
+                    onSubmit={handleFeatureSubmit}
                 />
             )}
         </div>
