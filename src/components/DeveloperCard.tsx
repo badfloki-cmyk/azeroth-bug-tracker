@@ -60,7 +60,8 @@ const statusLabels = {
 
 export const DeveloperCard = ({ developer, onReportBug, onRequestFeature }: DeveloperCardProps) => {
   const data = developerData[developer];
-  const { status, data: lanyard } = useDiscordStatus(data.discordId);
+  const { status: rawStatus, data: lanyard } = useDiscordStatus(data.discordId);
+  const status = (developer === 'astro' && rawStatus !== 'offline') ? 'online' : rawStatus;
 
   return (
     <WoWPanel className="flex flex-col h-full">
