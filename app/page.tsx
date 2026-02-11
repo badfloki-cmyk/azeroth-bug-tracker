@@ -125,23 +125,23 @@ export default function IndexPage() {
             <div className="relative z-10">
                 {/* Header */}
                 <header className="border-b border-border bg-card/40 backdrop-blur-md">
-                    <div className="container mx-auto px-4 py-8">
-                        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div className="container mx-auto px-4 py-4">
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                             {/* Logo Section */}
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 wow-panel bg-primary/10 border-primary/20">
-                                    <Shield className="w-8 h-8 md:w-10 md:h-10 text-primary animate-pulse" />
+                            <div className="flex items-center gap-3">
+                                <div className="p-2.5 wow-panel bg-primary/10 border-primary/20">
+                                    <Shield className="w-7 h-7 md:w-8 md:h-8 text-primary animate-pulse" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <h1 className="text-4xl md:text-5xl font-black text-primary tracking-tighter leading-none wow-gold-text">
-                                        BUNGEE <span className="text-2xl text-primary/40 align-middle">×</span> ASTRO
+                                    <h1 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none wow-gold-text">
+                                        BUNGEE <span className="text-xl text-primary/40 align-middle">×</span> ASTRO
                                     </h1>
-                                    <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.4em] text-primary/30 mt-1 pl-1">
+                                    <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.5em] text-primary/30 mt-1 pl-1">
                                         Bug Reporter & Class Tracker
                                     </p>
                                 </div>
-                                <div className="w-[1px] h-10 bg-border/50 mx-2 hidden lg:block" />
-                                <Swords className="w-10 h-10 text-primary/20 hidden lg:block" />
+                                <div className="w-[1px] h-8 bg-border/50 mx-2 hidden lg:block" />
+                                <Swords className="w-8 h-8 text-primary/15 hidden lg:block" />
                             </div>
 
                             {/* Navigation Sidebar-style Grid */}

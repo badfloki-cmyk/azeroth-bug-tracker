@@ -70,49 +70,49 @@ const getMaxLevel = (expansion: string): number => {
 const validateTextQuality = (text: string): string | null => {
   // Repeated punctuation/special characters (more than 3 in a row)
   if (/([./\\,;:!?*#\-_=+~^°@€$%&(){}\[\]<>'"´`|])\1{3,}/.test(text)) {
-    return "Satzzeichen dürfen nicht mehr als 3x hintereinander vorkommen.";
+    return "Punctuation marks must not appear more than 3 times in a row.";
   }
 
   // Repeated letters or umlauts (more than 5 in a row, case-insensitive)
   if (/([a-zA-ZäöüÄÖÜß])\1{5,}/i.test(text)) {
-    return "Buchstaben dürfen nicht mehr als 5x hintereinander vorkommen.";
+    return "Letters must not appear more than 5 times in a row.";
   }
 
   // Repeated digits (more than 5 in a row)
   if (/(\d)\1{5,}/.test(text)) {
-    return "Zahlen dürfen nicht mehr als 5x hintereinander vorkommen.";
+    return "Numbers must not appear more than 5 times in a row.";
   }
 
   // Excessive consecutive spaces (more than 3)
   if (/ {4,}/.test(text)) {
-    return "Zu viele aufeinanderfolgende Leerzeichen.";
+    return "Too many consecutive spaces.";
   }
 
   // Excessive consecutive newlines (more than 3)
   if (/\n{4,}/.test(text)) {
-    return "Zu viele aufeinanderfolgende Zeilenumbrüche.";
+    return "Too many consecutive line breaks.";
   }
 
   // Minimum word count (at least 5 words)
   const words = text.trim().split(/\s+/).filter(w => w.length > 0);
   if (words.length < 5) {
-    return "Der Text muss mindestens 5 Wörter enthalten.";
+    return "The text must contain at least 5 words.";
   }
 
   // Must contain at least 2 distinct words
   const uniqueWords = new Set(words.map(w => w.toLowerCase()));
   if (uniqueWords.size < 2) {
-    return "Der Text muss mindestens 2 verschiedene Wörter enthalten.";
+    return "The text must contain at least 2 distinct words.";
   }
 
   // Repeated emoji (more than 3 in a row)
   if (/(\p{Emoji_Presentation})\1{3,}/u.test(text)) {
-    return "Emojis dürfen nicht mehr als 3x hintereinander vorkommen.";
+    return "Emojis must not appear more than 3 times in a row.";
   }
 
   // Repeating short patterns (2-4 chars repeated 4+ times): "hahaha", "asdfasdf"
   if (/(.{2,4})\1{3,}/i.test(text)) {
-    return "Sich wiederholende Textmuster sind nicht erlaubt.";
+    return "Repeating text patterns are not allowed.";
   }
 
   // All caps prevention (>70% uppercase of alphabetic content)
@@ -120,7 +120,7 @@ const validateTextQuality = (text: string): string | null => {
   if (alphaChars.length > 10) {
     const upperCount = (text.match(/[A-ZÄÖÜ]/g) || []).length;
     if (upperCount / alphaChars.length > 0.7) {
-      return "Bitte nicht nur in Großbuchstaben schreiben.";
+      return "Please do not write in all uppercase.";
     }
   }
 
@@ -128,7 +128,7 @@ const validateTextQuality = (text: string): string | null => {
   const keyboardWalks = ['qwert', 'werty', 'asdfg', 'sdfgh', 'yxcvb', 'xcvbn', 'qwertz', 'asdfgh', 'yxcvbn'];
   const lower = text.toLowerCase();
   if (keyboardWalks.some(walk => lower.includes(walk))) {
-    return "Der Text enthält sinnlose Tastatureingaben.";
+    return "The text contains meaningless keyboard inputs.";
   }
 
   // Minimum alphabetic ratio (at least 40% letters)
@@ -136,7 +136,7 @@ const validateTextQuality = (text: string): string | null => {
   if (nonSpaceChars.length > 0) {
     const letterCount = (text.match(/[a-zA-ZäöüÄÖÜß]/g) || []).length;
     if (letterCount / nonSpaceChars.length < 0.4) {
-      return "Der Text muss überwiegend aus Wörtern bestehen.";
+      return "The text must consist primarily of words.";
     }
   }
 
@@ -148,7 +148,7 @@ const validateTextQuality = (text: string): string | null => {
       const next1 = wordList.slice(i + patLen, i + patLen * 2).join(' ');
       const next2 = wordList.slice(i + patLen * 2, i + patLen * 3).join(' ');
       if (pattern === next1 && pattern === next2) {
-        return "Sich wiederholende Wortmuster sind nicht erlaubt.";
+        return "Repeating word patterns are not allowed.";
       }
     }
   }
@@ -237,32 +237,32 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
     const newErrors: Record<string, string> = {};
 
     // Required fields
-    if (!selectedClass) newErrors.selectedClass = "Bitte wähle eine Klasse.";
-    if (selectedClass && selectedClass !== 'esp' && !rotation) newErrors.rotation = "Bitte wähle eine Spezialisierung.";
-    if (!pvpveMode) newErrors.pvpveMode = "Bitte wähle PvE oder PvP.";
-    if (!expansion) newErrors.expansion = "Bitte wähle eine Expansion.";
+    if (!selectedClass) newErrors.selectedClass = "Please select a class.";
+    if (selectedClass && selectedClass !== 'esp' && !rotation) newErrors.rotation = "Please select a specialization.";
+    if (!pvpveMode) newErrors.pvpveMode = "Please select PvE or PvP.";
+    if (!expansion) newErrors.expansion = "Please select an expansion.";
 
     // Level
     if (!level) {
-      newErrors.level = "Level ist ein Pflichtfeld.";
+      newErrors.level = "Level is a required field.";
     } else if (expansion) {
       const levelNum = parseInt(level);
       const levelMax = getMaxLevel(expansion);
       if (isNaN(levelNum) || levelNum < 1 || levelNum > levelMax) {
-        newErrors.level = `Level muss zwischen 1 und ${levelMax} liegen (${expansion.toUpperCase()}).`;
+        newErrors.level = `Level must be between 1 and ${levelMax} (${expansion.toUpperCase()}).`;
       }
     }
 
-    if (!sylvanasUsername.trim()) newErrors.sylvanasUsername = "Sylvanas Username ist ein Pflichtfeld.";
-    if (!discordUsername.trim()) newErrors.discordUsername = "Discord Username ist ein Pflichtfeld.";
-    if (!title.trim()) newErrors.title = "Bug-Titel ist ein Pflichtfeld.";
-    if (!logs.trim()) newErrors.logs = "Logs ist ein Pflichtfeld.";
+    if (!sylvanasUsername.trim()) newErrors.sylvanasUsername = "Sylvanas Username is a required field.";
+    if (!discordUsername.trim()) newErrors.discordUsername = "Discord Username is a required field.";
+    if (!title.trim()) newErrors.title = "Bug Title is a required field.";
+    if (!logs.trim()) newErrors.logs = "Logs is a required field.";
 
     // Current Behavior
     if (!currentBehavior.trim()) {
-      newErrors.currentBehavior = "Current Behavior ist ein Pflichtfeld.";
+      newErrors.currentBehavior = "Current Behavior is a required field.";
     } else if (currentBehavior.length < 50) {
-      newErrors.currentBehavior = "Mindestens 50 Zeichen erforderlich.";
+      newErrors.currentBehavior = "At least 50 characters required.";
     } else {
       const err = validateTextQuality(currentBehavior);
       if (err) newErrors.currentBehavior = err;
@@ -270,9 +270,9 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
 
     // Expected Behavior
     if (!expectedBehavior.trim()) {
-      newErrors.expectedBehavior = "Expected Behavior ist ein Pflichtfeld.";
+      newErrors.expectedBehavior = "Expected Behavior is a required field.";
     } else if (expectedBehavior.length < 50) {
-      newErrors.expectedBehavior = "Mindestens 50 Zeichen erforderlich.";
+      newErrors.expectedBehavior = "At least 50 characters required.";
     } else {
       const err = validateTextQuality(expectedBehavior);
       if (err) newErrors.expectedBehavior = err;
@@ -281,7 +281,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
     // Cross-field: identical check
     if (!newErrors.currentBehavior && !newErrors.expectedBehavior) {
       if (currentBehavior.trim().toLowerCase() === expectedBehavior.trim().toLowerCase()) {
-        newErrors.expectedBehavior = "Darf nicht identisch mit Current Behavior sein.";
+        newErrors.expectedBehavior = "Must not be identical to Current Behavior.";
       }
     }
 
@@ -411,7 +411,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
               type="number"
               value={level}
               onChange={(e) => { setLevel(e.target.value); clearError('level'); }}
-              placeholder={expansion ? `1 - ${maxLevel}` : "Wähle zuerst eine Expansion"}
+              placeholder={expansion ? `1 - ${maxLevel}` : "Select an expansion first"}
               min="1"
               max={maxLevel}
               className={`wow-input ${errClass('level')}`}
