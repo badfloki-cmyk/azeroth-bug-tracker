@@ -190,7 +190,7 @@ export default function IndexPage() {
                     </div>
 
                     {/* Developer Cards */}
-                    <div className="grid lg:grid-cols-2 gap-8 mb-12">
+                    <div className="grid lg:grid-cols-2 gap-8 mb-12 items-start">
                         <DeveloperCard
                             developer="astro"
                             onReportBug={() => setShowBugModal('astro')}
@@ -211,7 +211,7 @@ export default function IndexPage() {
                             </div>
                         </div>
                     ) : (
-                        <div className="grid lg:grid-cols-2 gap-8">
+                        <div className="grid lg:grid-cols-2 gap-8 items-start">
                             <BugTicketList
                                 bugs={astroBugs}
                                 title="Astro's Bug Reports"
