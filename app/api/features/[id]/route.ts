@@ -4,7 +4,7 @@ import FeatureRequest from 'lib/models/FeatureRequest';
 
 export async function GET(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB();
