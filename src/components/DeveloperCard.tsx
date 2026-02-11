@@ -1,5 +1,6 @@
 import { WoWPanel } from "./WoWPanel";
 import { ClassStatusCard } from "./ClassStatusCard";
+import { useDiscordStatus } from "@/hooks/useDiscordStatus";
 
 type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp';
 type Status = 'optimized' | 'alpha' | 'beta';
@@ -19,6 +20,7 @@ interface DeveloperCardProps {
 const developerData = {
   astro: {
     name: "Astro",
+    discordId: "173179043598827522",
     avatar: "/astro-avatar.png",
     classes: [
       { wowClass: 'rogue' as WoWClass, status: 'optimized' as Status, description: 'Fully Optimized PvE (PvP Beta)' },
@@ -30,6 +32,7 @@ const developerData = {
   },
   bungee: {
     name: "Bungee",
+    discordId: "260411245000261632",
     avatar: "/bungee-avatar.png",
     classes: [
       { wowClass: 'priest' as WoWClass, status: 'optimized' as Status, description: 'Fully Optimized' },
@@ -41,8 +44,23 @@ const developerData = {
   },
 };
 
+const statusColors = {
+  online: 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]',
+  idle: 'bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.6)]',
+  dnd: 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]',
+  offline: 'bg-zinc-500 shadow-none',
+};
+
+const statusLabels = {
+  online: 'Online',
+  idle: 'Away',
+  dnd: 'Busy',
+  offline: 'Offline',
+};
+
 export const DeveloperCard = ({ developer, onReportBug, onRequestFeature }: DeveloperCardProps) => {
   const data = developerData[developer];
+  const { status, data: lanyard } = useDiscordStatus(data.discordId);
 
   return (
     <WoWPanel className="flex flex-col h-full">
@@ -54,12 +72,24 @@ export const DeveloperCard = ({ developer, onReportBug, onRequestFeature }: Deve
             alt={data.name}
             className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-accent shadow-lg animate-glow-pulse"
           />
-          <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-status-optimized border-2 border-card" />
+          <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-4 border-[#1a1a1b] ${statusColors[status]}`} />
         </div>
 
-        <div>
-          <h2 className="font-display text-xl sm:text-2xl wow-gold-text">{data.name}</h2>
-          <p className="text-muted-foreground text-sm">Class Developer</p>
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <h2 className="font-display text-xl sm:text-2xl wow-gold-text">{data.name}</h2>
+            <span className={`text-[10px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-sm border ${status === 'online' ? 'text-green-400 border-green-500/30 bg-green-500/10' : 'text-zinc-400 border-zinc-500/30 bg-zinc-500/10'}`}>
+              {statusLabels[status]}
+            </span>
+          </div>
+          <p className="text-muted-foreground text-sm">
+            {lanyard?.activities?.[0] ? (
+              <span className="text-primary/80 italic line-clamp-1">
+                {lanyard.activities[0].type === 0 ? "🎮 Playing " : ""}
+                {lanyard.activities[0].name}
+              </span>
+            ) : "Class Developer"}
+          </p>
         </div>
       </div>
 
