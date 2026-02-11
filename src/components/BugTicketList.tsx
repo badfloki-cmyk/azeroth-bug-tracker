@@ -322,17 +322,27 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                     <div className="space-y-3">
                       <h5 className="text-xs font-bold uppercase text-primary flex items-center gap-2 tracking-widest">
                         <Info className="w-3.5 h-3.5" /> Current Behavior
+                        {(!bug.currentBehavior || bug.currentBehavior.length < 50) && (
+                          <span className="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30 animate-pulse">
+                            ! INCOMPLETE DATA
+                          </span>
+                        )}
                       </h5>
-                      <p className="text-balance text-sm text-muted-foreground bg-background/40 p-3 sm:p-4 rounded-sm border border-border/50 min-h-[80px] sm:min-h-[120px] whitespace-pre-wrap leading-relaxed">
-                        {bug.currentBehavior}
+                      <p className={`text-balance text-sm text-muted-foreground bg-background/40 p-3 sm:p-4 rounded-sm border whitespace-pre-wrap leading-relaxed ${(!bug.currentBehavior || bug.currentBehavior.length < 50) ? 'border-red-500/30 bg-red-500/5' : 'border-border/50'}`}>
+                        {bug.currentBehavior || "Current behavior description is missing."}
                       </p>
                     </div>
                     <div className="space-y-3">
                       <h5 className="text-xs font-bold uppercase text-green-400 flex items-center gap-2 tracking-widest">
                         <CheckCircle className="w-3.5 h-3.5" /> Expected Behavior
+                        {(!bug.expectedBehavior || bug.expectedBehavior.length < 50) && (
+                          <span className="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30 animate-pulse">
+                            ! INCOMPLETE DATA
+                          </span>
+                        )}
                       </h5>
-                      <p className="text-balance text-sm text-muted-foreground bg-background/40 p-3 sm:p-4 rounded-sm border border-border/50 min-h-[80px] sm:min-h-[120px] whitespace-pre-wrap leading-relaxed">
-                        {bug.expectedBehavior}
+                      <p className={`text-balance text-sm text-muted-foreground bg-background/40 p-3 sm:p-4 rounded-sm border whitespace-pre-wrap leading-relaxed ${(!bug.expectedBehavior || bug.expectedBehavior.length < 50) ? 'border-red-500/30 bg-red-500/5' : 'border-border/50'}`}>
+                        {bug.expectedBehavior || "Expected behavior description is missing."}
                       </p>
                     </div>
                   </div>
@@ -369,16 +379,19 @@ export const BugTicketList = ({ bugs, title = "Bug Reports", onStatusChange, onD
                   )}
 
                   {/* Logs Section (if text) */}
-                  {bug.logs && !bug.logs.startsWith('http') && (
-                    <div className="space-y-3">
-                      <h5 className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-2 tracking-widest">
-                        <Terminal className="w-3.5 h-3.5" /> System Logs
-                      </h5>
-                      <pre className="text-xs text-muted-foreground bg-black/40 p-3 sm:p-4 rounded-sm border border-border/50 min-h-[60px] sm:min-h-[100px] whitespace-pre-wrap font-mono overflow-x-auto text-balance">
-                        {bug.logs}
-                      </pre>
-                    </div>
-                  )}
+                  <div className="space-y-3">
+                    <h5 className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-2 tracking-widest">
+                      <Terminal className="w-3.5 h-3.5" /> System Logs
+                      {!bug.logs && (
+                        <span className="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30 animate-pulse">
+                          ! MISSING LOGS
+                        </span>
+                      )}
+                    </h5>
+                    <pre className={`text-xs text-muted-foreground bg-black/40 p-3 sm:p-4 rounded-sm border min-h-[60px] sm:min-h-[100px] whitespace-pre-wrap font-mono overflow-x-auto text-balance ${!bug.logs ? 'border-red-500/30 bg-red-500/5' : 'border-border/50'}`}>
+                      {bug.logs || "No logs were provided for this report."}
+                    </pre>
+                  </div>
 
                   {(bug.videoUrl || (bug.screenshotUrls && bug.screenshotUrls.length > 0) || (bug.logs && bug.logs.startsWith('http'))) && (
                     <div className="space-y-3">

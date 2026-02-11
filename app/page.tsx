@@ -124,70 +124,75 @@ export default function IndexPage() {
             {/* Content */}
             <div className="relative z-10">
                 {/* Header */}
-                <header className="border-b border-border bg-card/80 backdrop-blur-sm">
-                    <div className="container mx-auto px-4 py-6">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 sm:gap-4">
-                                <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
-                                <div className="text-center md:text-left">
-                                    <h1 className="font-display text-2xl md:text-4xl wow-gold-text tracking-wider">
-                                        Bungee × Astro
+                <header className="border-b border-border bg-card/40 backdrop-blur-md">
+                    <div className="container mx-auto px-4 py-8">
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+                            {/* Logo Section */}
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 wow-panel bg-primary/10 border-primary/20">
+                                    <Shield className="w-8 h-8 md:w-10 md:h-10 text-primary animate-pulse" />
+                                </div>
+                                <div className="flex flex-col">
+                                    <h1 className="text-4xl md:text-5xl font-black text-primary tracking-tighter leading-none wow-gold-text">
+                                        BUNGEE <span className="text-2xl text-primary/40 align-middle">×</span> ASTRO
                                     </h1>
-                                    <p className="text-muted-foreground text-xs md:text-sm tracking-widest uppercase mt-1">
+                                    <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.4em] text-primary/30 mt-1 pl-1">
                                         Bug Reporter & Class Tracker
                                     </p>
                                 </div>
-                                <Swords className="w-10 h-10 text-primary hidden md:block" />
+                                <div className="w-[1px] h-10 bg-border/50 mx-2 hidden lg:block" />
+                                <Swords className="w-10 h-10 text-primary/20 hidden lg:block" />
                             </div>
 
-                            <div className="flex items-center gap-3">
-                                <a
-                                    href="https://project-sylvanas.net/panel/plugins/detail/335"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="wow-button"
-                                >
-                                    <Puzzle className="w-4 h-4 text-primary" />
-                                    <span className="hidden xl:inline">Sylvanas Plugin</span>
-                                </a>
-                                <a
-                                    href="https://discord.gg/qd9TAusz"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="wow-button"
-                                >
-                                    <MessageSquare className="w-4 h-4 text-primary" />
-                                    <span className="hidden xl:inline">PS Discord</span>
-                                </a>
-                                <Link
-                                    href="/guides"
-                                    className="wow-button"
-                                >
-                                    <BookOpen className="w-4 h-4 text-primary" />
-                                    <span className="hidden lg:inline">Guides</span>
+                            {/* Navigation Sidebar-style Grid */}
+                            <nav className="flex flex-wrap items-center justify-center md:justify-end gap-1 p-1 bg-black/20 rounded-sm border border-border/30">
+                                <div className="flex items-center gap-1">
+                                    <a
+                                        href="https://project-sylvanas.net/panel/plugins/detail/335"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="wow-button"
+                                        title="Sylvanas Plugin"
+                                    >
+                                        <Puzzle className="w-4 h-4 text-primary" />
+                                        <span className="hidden xl:inline">Plugin</span>
+                                    </a>
+                                    <a
+                                        href="https://discord.gg/qd9TAusz"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="wow-button"
+                                        title="PS Discord"
+                                    >
+                                        <MessageSquare className="w-4 h-4 text-primary" />
+                                        <span className="hidden xl:inline">Discord</span>
+                                    </a>
+                                </div>
+
+                                <div className="w-[1px] h-6 bg-border/50 mx-1" />
+
+                                <div className="flex items-center gap-1">
+                                    <Link href="/guides" className="wow-button">
+                                        <BookOpen className="w-4 h-4 text-primary" />
+                                        <span className="hidden lg:inline">Guides</span>
+                                    </Link>
+                                    <Link href="/roadmap" className="wow-button">
+                                        <Construction className="w-4 h-4 text-primary" />
+                                        <span className="hidden lg:inline">Roadmap</span>
+                                    </Link>
+                                    <Link href="/archive" className="wow-button">
+                                        <Archive className="w-4 h-4 text-primary" />
+                                        <span className="hidden lg:inline">Archive</span>
+                                    </Link>
+                                </div>
+
+                                <div className="w-[1px] h-6 bg-border/50 mx-1" />
+
+                                <Link href="/auth" className="wow-button bg-primary/10 border-primary/30">
+                                    <LogIn className="w-4 h-4 text-primary" />
+                                    <span className="hidden md:inline text-primary">Login</span>
                                 </Link>
-                                <Link
-                                    href="/roadmap"
-                                    className="wow-button flex items-center gap-2"
-                                >
-                                    <Construction className="w-4 h-4" />
-                                    <span className="hidden md:inline">Public Roadmap</span>
-                                </Link>
-                                <Link
-                                    href="/archive"
-                                    className="wow-button flex items-center gap-2"
-                                >
-                                    <Archive className="w-4 h-4" />
-                                    <span className="hidden md:inline">Archive</span>
-                                </Link>
-                                <Link
-                                    href="/auth"
-                                    className="wow-button flex items-center gap-2"
-                                >
-                                    <LogIn className="w-4 h-4" />
-                                    <span className="hidden md:inline">Developer Login</span>
-                                </Link>
-                            </div>
+                            </nav>
                         </div>
                     </div>
                 </header>

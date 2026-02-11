@@ -502,34 +502,36 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
 
           {/* Current Behavior */}
           <div id="field-currentBehavior">
-            <label className="block font-display text-sm text-primary mb-2 tracking-wider">
-              Current Behavior (minimum 50 characters)
+            <label className="block font-display text-sm text-primary mb-2 tracking-wider flex items-center justify-between">
+              <span>Current Behavior (minimum 50 characters)</span>
+              {!currentBehavior.trim() && <span className="text-[10px] text-red-500/80 animate-pulse font-bold tracking-tighter">! REQUIRED</span>}
             </label>
             <Textarea
               value={currentBehavior}
               onChange={(e) => { setCurrentBehavior(e.target.value); clearError('currentBehavior'); }}
               placeholder="Describe the current behavior in detail..."
-              className={`wow-input min-h-[100px] sm:min-h-[150px] resize-y ${errClass('currentBehavior')}`}
+              className={`wow-input min-h-[100px] sm:min-h-[150px] resize-y ${errClass('currentBehavior')} ${(!currentBehavior.trim()) ? 'border-red-500/20' : ''}`}
             />
-            <p className={`text-xs mt-1 ${errors.currentBehavior ? 'text-red-400' : 'text-muted-foreground'}`}>
-              {currentBehavior.length} / 50 characters (Minimum)
+            <p className={`text-xs mt-1 font-bold ${currentBehavior.length < 50 ? 'text-red-400' : 'text-green-500/60'}`}>
+              {currentBehavior.length} / 50 characters {currentBehavior.length < 50 ? '(Too short)' : '(OK)'}
             </p>
             <FieldError error={errors.currentBehavior} />
           </div>
 
           {/* Expected Behavior */}
           <div id="field-expectedBehavior">
-            <label className="block font-display text-sm text-primary mb-2 tracking-wider">
-              Expected Behavior (minimum 50 characters)
+            <label className="block font-display text-sm text-primary mb-2 tracking-wider flex items-center justify-between">
+              <span>Expected Behavior (minimum 50 characters)</span>
+              {!expectedBehavior.trim() && <span className="text-[10px] text-red-500/80 animate-pulse font-bold tracking-tighter">! REQUIRED</span>}
             </label>
             <Textarea
               value={expectedBehavior}
               onChange={(e) => { setExpectedBehavior(e.target.value); clearError('expectedBehavior'); }}
               placeholder="Describe the expected behavior in detail..."
-              className={`wow-input min-h-[100px] sm:min-h-[150px] resize-y ${errClass('expectedBehavior')}`}
+              className={`wow-input min-h-[100px] sm:min-h-[150px] resize-y ${errClass('expectedBehavior')} ${(!expectedBehavior.trim()) ? 'border-red-500/20' : ''}`}
             />
-            <p className={`text-xs mt-1 ${errors.expectedBehavior ? 'text-red-400' : 'text-muted-foreground'}`}>
-              {expectedBehavior.length} / 50 characters (Minimum)
+            <p className={`text-xs mt-1 font-bold ${expectedBehavior.length < 50 ? 'text-red-400' : 'text-green-500/60'}`}>
+              {expectedBehavior.length} / 50 characters {expectedBehavior.length < 50 ? '(Too short)' : '(OK)'}
             </p>
             <FieldError error={errors.expectedBehavior} />
           </div>
