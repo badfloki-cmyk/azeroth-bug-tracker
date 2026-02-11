@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { guidesData, ClassGuide, GuideTab, GuideOption } from "@/data/guidesData";
 import { GuideAIChat } from "@/components/GuideAIChat";
+import { ClassIcon } from "@/components/ClassIcon";
 import { Search, BookOpen, Home, LayoutDashboard, Map, ChevronDown, ChevronRight, X } from "lucide-react";
 
 // Type badge colors
@@ -129,6 +130,10 @@ export default function GuidesPage() {
         return map[cssVar] || "#daa520";
     };
 
+    const getIconClass = (className: string) => {
+        return className.toLowerCase() as any;
+    };
+
     return (
         <div className="min-h-screen" style={{ background: "hsl(25 15% 8%)" }}>
             {/* Header */}
@@ -149,7 +154,10 @@ export default function GuidesPage() {
                     {/* Mobile hamburger */}
                     <button className="guide-mobile-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
                         {sidebarOpen ? <X size={22} /> : <ChevronDown size={22} />}
-                        <span>{selectedClass.icon} {selectedClass.className}</span>
+                        <div className="flex items-center gap-2">
+                            <ClassIcon wowClass={getIconClass(selectedClass.className)} size="sm" className="border-none shadow-none" />
+                            <span>{selectedClass.className}</span>
+                        </div>
                     </button>
                 </div>
             </header>
@@ -193,7 +201,7 @@ export default function GuidesPage() {
                                         ...(i === selectedClassIdx ? { background: `${getClassColor(cg)}15` } : {}),
                                     }}
                                 >
-                                    <span className="guide-class-icon">{cg.icon}</span>
+                                    <ClassIcon wowClass={getIconClass(cg.className)} size="sm" className="border-none shadow-none bg-transparent" />
                                     <span style={{ color: i === selectedClassIdx ? getClassColor(cg) : undefined }}>{cg.className}</span>
                                 </button>
                             ))}
@@ -225,7 +233,7 @@ export default function GuidesPage() {
                 <main className="guide-main">
                     {/* Class title bar */}
                     <div className="guide-class-header" style={{ borderColor: getClassColor(selectedClass) }}>
-                        <span className="guide-class-header-icon">{selectedClass.icon}</span>
+                        <ClassIcon wowClass={getIconClass(selectedClass.className)} size="md" className="border-none shadow-none bg-transparent" />
                         <h2 className="guide-class-header-name" style={{ color: getClassColor(selectedClass) }}>
                             {selectedClass.className}
                         </h2>
@@ -281,8 +289,9 @@ export default function GuidesPage() {
                                     <h3 className="guide-cross-class-title">Also found in other classes:</h3>
                                     {crossClassResults.map((r) => (
                                         <div key={`${r.classGuide.className}-${r.tab.name}`} className="guide-table-section">
-                                            <h3 className="guide-table-title" style={{ color: getClassColor(r.classGuide) }}>
-                                                {r.classGuide.icon} {r.classGuide.className} → {r.tab.name}
+                                            <h3 className="guide-table-title flex items-center gap-2" style={{ color: getClassColor(r.classGuide) }}>
+                                                <ClassIcon wowClass={getIconClass(r.classGuide.className)} size="sm" className="border-none shadow-none bg-transparent" />
+                                                {r.classGuide.className} → {r.tab.name}
                                             </h3>
                                             <div className="guide-table-wrap">
                                                 <table className="guide-table">

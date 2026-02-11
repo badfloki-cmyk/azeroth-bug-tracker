@@ -7,7 +7,7 @@ import { BugReportModal, BugReport } from "@/components/BugReportModal";
 import { FeatureRequestModal, FeatureRequest } from "@/components/FeatureRequestModal";
 import { BugTicketList } from "@/components/BugTicketList";
 import { FeatureRequestList } from "@/components/FeatureRequestList";
-import { Shield, Swords, LogIn, ExternalLink, Archive, Construction, BookOpen, X, CheckCircle, Copy, Lightbulb } from "lucide-react";
+import { Shield, Swords, LogIn, ExternalLink, Archive, Construction, BookOpen, X, CheckCircle, Copy, Lightbulb, Puzzle, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { useBugs } from "@/hooks/useBugs";
 
@@ -141,6 +141,24 @@ export default function IndexPage() {
                             </div>
 
                             <div className="flex items-center gap-3">
+                                <a
+                                    href="https://project-sylvanas.net/panel/plugins/detail/335"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="wow-button flex items-center gap-2 text-yellow-500/80 hover:text-yellow-400 transition-colors"
+                                >
+                                    <Puzzle className="w-4 h-4" />
+                                    <span className="hidden md:inline">Sylvanas Plugin</span>
+                                </a>
+                                <a
+                                    href="https://discord.gg/qd9TAusz"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="wow-button flex items-center gap-2 text-blue-400/80 hover:text-blue-300 transition-colors"
+                                >
+                                    <MessageSquare className="w-4 h-4" />
+                                    <span className="hidden md:inline">Project Sylvanas Discord</span>
+                                </a>
                                 <Link
                                     href="/guides"
                                     className="wow-button flex items-center gap-2"
