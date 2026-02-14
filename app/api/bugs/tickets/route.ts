@@ -51,10 +51,11 @@ export async function POST(request: Request) {
             reporter_name,
         } = body;
 
+        const skipRotation = wow_class === 'esp' || wow_class === 'fishingbot';
         if (
             !developer ||
             !wow_class ||
-            !rotation ||
+            (!skipRotation && !rotation) ||
             !pvpve_mode ||
             !title ||
             !current_behavior ||

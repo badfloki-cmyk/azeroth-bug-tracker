@@ -32,6 +32,7 @@ const CLASS_COLORS: Record<string, number> = {
     warlock: 0x9482c9,
     druid: 0xff7d0a,
     "death-knight": 0xc41f3b,
+    fishingbot: 0x17a2b8,
 };
 
 const PRIORITY_EMOJIS: Record<string, string> = {

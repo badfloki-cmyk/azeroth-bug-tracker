@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 interface ClassIconProps {
   className?: string;
-  wowClass: 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp';
+  wowClass: 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp' | 'fishingbot';
   size?: 'sm' | 'md' | 'lg';
 }
 
@@ -17,6 +17,7 @@ const classIcons: Record<string, string> = {
   shaman: "https://wow.zamimg.com/images/wow/icons/large/classicon_shaman.jpg",
   druid: "https://wow.zamimg.com/images/wow/icons/large/classicon_druid.jpg",
   esp: "https://wow.zamimg.com/images/wow/icons/large/inv_misc_eye_01.jpg", // Using a generic eye icon for ESP
+  fishingbot: "https://wow.zamimg.com/images/wow/icons/large/trade_fishing.jpg",
 };
 
 const sizeClasses = {

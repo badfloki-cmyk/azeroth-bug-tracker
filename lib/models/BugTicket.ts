@@ -32,7 +32,7 @@ const BugTicketSchema = new Schema(
   {
     developer: { type: String, required: true, enum: ["astro", "bungee"] },
     wow_class: { type: String, required: true },
-    rotation: { type: String, required: true },
+    rotation: { type: String, default: "N/A" },
     pvpve_mode: { type: String, required: true, enum: ["pve", "pvp"] },
     level: { type: Number, required: true, default: 80 },
     expansion: { type: String, required: true, enum: ["tbc", "era", "hc"] },

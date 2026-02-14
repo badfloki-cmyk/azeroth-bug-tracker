@@ -11,7 +11,7 @@ import {
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 
-export type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp';
+export type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp' | 'fishingbot';
 
 interface BugReportModalProps {
   developer: 'astro' | 'bungee';
@@ -46,7 +46,7 @@ export interface BugReport {
 }
 
 const developerClasses: Record<'astro' | 'bungee', WoWClass[]> = {
-  astro: ['rogue', 'hunter', 'warrior', 'warlock', 'paladin'],
+  astro: ['rogue', 'hunter', 'warrior', 'warlock', 'paladin', 'fishingbot'],
   bungee: ['priest', 'mage', 'shaman', 'druid', 'esp'],
 };
 
@@ -61,6 +61,7 @@ export const classNames: Record<WoWClass, string> = {
   shaman: "Shaman",
   druid: "Druid",
   esp: "ESP System",
+  fishingbot: "Fishing Bot",
 };
 
 const getMaxLevel = (expansion: string): number => {
@@ -238,7 +239,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
 
     // Required fields
     if (!selectedClass) newErrors.selectedClass = "Please select a class.";
-    if (selectedClass && selectedClass !== 'esp' && !rotation) newErrors.rotation = "Please select a specialization.";
+    if (selectedClass && selectedClass !== 'esp' && selectedClass !== 'fishingbot' && !rotation) newErrors.rotation = "Please select a specialization.";
     if (!pvpveMode) newErrors.pvpveMode = "Please select PvE or PvP.";
     if (!expansion) newErrors.expansion = "Please select an expansion.";
 
@@ -366,7 +367,7 @@ export const BugReportModal = ({ developer, onClose, onSubmit, initialBug }: Bug
           </div>
 
           {/* Spec Selection */}
-          {selectedClass && selectedClass !== 'esp' && classSpecs[selectedClass] && (
+          {selectedClass && selectedClass !== 'esp' && selectedClass !== 'fishingbot' && classSpecs[selectedClass] && (
             <div id="field-rotation">
               <label className="block font-display text-sm text-primary mb-2 tracking-wider">
                 Specialization

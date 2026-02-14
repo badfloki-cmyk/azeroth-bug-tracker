@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IFeatureRequest extends Document {
     developer: "astro" | "bungee";
-    category: "class" | "esp" | "other";
+    category: "class" | "esp" | "fishingbot" | "other";
     wow_class?: string;
     title: string;
     description: string;
@@ -18,7 +18,7 @@ export interface IFeatureRequest extends Document {
 const FeatureRequestSchema = new Schema(
     {
         developer: { type: String, required: true, enum: ["astro", "bungee"] },
-        category: { type: String, required: true, enum: ["class", "esp", "other"], default: "class" },
+        category: { type: String, required: true, enum: ["class", "esp", "fishingbot", "other"], default: "class" },
         wow_class: { type: String, default: null },
         title: { type: String, required: true },
         description: { type: String, required: true },

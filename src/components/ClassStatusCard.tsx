@@ -2,7 +2,7 @@ import { ClassIcon } from "./ClassIcon";
 import { Check, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp';
+type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp' | 'fishingbot';
 type Status = 'optimized' | 'alpha' | 'beta';
 
 interface ClassStatusCardProps {
@@ -22,6 +22,7 @@ const classColorClasses: Record<WoWClass, string> = {
   shaman: "class-shaman",
   druid: "class-druid",
   esp: "class-esp",
+  fishingbot: "class-fishingbot",
 };
 
 const statusConfig = {
@@ -53,6 +54,7 @@ const classNames: Record<WoWClass, string> = {
   shaman: "Shaman",
   druid: "Druid",
   esp: "ESP System",
+  fishingbot: "Fishing Bot",
 };
 
 export const ClassStatusCard = ({ wowClass, status, description }: ClassStatusCardProps) => {

@@ -42,6 +42,7 @@ const CLASS_COLORS: Record<string, string> = {
     warlock: "#9482c9",
     druid: "#ff7d0a",
     "death-knight": "#c41f3b",
+    fishingbot: "#17a2b8",
 };
 
 export const BugStats = ({ bugs }: BugStatsProps) => {

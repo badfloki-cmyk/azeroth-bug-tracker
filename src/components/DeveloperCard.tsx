@@ -2,7 +2,7 @@ import { WoWPanel } from "./WoWPanel";
 import { ClassStatusCard } from "./ClassStatusCard";
 import { useDiscordStatus } from "@/hooks/useDiscordStatus";
 
-type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp';
+type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp' | 'fishingbot';
 type Status = 'optimized' | 'alpha' | 'beta';
 
 interface ClassInfo {
@@ -28,6 +28,7 @@ const developerData = {
       { wowClass: 'warrior' as WoWClass, status: 'optimized' as Status, description: 'Fully Optimized' },
       { wowClass: 'warlock' as WoWClass, status: 'alpha' as Status, description: 'Alpha State' },
       { wowClass: 'paladin' as WoWClass, status: 'optimized' as Status, description: 'Fully Optimized' },
+      { wowClass: 'fishingbot' as WoWClass, status: 'optimized' as Status, description: 'Fully Optimized' },
     ],
   },
   bungee: {

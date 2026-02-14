@@ -53,6 +53,7 @@
     --class-shaman: 210 100% 43%;
     --class-druid: 27 100% 52%;
     --class-esp: 280 80% 65%;
+    --class-fishingbot: 187 80% 45%;
 
     /* WoW Status Colors */
     --status-optimized: 120 60% 45%;
@@ -218,6 +219,10 @@
 
   .class-esp {
     color: hsl(var(--class-esp));
+  }
+
+  .class-fishingbot {
+    color: hsl(var(--class-fishingbot));
   }
 
   /* Status Badge Styles */

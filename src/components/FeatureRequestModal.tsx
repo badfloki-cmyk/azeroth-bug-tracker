@@ -12,7 +12,7 @@ import {
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 
-export type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp';
+export type WoWClass = 'rogue' | 'hunter' | 'warrior' | 'warlock' | 'paladin' | 'priest' | 'mage' | 'shaman' | 'druid' | 'esp' | 'fishingbot';
 
 interface FeatureRequestModalProps {
     developer: 'astro' | 'bungee';
@@ -22,7 +22,7 @@ interface FeatureRequestModalProps {
 
 export interface FeatureRequest {
     developer: 'astro' | 'bungee';
-    category: 'class' | 'esp' | 'other';
+    category: 'class' | 'esp' | 'fishingbot' | 'other';
     wowClass?: WoWClass;
     title: string;
     description: string;
@@ -32,7 +32,7 @@ export interface FeatureRequest {
 }
 
 const developerClasses: Record<'astro' | 'bungee', WoWClass[]> = {
-    astro: ['rogue', 'hunter', 'warrior', 'warlock', 'paladin'],
+    astro: ['rogue', 'hunter', 'warrior', 'warlock', 'paladin', 'fishingbot'],
     bungee: ['priest', 'mage', 'shaman', 'druid', 'esp'],
 };
 
@@ -47,6 +47,7 @@ const classNames: Record<WoWClass, string> = {
     shaman: "Shaman",
     druid: "Druid",
     esp: "ESP System",
+    fishingbot: "Fishing Bot",
 };
 
 const FieldError = ({ error }: { error?: string }) => {
@@ -55,7 +56,7 @@ const FieldError = ({ error }: { error?: string }) => {
 };
 
 export const FeatureRequestModal = ({ developer, onClose, onSubmit }: FeatureRequestModalProps) => {
-    const [category, setCategory] = useState<'class' | 'esp' | 'other'>('class');
+    const [category, setCategory] = useState<'class' | 'esp' | 'fishingbot' | 'other'>('class');
     const [selectedClass, setSelectedClass] = useState<WoWClass | null>(null);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -194,6 +195,7 @@ export const FeatureRequestModal = ({ developer, onClose, onSubmit }: FeatureReq
                                     <SelectContent>
                                         <SelectItem value="class">Class Feature</SelectItem>
                                         <SelectItem value="esp">ESP System</SelectItem>
+                                        <SelectItem value="fishingbot">Fishing Bot</SelectItem>
                                         <SelectItem value="other">Other</SelectItem>
                                     </SelectContent>
                                 </Select>
@@ -204,7 +206,7 @@ export const FeatureRequestModal = ({ developer, onClose, onSubmit }: FeatureReq
                                 <div id="field-selectedClass">
                                     <label className="block font-display text-sm text-primary mb-3 tracking-wider">Target Class</label>
                                     <div className="flex flex-wrap gap-2">
-                                        {developerClasses[developer].filter(c => c !== 'esp').map((wowClass) => (
+                                        {developerClasses[developer].filter(c => c !== 'esp' && c !== 'fishingbot').map((wowClass) => (
                                             <button
                                                 key={wowClass}
                                                 type="button"

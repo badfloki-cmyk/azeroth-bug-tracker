@@ -14,7 +14,7 @@ import { usePagination } from "@/hooks/usePagination";
 interface FeatureRequest {
     _id: string;
     developer: 'astro' | 'bungee';
-    category: 'class' | 'esp' | 'other';
+    category: 'class' | 'esp' | 'fishingbot' | 'other';
     wow_class?: WoWClass;
     title: string;
     description: string;
