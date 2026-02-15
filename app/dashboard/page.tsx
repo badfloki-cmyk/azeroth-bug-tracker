@@ -363,7 +363,7 @@ export default function DashboardPage() {
                             </>
                         ) : (
                             <FeatureRequestList
-                                features={features}
+                                features={features.filter(f => f.status === 'open')}
                                 title="Feature Requests"
                                 onStatusChange={handleFeatureStatusChange}
                                 onDelete={handleFeatureDelete}
